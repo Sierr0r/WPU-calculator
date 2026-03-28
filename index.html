@@ -764,6 +764,16 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
     <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;">本地存档</div>
     <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearHistory()">清空历史</button>
   </div>
+  <div id="storage-warning" style="display:none;background:#fffbeb;border:1px solid #fbbf24;border-radius:6px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#92400e;">
+    ⚠️ <strong>存储空间不足！</strong>请导出历史记录后清理，或删除带照片的旧记录。
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-family:var(--mono);font-size:12px;color:var(--text3);">
+    <span>存储使用：</span>
+    <span id="storage-used" style="color:var(--accent);font-weight:600;">计算中...</span>
+    <span id="storage-bar" style="flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+      <div id="storage-fill" style="height:100%;background:var(--accent);width:0%;transition:width 0.3s;"></div>
+    </span>
+  </div>
   <div style="display:flex;gap:8px;margin-bottom:10px;">
     <button class="btn btn-primary btn-sm" style="flex:1;" onclick="exportAllHistory()">📋 导出所有历史</button>
     <input type="file" id="history-import-file" accept=".json" style="display:none;" onchange="importAllHistory(this)">
@@ -1836,7 +1846,22 @@ function saveToHistory(state) {
   };
   const idx = hist.findIndex(h => h.expId === entry.expId);
   if (idx>=0) hist[idx]=entry; else hist.unshift(entry);
-  localStorage.setItem('wpu_history', JSON.stringify(hist.slice(0,50)));
+  try {
+    localStorage.setItem('wpu_history', JSON.stringify(hist.slice(0,50)));
+  } catch (e) {
+    // 存储空间不足，尝试删除最旧的记录
+    if (hist.length > 1) {
+      hist.pop();
+      try {
+        localStorage.setItem('wpu_history', JSON.stringify(hist));
+        toast('存储空间已满，已删除最旧的记录', 'warn');
+      } catch (e2) {
+        toast('存储空间已满，请清理历史记录', 'error');
+      }
+    } else {
+      toast('存储空间已满，无法保存记录', 'error');
+    }
+  }
 }
 
 function renderHistory() {
@@ -1844,20 +1869,50 @@ function renderHistory() {
   const el = document.getElementById('history-list');
   if (!hist.length) {
     el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无历史记录</div>';
-    return;
-  }
-  el.innerHTML = hist.map(h => `
-    <div class="history-item">
-      <div style="display:flex;align-items:flex-start;gap:10px;" onclick="showHistoryDetail('${h.expId}')">
-        <div style="flex:1;">
-          <div class="history-id">${h.expId}</div>
-          <div class="history-meta">${h.expDate} · 操作人：${h.expOperator||'—'}</div>
-          <div class="history-meta" style="color:var(--text2);">${h.mainSystem} · R=${h.rVal} · HSC=${h.hsc}% · 固含${h.solidContent}%</div>
-          ${h.expNote ? `<div class="history-meta">${h.expNote}</div>` : ''}
+  } else {
+    el.innerHTML = hist.map(h => `
+      <div class="history-item">
+        <div style="display:flex;align-items:flex-start;gap:10px;" onclick="showHistoryDetail('${h.expId}')">
+          <div style="flex:1;">
+            <div class="history-id">${h.expId}</div>
+            <div class="history-meta">${h.expDate} · 操作人：${h.expOperator||'—'}</div>
+            <div class="history-meta" style="color:var(--text2);">${h.mainSystem} · R=${h.rVal} · HSC=${h.hsc}% · 固含${h.solidContent}%</div>
+            ${h.expNote ? `<div class="history-meta">${h.expNote}</div>` : ''}
+          </div>
+          <button class="btn btn-danger btn-sm" style="flex-shrink:0;padding:4px 10px;font-size:13px;" onclick="event.stopPropagation();deleteHistoryItem('${h.expId}')">删除</button>
         </div>
-        <button class="btn btn-danger btn-sm" style="flex-shrink:0;padding:4px 10px;font-size:13px;" onclick="event.stopPropagation();deleteHistoryItem('${h.expId}')">删除</button>
-      </div>
-    </div>`).join('');
+      </div>`).join('');
+  }
+  updateStorageInfo();
+}
+
+// 计算并显示存储使用情况
+function updateStorageInfo() {
+  let totalUsed = 0;
+  for (let key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      totalUsed += localStorage[key].length + key.length;
+    }
+  }
+  const usedMB = (totalUsed / 1024 / 1024).toFixed(2);
+  const usedPercent = Math.min((totalUsed / (5 * 1024 * 1024)) * 100, 100); // 假设5MB限制
+
+  document.getElementById('storage-used').textContent = `${usedMB} MB`;
+  document.getElementById('storage-fill').style.width = `${usedPercent}%`;
+
+  // 根据使用量改变颜色
+  const fillEl = document.getElementById('storage-fill');
+  const warningEl = document.getElementById('storage-warning');
+  if (usedPercent > 80) {
+    fillEl.style.background = '#dc2626';
+    warningEl.style.display = 'block';
+  } else if (usedPercent > 60) {
+    fillEl.style.background = '#d97706';
+    warningEl.style.display = 'none';
+  } else {
+    fillEl.style.background = '#2563eb';
+    warningEl.style.display = 'none';
+  }
 }
 
 function showHistoryDetail(expId) {
