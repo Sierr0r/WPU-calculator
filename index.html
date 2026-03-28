@@ -40,7 +40,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   min-height: 100vh;
   padding-bottom: 80px;
@@ -764,6 +764,11 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
     <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;">本地存档</div>
     <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearHistory()">清空历史</button>
   </div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;">
+    <button class="btn btn-primary btn-sm" style="flex:1;" onclick="exportAllHistory()">📋 导出所有历史</button>
+    <input type="file" id="history-import-file" accept=".json" style="display:none;" onchange="importAllHistory(this)">
+    <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('history-import-file').click()">📥 导入所有历史</button>
+  </div>
   <div id="history-list">
     <div style="text-align:center;padding:32px;color:var(--text3);font-size:12px;font-family:var(--mono);">暂无历史记录</div>
   </div>
@@ -906,7 +911,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 
 <div id="toast"></div>
 <canvas id="compress-canvas" style="display:none;"></canvas>
-<input type="file" id="photo-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoFile(this)">
+<input type="file" id="photo-file-input" accept="image/*" style="display:none;" onchange="handlePhotoFile(this)">
 
 <script>
 'use strict';
@@ -1634,7 +1639,6 @@ function buildStepBody(step, data) {
           <div class="photo-caption-chip">${p.caption}</div>
         </div>`).join('')}
     </div>
-    <button class="btn btn-secondary btn-sm btn-full" style="margin-top:8px;" onclick="stampNow('${sid}')">⏱ 记录当前时间</button>
   `;
 }
 
@@ -1831,11 +1835,16 @@ function renderHistory() {
     return;
   }
   el.innerHTML = hist.map(h => `
-    <div class="history-item" onclick="showHistoryDetail('${h.expId}')">
-      <div class="history-id">${h.expId}</div>
-      <div class="history-meta">${h.expDate} · 操作人：${h.expOperator||'—'}</div>
-      <div class="history-meta" style="color:var(--text2);">${h.mainSystem} · R=${h.rVal} · HSC=${h.hsc}% · 固含${h.solidContent}%</div>
-      ${h.expNote ? `<div class="history-meta">${h.expNote}</div>` : ''}
+    <div class="history-item">
+      <div style="display:flex;align-items:flex-start;gap:10px;" onclick="showHistoryDetail('${h.expId}')">
+        <div style="flex:1;">
+          <div class="history-id">${h.expId}</div>
+          <div class="history-meta">${h.expDate} · 操作人：${h.expOperator||'—'}</div>
+          <div class="history-meta" style="color:var(--text2);">${h.mainSystem} · R=${h.rVal} · HSC=${h.hsc}% · 固含${h.solidContent}%</div>
+          ${h.expNote ? `<div class="history-meta">${h.expNote}</div>` : ''}
+        </div>
+        <button class="btn btn-danger btn-sm" style="flex-shrink:0;padding:4px 10px;font-size:11px;" onclick="event.stopPropagation();deleteHistoryItem('${h.expId}')">删除</button>
+      </div>
     </div>`).join('');
 }
 
@@ -1893,6 +1902,57 @@ function clearHistory() {
   if (!confirm('确定清空所有历史记录？')) return;
   localStorage.removeItem('wpu_history');
   renderHistory(); toast('历史已清空');
+}
+
+function deleteHistoryItem(expId) {
+  if (!confirm(`确定删除实验 ${expId} 的记录？`)) return;
+  const hist = getHistory();
+  const newHist = hist.filter(h => h.expId !== expId);
+  localStorage.setItem('wpu_history', JSON.stringify(newHist.slice(0,50)));
+  renderHistory();
+  toast('记录已删除');
+}
+
+function exportAllHistory() {
+  const hist = getHistory();
+  if (!hist.length) {
+    toast('暂无历史记录可导出', 'error'); return;
+  }
+  const blob = new Blob([JSON.stringify(hist,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`wpu_history_${new Date().toISOString().slice(0,10)}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast(`已导出 ${hist.length} 条历史记录`, 'success');
+}
+
+function importAllHistory(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) {
+        toast('JSON 格式错误：应为数组', 'error'); return;
+      }
+      if (!confirm(`导入 ${data.length} 条历史记录？将合并到现有历史中。`)) return;
+      const existing = getHistory();
+      const existingIds = new Set(existing.map(h => h.expId));
+      let added = 0;
+      for (const entry of data) {
+        if (entry.expId && !existingIds.has(entry.expId)) {
+          existing.unshift(entry);
+          existingIds.add(entry.expId);
+          added++;
+        }
+      }
+      localStorage.setItem('wpu_history', JSON.stringify(existing.slice(0,50)));
+      renderHistory();
+      input.value = '';
+      toast(`已导入 ${added} 条历史记录`, 'success');
+    } catch(err) { toast('JSON 格式错误：' + err.message, 'error'); }
+  };
+  reader.readAsText(file);
 }
 
 // ─────────────────────────────────────────────
