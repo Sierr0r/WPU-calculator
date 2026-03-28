@@ -40,7 +40,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: 20px;
   line-height: 1.6;
   min-height: 100vh;
   padding-bottom: 80px;
@@ -62,14 +62,14 @@ body {
 }
 .app-logo {
   font-family: var(--mono);
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--accent);
   letter-spacing: -0.5px;
   white-space: nowrap;
 }
 .app-subtitle {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text3);
   white-space: nowrap;
 }
@@ -90,7 +90,7 @@ body {
 .tab-bar::-webkit-scrollbar { display: none; }
 .tab {
   padding: 10px 18px;
-  font-size: 13px;
+  font-size: 16px;
   font-family: var(--mono);
   color: var(--text3);
   cursor: pointer;
@@ -126,7 +126,7 @@ body {
 }
 .card-title {
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--accent);
   text-transform: uppercase;
@@ -151,7 +151,7 @@ body {
   padding: 8px 14px;
   border-radius: var(--rs);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
@@ -171,7 +171,7 @@ body {
 .btn-green { background: var(--green-dim); color: var(--green); border-color: #86efac; }
 .btn-cyan { background: var(--cyan-dim); color: var(--cyan); border-color: #67e8f9; }
 .btn-amber { background: var(--amber-dim); color: var(--amber); border-color: #fcd34d; }
-.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-sm { padding: 5px 10px; font-size: 13px; }
 .btn-full { width: 100%; }
 
 /* ── Form ── */
@@ -179,7 +179,7 @@ body {
 .form-group { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 110px; }
 .form-group.full { min-width: 100%; }
 label {
-  font-size: 10.5px;
+  font-size: 14px;
   font-family: var(--mono);
   color: var(--text3);
   text-transform: uppercase;
@@ -192,7 +192,7 @@ input[type=text], input[type=number], textarea, select, input[type=time] {
   border-radius: var(--rs);
   color: var(--text);
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: 15px;
   padding: 7px 9px;
   width: 100%;
   outline: none;
@@ -211,7 +211,7 @@ select {
   padding-right: 26px;
   cursor: pointer;
 }
-textarea { resize: vertical; min-height: 68px; font-size: 12px; }
+textarea { resize: vertical; min-height: 68px; font-size: 15px; }
 input[type=range] {
   -webkit-appearance: none;
   width: 100%;
@@ -250,7 +250,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
   margin-bottom: 10px;
 }
 .summary-item { display: flex; flex-direction: column; gap: 1px; }
-.s-label { font-size: 10px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+.s-label { font-size: 13px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
 .s-val { font-size: 17px; font-family: var(--mono); font-weight: 600; color: var(--text); }
 .s-val.good { color: var(--green); }
 .s-val.warn { color: var(--amber); }
@@ -273,7 +273,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 }
 .rtag {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 12px;
   padding: 2px 7px;
   border-radius: 20px;
   font-weight: 600;
@@ -284,15 +284,15 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 .tag-chain { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 .tag-solvent { background: #fef3c7; color: #b45309; border: 1px solid #fde047; }
 .tag-other { background: #f8fafc; color: #475569; border: 1px solid var(--border-md); }
-.reagent-name { font-size: 13px; font-weight: 600; color: var(--text); }
-.reagent-eq { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.reagent-name { font-size: 16px; font-weight: 600; color: var(--text); }
+.reagent-eq { margin-left: auto; font-family: var(--mono); font-size: 13px; color: var(--text3); }
 .reagent-eq.no-eq { color: var(--amber); font-style: italic; }
 
 /* ── Preset quick-add ── */
 .preset-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .preset-btn {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 13px;
   padding: 4px 10px;
   border-radius: 20px;
   border: 1px solid var(--border-md);
@@ -382,8 +382,8 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 }
 .step-num.done { border-color: var(--green); color: var(--green); background: var(--green-dim); }
 .step-title-wrap { flex: 1; }
-.step-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
-.step-sub { font-size: 11px; color: var(--text3); }
+.step-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.step-sub { font-size: 13px; color: var(--text3); }
 .step-chevron { color: var(--text3); font-size: 11px; transition: transform 0.2s; }
 .step-card.collapsed .step-chevron { transform: rotate(-90deg); }
 .step-body { padding: 14px; }
@@ -454,8 +454,8 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 .history-item:hover { border-color: var(--accent-light); box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
-.history-id { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent); }
-.history-meta { font-size: 11.5px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
+.history-id { font-family: var(--mono); font-size: 17px; font-weight: 700; color: var(--accent); }
+.history-meta { font-size: 15px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
 
 /* ── Toast ── */
 #toast {
@@ -502,10 +502,10 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
   box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
 }
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+.modal-title { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
 
 /* ── Hint ── */
-.hint { font-size: 11px; color: var(--text3); line-height: 1.5; margin-top: 4px; }
+.hint { font-size: 13px; color: var(--text3); line-height: 1.5; margin-top: 4px; }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -640,7 +640,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
       <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearAll()">清空</button>
     </div>
     <div id="reagent-list">
-      <div style="text-align:center;padding:22px;color:var(--text3);font-size:12px;font-family:var(--mono);">暂无原料，请在上方添加</div>
+      <div style="text-align:center;padding:22px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无原料，请在上方添加</div>
     </div>
     <div class="divider"></div>
     <div class="summary-bar" id="summary-bar">
@@ -706,7 +706,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
       </div>
       <div class="form-group">
         <label>实际固含量</label>
-        <div style="padding:7px 9px;background:var(--bg);border:1px solid var(--border-md);border-radius:var(--rs);font-family:var(--mono);font-size:12.5px;color:var(--cyan);" id="sc-actual-pct">—</div>
+        <div style="padding:7px 9px;background:var(--bg);border:1px solid var(--border-md);border-radius:var(--rs);font-family:var(--mono);font-size:15px;color:var(--cyan);" id="sc-actual-pct">—</div>
       </div>
     </div>
     <div class="hint">固体质量 = 所有原料理论用量之和（含 TEA 等，不含水）；实际固含 = 固体总质量 / (固体 + 实际加水量)</div>
@@ -750,8 +750,8 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 <div class="page" id="page-process">
 <div class="container">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-    <span style="font-family:var(--mono);font-size:12px;color:var(--text3);">实验编号：</span>
-    <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);" id="proc-exp-id">—</span>
+    <span style="font-family:var(--mono);font-size:16px;color:var(--text3);">实验编号：</span>
+    <span style="font-family:var(--mono);font-size:17px;font-weight:700;color:var(--accent);" id="proc-exp-id">—</span>
   </div>
   <div id="process-steps"></div>
 </div>
@@ -761,7 +761,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 <div class="page" id="page-history">
 <div class="container">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-    <div style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;">本地存档</div>
+    <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;">本地存档</div>
     <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearHistory()">清空历史</button>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -770,7 +770,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
     <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('history-import-file').click()">📥 导入所有历史</button>
   </div>
   <div id="history-list">
-    <div style="text-align:center;padding:32px;color:var(--text3);font-size:12px;font-family:var(--mono);">暂无历史记录</div>
+    <div style="text-align:center;padding:32px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无历史记录</div>
   </div>
 </div>
 </div>
@@ -782,7 +782,7 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
     <div class="card-header">
       <div class="card-title">导出实验报告</div>
     </div>
-    <div style="font-size:13px;color:var(--text2);line-height:1.9;">
+    <div style="font-size:17px;color:var(--text2);line-height:1.9;">
       导出内容包含：配方信息、当量计算（理论 vs 实际）、工艺步骤记录、照片附录
     </div>
     <div class="divider"></div>
@@ -896,13 +896,13 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
   <div class="modal">
     <div class="modal-title">📋 预设导入/导出</div>
     <div id="preset-export-area" style="display:none;">
-      <div style="margin-bottom:10px;font-size:12px;color:var(--text2);">复制下方JSON，在其他设备粘贴导入：</div>
-      <textarea id="preset-export-text" readonly style="width:100%;height:120px;font-family:var(--mono);font-size:11px;padding:8px;border:1px solid var(--border-md);border-radius:var(--rs);background:var(--bg);"></textarea>
+      <div style="margin-bottom:10px;font-size:16px;color:var(--text2);">复制下方JSON，在其他设备粘贴导入：</div>
+      <textarea id="preset-export-text" readonly style="width:100%;height:120px;font-family:var(--mono);font-size:14px;padding:8px;border:1px solid var(--border-md);border-radius:var(--rs);background:var(--bg);"></textarea>
       <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="copyPresetJSON()">📄 复制到剪贴板</button>
     </div>
     <div id="preset-import-area" style="display:none;">
-      <div style="margin-bottom:10px;font-size:12px;color:var(--text2);">粘贴预设JSON到下方：</div>
-      <textarea id="preset-import-text" placeholder='粘贴JSON，如：[{"name":"PPG-2000","type":"polyol","mw":2000,"f":2}]' style="width:100%;height:120px;font-family:var(--mono);font-size:11px;padding:8px;border:1px solid var(--border-md);border-radius:var(--rs);"></textarea>
+      <div style="margin-bottom:10px;font-size:16px;color:var(--text2);">粘贴预设JSON到下方：</div>
+      <textarea id="preset-import-text" placeholder='粘贴JSON，如：[{"name":"PPG-2000","type":"polyol","mw":2000,"f":2}]' style="width:100%;height:120px;font-family:var(--mono);font-size:14px;padding:8px;border:1px solid var(--border-md);border-radius:var(--rs);"></textarea>
       <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="importPresetJSON()">📥 导入预设</button>
     </div>
     <button class="btn btn-secondary btn-full" style="margin-top:10px;" onclick="closePresetIOModal()">关闭</button>
@@ -911,7 +911,8 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 
 <div id="toast"></div>
 <canvas id="compress-canvas" style="display:none;"></canvas>
-<input type="file" id="photo-file-input" accept="image/*" style="display:none;" onchange="handlePhotoFile(this)">
+<input type="file" id="photo-file-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoFile(this)">
+<input type="file" id="photo-file-input-gallery" accept="image/*" style="display:none;" onchange="handlePhotoFile(this)">
 
 <script>
 'use strict';
@@ -1304,7 +1305,7 @@ const TYPE_TAG  = { polyol:'tag-polyol', iso:'tag-iso', chain:'tag-chain', solve
 function renderReagents() {
   const el = document.getElementById('reagent-list');
   if (!reagents.length) {
-    el.innerHTML = '<div style="text-align:center;padding:22px;color:var(--text3);font-size:12px;font-family:var(--mono);">暂无原料，请在上方添加</div>';
+    el.innerHTML = '<div style="text-align:center;padding:22px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无原料，请在上方添加</div>';
     return;
   }
   el.innerHTML = reagents.map(r => {
@@ -1318,7 +1319,7 @@ function renderReagents() {
           <span class="rtag ${TYPE_TAG[r.type]}">${TYPE_NAME[r.type]}</span>
           <span class="reagent-name">${r.name}</span>
           <span id="eq-${r.id}" class="${eqClass}">${eqText}</span>
-          <button class="btn btn-danger btn-sm" style="padding:3px 8px;margin-left:4px;" onclick="removeReagent(${r.id})">✕</button>
+          <button class="btn btn-danger btn-sm" style="padding:3px 8px;margin-left:4px;font-size:13px;" onclick="removeReagent(${r.id})">✕</button>
         </div>
         <div class="form-row" style="margin-bottom:4px;">
           <div class="form-group">
@@ -1341,10 +1342,10 @@ function renderReagents() {
             <input type="number" value="${r.f}" step="1" min="0" oninput="updateReagentField(${r.id},'f',this.value)">
           </div>
         </div>
-        ${r.unit==='mL'?`<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:2px;">
+        ${r.unit==='mL'?`<div style="font-size:13px;color:var(--text3);font-family:var(--mono);margin-bottom:2px;">
           理论质量：${r.mass.toFixed(3)} g${r.actual?` · 实际质量：${parseFloat(r.actual).toFixed(3)} g`:''}
         </div>`:''}
-        ${aeqText ? `<div style="font-size:10px;color:var(--cyan);font-family:var(--mono);margin-top:2px;" id="aeq-${r.id}">${aeqText}</div>` : `<div id="aeq-${r.id}" style="font-size:10px;color:var(--cyan);font-family:var(--mono);margin-top:2px;"></div>`}
+        ${aeqText ? `<div style="font-size:13px;color:var(--cyan);font-family:var(--mono);margin-top:2px;" id="aeq-${r.id}">${aeqText}</div>` : `<div id="aeq-${r.id}" style="font-size:13px;color:var(--cyan);font-family:var(--mono);margin-top:2px;"></div>`}
       </div>`;
   }).join('');
 }
@@ -1521,7 +1522,7 @@ function goalSeek() {
     resultEl.innerHTML = `
       <div style="margin-bottom:6px;">✅ 建议将 <strong>${r.name}</strong> 理论用量调整为：</div>
       <div style="font-size:20px;font-weight:700;margin-bottom:6px;">${result.toFixed(4)} g</div>
-      <div style="font-size:11px;color:var(--text2);">验证 → R = ${c.rVal.toFixed(4)}，HSC = ${c.hsc.toFixed(2)}%</div>
+      <div style="font-size:14px;color:var(--text2);">验证 → R = ${c.rVal.toFixed(4)}，HSC = ${c.hsc.toFixed(2)}%</div>
       <button class="btn btn-green btn-sm" style="margin-top:10px;" onclick="applyGoalSeek(${reagentId}, ${result.toFixed(4)})">✓ 应用此质量</button>
     `;
   } else {
@@ -1629,7 +1630,7 @@ function buildStepBody(step, data) {
     </div>
     <div class="photo-area" onclick="triggerPhoto('${sid}')">
       <div style="font-size:22px;margin-bottom:3px;">📷</div>
-      <div style="font-size:11.5px;color:var(--text3);">点击拍照或上传图片</div>
+      <div style="font-size:15px;color:var(--text3);">点击拍照或上传图片</div>
     </div>
     <div class="photo-thumbs" id="thumbs-${sid}">
       ${photos.map((p,i) => `
@@ -1681,8 +1682,16 @@ function stampNow(sid) {
 // ─────────────────────────────────────────────
 function triggerPhoto(sid) {
   currentPhotoStep = sid;
-  document.getElementById('photo-file-input').value = '';
-  document.getElementById('photo-file-input').click();
+  // 弹出选择：拍照还是选相册
+  if (confirm('点击"确定"拍照，点击"取消"从相册选择')) {
+    // 拍照
+    document.getElementById('photo-file-input').value = '';
+    document.getElementById('photo-file-input').click();
+  } else {
+    // 选相册
+    document.getElementById('photo-file-input-gallery').value = '';
+    document.getElementById('photo-file-input-gallery').click();
+  }
 }
 
 function handlePhotoFile(input) {
@@ -1831,7 +1840,7 @@ function renderHistory() {
   const hist = getHistory();
   const el = document.getElementById('history-list');
   if (!hist.length) {
-    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text3);font-size:12px;font-family:var(--mono);">暂无历史记录</div>';
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无历史记录</div>';
     return;
   }
   el.innerHTML = hist.map(h => `
@@ -1843,7 +1852,7 @@ function renderHistory() {
           <div class="history-meta" style="color:var(--text2);">${h.mainSystem} · R=${h.rVal} · HSC=${h.hsc}% · 固含${h.solidContent}%</div>
           ${h.expNote ? `<div class="history-meta">${h.expNote}</div>` : ''}
         </div>
-        <button class="btn btn-danger btn-sm" style="flex-shrink:0;padding:4px 10px;font-size:11px;" onclick="event.stopPropagation();deleteHistoryItem('${h.expId}')">删除</button>
+        <button class="btn btn-danger btn-sm" style="flex-shrink:0;padding:4px 10px;font-size:13px;" onclick="event.stopPropagation();deleteHistoryItem('${h.expId}')">删除</button>
       </div>
     </div>`).join('');
 }
@@ -1864,8 +1873,8 @@ function showHistoryDetail(expId) {
       <td style="padding:5px 8px;border:1px solid var(--border);">${r.eq!==null&&r.eq!==undefined ? r.eq.toFixed(4) : '—'}</td>
     </tr>`).join('');
   document.getElementById('detail-modal-body').innerHTML = `
-    <div style="margin-bottom:10px;font-size:12px;color:var(--text3);">${entry.expDate} · ${entry.expOperator||'—'} · ${entry.expNote||''}</div>
-    <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono);margin-bottom:12px;">
+    <div style="margin-bottom:10px;font-size:16px;color:var(--text3);">${entry.expDate} · ${entry.expOperator||'—'} · ${entry.expNote||''}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono);margin-bottom:12px;">
       <thead><tr style="background:var(--bg);">
         <th style="padding:5px 8px;border:1px solid var(--border);text-align:left;">原料</th>
         <th style="padding:5px 8px;border:1px solid var(--border);">类型</th>
