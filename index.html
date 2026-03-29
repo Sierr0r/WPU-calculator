@@ -40,6 +40,26 @@
   --rs: 6px;
   --nav-w: 220px;
   --header-h: 52px;
+  /* 字体大小缩放变量 */
+  --font-scale: 1;
+  /* 计算后的字体大小 */
+  --f-xs: calc(9px * var(--font-scale));
+  --f-sm: calc(10px * var(--font-scale));
+  --f-base: calc(11px * var(--font-scale));
+  --f-md: calc(12px * var(--font-scale));
+  --f-lg: calc(13px * var(--font-scale));
+  --f-xl: calc(14px * var(--font-scale));
+  --f-2xl: calc(16px * var(--font-scale));
+  --f-3xl: calc(22px * var(--font-scale));
+  --f-display: calc(32px * var(--font-scale));
+  /* 其他常用字体大小 */
+  --f-15px: calc(15px * var(--font-scale));
+  --f-17px: calc(17px * var(--font-scale));
+  --f-18px: calc(18px * var(--font-scale));
+  --f-20px: calc(20px * var(--font-scale));
+  --f-36px: calc(36px * var(--font-scale));
+  --f-38px: calc(38px * var(--font-scale));
+  --f-40px: calc(40px * var(--font-scale));
 }
 
 :root[data-theme=dark] {
@@ -75,7 +95,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: var(--f-xl);
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
@@ -96,7 +116,7 @@ body {
 }
 .logo {
   font-family: var(--mono);
-  font-size: 16px;
+  font-size: var(--f-2xl);
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.05em;
@@ -105,10 +125,10 @@ body {
   gap: 8px;
 }
 .logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; }
+.logo-sub { font-size: var(--f-base); color: var(--text3); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; }
 .header-exp {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--f-md);
   color: var(--text3);
 }
 .header-exp strong { color: var(--accent); font-weight: 600; }
@@ -125,7 +145,7 @@ body {
   background: var(--surface2);
   border: 1px solid var(--border);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--f-xl);
   transition: all 0.2s;
   flex-shrink: 0;
 }
@@ -160,7 +180,7 @@ body {
 }
 .nav-label {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--f-xs);
   font-weight: 600;
   color: var(--text3);
   text-transform: uppercase;
@@ -174,7 +194,7 @@ body {
   padding: 9px 12px;
   border-radius: var(--rs);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--f-lg);
   color: var(--text2);
   transition: all 0.15s;
   user-select: none;
@@ -197,13 +217,13 @@ body {
   border-radius: 0 2px 2px 0;
   box-shadow: 0 0 8px var(--accent-glow);
 }
-.nav-icon { font-size: 15px; flex-shrink: 0; }
+.nav-icon { font-size: var(--f-15px); flex-shrink: 0; }
 .nav-badge {
   margin-left: auto;
   background: var(--accent);
   color: #fff;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--f-sm);
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 10px;
@@ -236,13 +256,13 @@ body {
 .page-title-wrap { flex: 1; }
 .page-title {
   font-family: var(--mono);
-  font-size: 22px;
+  font-size: var(--f-3xl);
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.03em;
   line-height: 1.2;
 }
-.page-desc { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.page-desc { font-size: var(--f-md); color: var(--text3); margin-top: 4px; }
 .page-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 /* ── CARDS ── */
@@ -255,7 +275,7 @@ body {
 }
 .card-title {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--f-base);
   font-weight: 700;
   color: var(--accent);
   text-transform: uppercase;
@@ -281,7 +301,7 @@ body {
   padding: 8px 14px;
   border-radius: var(--rs);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--f-md);
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
@@ -303,7 +323,7 @@ body {
 .btn-cyan { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(77,217,232,0.3); }
 .btn-ghost { background: transparent; color: var(--text3); border-color: transparent; }
 .btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
-.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-sm { padding: 5px 10px; font-size: var(--f-base); }
 .btn-full { width: 100%; }
 .btn-icon { padding: 7px; border-radius: 6px; }
 
@@ -316,7 +336,7 @@ body {
 .form-group.span-full { grid-column: 1 / -1; }
 
 label {
-  font-size: 10px;
+  font-size: var(--f-sm);
   font-family: var(--mono);
   color: var(--text3);
   text-transform: uppercase;
@@ -330,7 +350,7 @@ input[type=text], input[type=number], textarea, select, input[type=time] {
   border-radius: var(--rs);
   color: var(--text);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: var(--f-lg);
   padding: 8px 10px;
   width: 100%;
   outline: none;
@@ -349,7 +369,7 @@ select {
   padding-right: 28px;
   cursor: pointer;
 }
-textarea { resize: vertical; min-height: 72px; font-size: 13px; }
+textarea { resize: vertical; min-height: 72px; font-size: var(--f-lg); }
 input[type=range] {
   -webkit-appearance: none;
   width: 100%; height: 4px;
@@ -387,8 +407,8 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   flex: 1;
   min-width: 90px;
 }
-.stat-label { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-.stat-value { font-family: var(--mono); font-size: 17px; font-weight: 700; color: var(--text); }
+.stat-label { font-family: var(--mono); font-size: var(--f-xs); color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.stat-value { font-family: var(--mono); font-size: var(--f-17px); font-weight: 700; color: var(--text); }
 .stat-value.good { color: var(--green); }
 .stat-value.warn { color: var(--amber); }
 .stat-value.bad { color: var(--red); }
@@ -417,7 +437,7 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 .reagent-body { padding: 10px 12px; }
 .type-badge {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--f-sm);
   font-weight: 600;
   padding: 2px 7px;
   border-radius: 3px;
@@ -428,8 +448,8 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 .type-chain { background: rgba(61,214,140,0.15); color: var(--green); border: 1px solid rgba(61,214,140,0.25); }
 .type-solvent { background: rgba(167,139,250,0.15); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
 .type-other { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
-.reagent-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
-.reagent-eq-badge { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.reagent-name { font-size: var(--f-xl); font-weight: 600; color: var(--text); flex: 1; }
+.reagent-eq-badge { font-family: var(--mono); font-size: var(--f-base); color: var(--text3); }
 .reagent-eq-badge.has-eq { color: var(--accent); }
 .reagent-eq-badge.no-eq { color: var(--text3); font-style: italic; }
 
@@ -437,7 +457,7 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 .preset-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 .preset-pill {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--f-base);
   padding: 4px 10px;
   border-radius: 20px;
   border: 1px solid var(--border);
@@ -485,15 +505,15 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   border: 1.5px solid var(--border2);
   color: var(--text3);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--f-base);
   font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: all 0.2s;
 }
 .step-num.done { border-color: var(--green); color: var(--green); background: var(--green-dim); box-shadow: 0 0 8px rgba(61,214,140,0.2); }
-.step-title { font-size: 14px; font-weight: 600; flex: 1; }
-.step-sub { font-size: 11px; color: var(--text3); }
-.step-chevron { color: var(--text3); font-size: 10px; transition: transform 0.2s; }
+.step-title { font-size: var(--f-xl); font-weight: 600; flex: 1; }
+.step-sub { font-size: var(--f-base); color: var(--text3); }
+.step-chevron { color: var(--text3); font-size: var(--f-sm); transition: transform 0.2s; }
 .step-card.collapsed .step-chevron { transform: rotate(-90deg); }
 .step-body { padding: 16px; }
 .step-card.collapsed .step-body { display: none; }
@@ -505,14 +525,14 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   border-radius: var(--rs);
   padding: 12px 16px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--f-md);
   color: var(--green);
   margin-top: 12px;
 }
 
 /* ── SOLID CONTENT ── */
-.sc-display { font-family: var(--mono); font-size: 32px; font-weight: 700; color: var(--cyan); line-height: 1; }
-.sc-unit { font-family: var(--mono); font-size: 12px; color: var(--text3); margin-left: 4px; }
+.sc-display { font-family: var(--mono); font-size: var(--f-display); font-weight: 700; color: var(--cyan); line-height: 1; }
+.sc-unit { font-family: var(--mono); font-size: var(--f-md); color: var(--text3); margin-left: 4px; }
 
 /* ── PHOTO ── */
 .photo-area {
@@ -533,7 +553,7 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   width: 18px; height: 18px;
   background: var(--red); color: #fff;
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 9px; cursor: pointer; border: none;
+  font-size: var(--f-xs); cursor: pointer; border: none;
 }
 .photo-caption-chip {
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -557,20 +577,20 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 .search-input-wrap input {
   padding-left: 32px;
 }
-.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; pointer-events: none; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: var(--f-xl); pointer-events: none; }
 
 .db-table {
   width: 100%;
   border-collapse: collapse;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--f-md);
 }
 .db-table thead th {
   background: var(--surface2);
   color: var(--text3);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 10px;
+  font-size: var(--f-sm);
   padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid var(--border);
@@ -614,21 +634,21 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
 }
-.report-exp-id { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--accent); }
+.report-exp-id { font-family: var(--mono); font-size: var(--f-15px); font-weight: 700; color: var(--accent); }
 .report-content { padding: 24px; }
 .report-placeholder {
   text-align: center;
   padding: 80px 24px;
   color: var(--text3);
 }
-.report-placeholder-icon { font-size: 40px; margin-bottom: 12px; }
-.report-placeholder-text { font-size: 14px; }
+.report-placeholder-icon { font-size: var(--f-40px); margin-bottom: 12px; }
+.report-placeholder-text { font-size: var(--f-xl); }
 
 /* ── REPORT SECTIONS ── */
 .rpt-section { margin-bottom: 24px; }
 .rpt-section-title {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--f-base);
   font-weight: 700;
   color: var(--accent);
   text-transform: uppercase;
@@ -642,16 +662,16 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 }
 .rpt-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
 .rpt-info-item { }
-.rpt-info-label { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
-.rpt-info-value { font-size: 13px; font-weight: 600; color: var(--text); word-break: break-word; }
+.rpt-info-label { font-family: var(--mono); font-size: var(--f-xs); color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.rpt-info-value { font-size: var(--f-lg); font-weight: 600; color: var(--text); word-break: break-word; }
 .rpt-info-value.highlight { color: var(--accent); font-family: var(--mono); }
 
-.rpt-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.rpt-table { width: 100%; border-collapse: collapse; font-size: var(--f-md); }
 .rpt-table th {
   background: var(--surface2);
   color: var(--text3);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--f-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 8px 10px;
@@ -664,7 +684,7 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   border: 1px solid var(--border);
   color: var(--text2);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--f-md);
 }
 .rpt-table tr:hover td { background: var(--surface2); }
 .rpt-table td.r-name { color: var(--text); font-weight: 600; }
@@ -680,9 +700,9 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   border-radius: var(--rs);
   padding: 10px 12px;
 }
-.rpt-stat-label { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-.rpt-stat-theory { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--text); }
-.rpt-stat-actual { font-family: var(--mono); font-size: 11px; color: var(--green); margin-top: 2px; }
+.rpt-stat-label { font-family: var(--mono); font-size: var(--f-xs); color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.rpt-stat-theory { font-family: var(--mono); font-size: var(--f-2xl); font-weight: 700; color: var(--text); }
+.rpt-stat-actual { font-family: var(--mono); font-size: var(--f-base); color: var(--green); margin-top: 2px; }
 .rpt-stat.r-good .rpt-stat-theory { color: var(--green); }
 .rpt-stat.r-warn .rpt-stat-theory { color: var(--amber); }
 .rpt-stat.r-bad  .rpt-stat-theory { color: var(--red); }
@@ -697,22 +717,22 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 .rpt-step:last-child { border-bottom: none; }
 .rpt-step-num {
   width: 28px; height: 28px; border-radius: 50%;
-  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  font-family: var(--mono); font-size: var(--f-base); font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; margin-top: 1px;
   border: 1.5px solid var(--border2); color: var(--text3);
 }
 .rpt-step-num.done { border-color: var(--green); color: var(--green); background: var(--green-dim); }
 .rpt-step-content { flex: 1; }
-.rpt-step-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
-.rpt-step-params { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
-.rpt-step-obs { font-size: 12px; color: var(--text2); padding: 6px 10px; background: var(--bg3); border-radius: var(--rs); margin-top: 4px; border-left: 2px solid var(--border2); }
-.rpt-step-empty { font-size: 12px; color: var(--text3); font-style: italic; }
+.rpt-step-title { font-weight: 600; font-size: var(--f-lg); margin-bottom: 4px; }
+.rpt-step-params { font-family: var(--mono); font-size: var(--f-base); color: var(--text3); margin-bottom: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
+.rpt-step-obs { font-size: var(--f-md); color: var(--text2); padding: 6px 10px; background: var(--bg3); border-radius: var(--rs); margin-top: 4px; border-left: 2px solid var(--border2); }
+.rpt-step-empty { font-size: var(--f-md); color: var(--text3); font-style: italic; }
 
 .rpt-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
 .rpt-photo { border-radius: var(--rs); overflow: hidden; border: 1px solid var(--border); }
 .rpt-photo img { width: 100%; display: block; aspect-ratio: 1; object-fit: cover; }
-.rpt-photo-cap { padding: 4px 6px; font-size: 10px; color: var(--text3); background: var(--bg3); }
+.rpt-photo-cap { padding: 4px 6px; font-size: var(--f-sm); color: var(--text3); background: var(--bg3); }
 
 /* ── TOAST ── */
 #toast {
@@ -724,7 +744,7 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   border-radius: var(--rs);
   padding: 10px 20px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--f-md);
   color: var(--text);
   transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
   z-index: 9999;
@@ -763,26 +783,26 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   box-shadow: 0 -8px 48px rgba(0,0,0,0.5);
 }
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 16px; }
+.modal-title { font-family: var(--mono); font-size: var(--f-2xl); font-weight: 700; color: var(--accent); margin-bottom: 16px; }
 .modal-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 16px; }
 
 /* ── HINT ── */
-.hint { font-size: 11px; color: var(--text3); line-height: 1.5; margin-top: 6px; }
+.hint { font-size: var(--f-base); color: var(--text3); line-height: 1.5; margin-top: 6px; }
 
 /* ── CHECK ROW ── */
 .check-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-.check-row label { font-size: 12px; color: var(--text2); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.check-row label { font-size: var(--f-md); color: var(--text2); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 400; }
 
 /* ── ALERT ── */
 .alert {
   display: flex; gap: 10px; align-items: flex-start;
   padding: 10px 12px;
   border-radius: var(--rs);
-  font-size: 12px;
+  font-size: var(--f-md);
   line-height: 1.5;
   margin-bottom: 12px;
 }
-.alert-icon { font-size: 14px; flex-shrink: 0; }
+.alert-icon { font-size: var(--f-xl); flex-shrink: 0; }
 .alert-amber { background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.3); color: var(--amber); }
 
 /* ── PROGRESS BAR ── */
@@ -800,20 +820,20 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   border-radius: var(--rs);
   margin-bottom: 12px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--f-base);
   color: var(--text3);
 }
 .storage-size { color: var(--accent); font-weight: 600; }
 
 /* ── EMPTY STATE ── */
 .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
-.empty-icon { font-size: 36px; margin-bottom: 12px; }
-.empty-text { font-size: 13px; margin-bottom: 16px; }
+.empty-icon { font-size: var(--f-36px); margin-bottom: 12px; }
+.empty-text { font-size: var(--f-lg); margin-bottom: 16px; }
 
 /* ── TIME CHIPS ── */
 .time-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 .time-chip {
-  font-family: var(--mono); font-size: 10px;
+  font-family: var(--mono); font-size: var(--f-sm);
   padding: 2px 8px; border-radius: 10px;
   background: var(--surface2); color: var(--text3);
   border: 1px solid var(--border);
@@ -846,13 +866,13 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 
   /* Header mobile layout */
   .header { flex-wrap: wrap; padding: 0 12px; height: auto; min-height: var(--header-h); gap: 8px; }
-  .logo { font-size: 13px; flex-wrap: wrap; }
+  .logo { font-size: var(--f-lg); flex-wrap: wrap; }
   .logo-sub { display: none; }
   .logo-dot { width: 6px; height: 6px; }
   .header-exp { display: none; }
   .header-actions { margin-left: auto; gap: 6px; }
-  .header-actions .btn { padding: 6px 10px; font-size: 11px; }
-  .theme-toggle { width: 30px; height: 30px; font-size: 13px; }
+  .header-actions .btn { padding: 6px 10px; font-size: var(--f-base); }
+  .theme-toggle { width: 30px; height: 30px; font-size: var(--f-lg); }
 
   /* Mobile form grids */
   .form-grid { grid-template-columns: 1fr; }
@@ -865,7 +885,7 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   .stat-chip { width: 100%; }
 
   /* Tables mobile */
-  .db-table { font-size: 11px; min-width: 600px; }
+  .db-table { font-size: var(--f-base); min-width: 600px; }
   .db-table thead th { padding: 8px 6px; }
   .db-table tbody td { padding: 8px 6px; }
   .db-table th:nth-child(4), .db-table td:nth-child(4),  /* 主体系 */
@@ -873,14 +893,14 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   .db-table th:nth-child(8), .db-table td:nth-child(8) { /* 实验目的 */
     display: none;
   }
-  .rpt-table { font-size: 10px; }
+  .rpt-table { font-size: var(--f-sm); }
   .rpt-table th { padding: 6px 4px; }
   .rpt-table td { padding: 6px 4px; }
 
   /* Page header mobile */
   .page-header { flex-direction: column; align-items: flex-start; }
   .page-title-wrap { width: 100%; }
-  .page-title { font-size: 18px; }
+  .page-title { font-size: var(--f-18px); }
   .page-actions { width: 100%; margin-top: 12px; display: flex; flex-wrap: wrap; }
   .page-actions .btn { flex: 1; min-width: calc(50% - 4px); }
 
@@ -911,16 +931,16 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 
   /* Modal mobile */
   .modal { padding: 16px; max-height: 85vh; }
-  .modal-title { font-size: 15px; }
+  .modal-title { font-size: var(--f-15px); }
 
   /* Toast mobile */
-  #toast { font-size: 11px; padding: 8px 16px; max-width: 92vw; }
+  #toast { font-size: var(--f-base); padding: 8px 16px; max-width: 92vw; }
 }
 
 @media (max-width: 480px) {
   .header { padding: 0 8px; }
-  .logo { font-size: 13px; }
-  .btn { padding: 7px 10px; font-size: 11px; }
+  .logo { font-size: var(--f-lg); }
+  .btn { padding: 7px 10px; font-size: var(--f-base); }
   .main { padding: 12px 10px; }
 }
 .mobile-menu-btn { display: none; }
@@ -1323,6 +1343,18 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
       <button class="btn btn-secondary" style="flex:1;" onclick="showPresetImportModal()">📥 导入预设 JSON</button>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-title">界面设置</div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>字体大小缩放: <span id="font-scale-value">100%</span></label>
+      <input type="range" id="font-scale-slider" min="75" max="130" value="100" step="5" oninput="updateFontScale(this.value)" style="margin-bottom:4px;">
+      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:var(--f-xs);color:var(--text3);margin-bottom:8px;">
+        <span>75%</span><span>100%</span><span>130%</span>
+      </div>
+    </div>
+    <div class="hint">调节字体大小后实时生效，设置会自动保存。</div>
+  </div>
 </div>
 
 </main>
@@ -1539,6 +1571,7 @@ let dbSortState = 'date-desc';
 // ═══════════════════════════════════════════════
 async function init() {
   initTheme();
+  initFontScale();
 
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
@@ -1604,6 +1637,27 @@ function toggleTheme() {
 function updateThemeBtn(theme) {
   const btn = document.getElementById('theme-btn');
   if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+// ═══════════════════════════════════════════════
+// FONT SCALE
+// ═══════════════════════════════════════════════
+function initFontScale() {
+  const saved = localStorage.getItem('wpu-font-scale') || '100';
+  const scale = parseInt(saved) / 100;
+  document.documentElement.style.setProperty('--font-scale', scale);
+  const slider = document.getElementById('font-scale-slider');
+  const valueDisplay = document.getElementById('font-scale-value');
+  if (slider) slider.value = saved;
+  if (valueDisplay) valueDisplay.textContent = saved + '%';
+}
+
+function updateFontScale(value) {
+  const scale = parseInt(value) / 100;
+  document.documentElement.style.setProperty('--font-scale', scale);
+  localStorage.setItem('wpu-font-scale', value);
+  const valueDisplay = document.getElementById('font-scale-value');
+  if (valueDisplay) valueDisplay.textContent = value + '%';
 }
 
 function syncExpId() {
@@ -2031,7 +2085,8 @@ function renderProcessSteps() {
     const isCollapsed=collapsed[step.id]!==undefined?collapsed[step.id]:(idx>0);
     card.className='step-card'+(isCollapsed?' collapsed':'');
     card.id=`scard-${step.id}`;
-    const hasDone=!!(data.addTime||data.startTime||data.obs||(data.photos&&data.photos.length));
+    // 兼容旧数据：检查addTime或startTime
+    const hasDone=!!((data.addTime||data.startTime)||data.obs||(data.photos&&data.photos.length));
     card.innerHTML=`
       <div class="step-header" onclick="toggleStep('${step.id}')">
         <div class="step-num${hasDone?' done':''}">0${idx+1}</div>
@@ -2050,15 +2105,15 @@ function buildStepBody(step, data) {
   const sid=step.id;
   const photos=data.photos||[];
   const needCool=!!data.needCool;
+  // 兼容旧数据：如果有startTime但没有addTime，则用startTime填充
+  const displayAddTime = data.addTime || data.startTime || '';
   const catalystAlert=step.catalyst?`<div class="alert alert-amber"><div class="alert-icon">⚠️</div><div><strong>催化剂提醒：</strong>预聚反应通常需加入催化剂（如 DBTDL，用量约多元醇质量的 0.05–0.1%），请确认是否已添加。</div></div>`:'';
   return `
     ${catalystAlert}
     <div class="form-grid form-grid-3" style="margin-bottom:10px;">
       <div class="form-group"><label>反应温度 (°C)</label><input type="number" placeholder="80" value="${data.temp||''}" step="any" oninput="updateStep('${sid}','temp',this.value)"></div>
       <div class="form-group"><label>搅拌转速 (rpm)</label><input type="number" placeholder="可选" value="${data.rpm||''}" step="any" oninput="updateStep('${sid}','rpm',this.value)"></div>
-      <div class="form-group"><label>加料时间</label><input type="time" value="${data.addTime||''}" oninput="updateStep('${sid}','addTime',this.value)"></div>
-      <div class="form-group"><label>反应开始</label><input type="time" value="${data.startTime||''}" oninput="updateStep('${sid}','startTime',this.value)"></div>
-      <div class="form-group"><label>反应结束</label><input type="time" value="${data.endTime||''}" oninput="updateStep('${sid}','endTime',this.value)"></div>
+      <div class="form-group"><label>加料时间</label><input type="time" value="${displayAddTime}" oninput="updateStep('${sid}','addTime',this.value)"></div>
     </div>
     <div class="check-row"><input type="checkbox" id="cool-${sid}" ${needCool?'checked':''} onchange="toggleCooling('${sid}',this.checked)"><label for="cool-${sid}">需要降温步骤</label></div>
     <div id="cool-times-${sid}" style="display:${needCool?'block':'none'};">
@@ -2391,9 +2446,11 @@ function renderReport(entry) {
   // Process steps
   const processStepsHTML = PROCESS_STEPS.map((step,idx)=>{
     const d=(entry.stepData||{})[step.id]||{};
-    const hasDone=!!(d.addTime||d.startTime||d.obs);
+    // 兼容旧数据：优先使用addTime，否则使用startTime
+    const addTime = d.addTime || d.startTime || '';
+    const hasDone=!!(addTime||d.obs);
     const params=[d.temp?`🌡 ${d.temp}°C`:'',d.rpm?`⚙ ${d.rpm}rpm`:''].filter(Boolean);
-    const times=[d.addTime?`加料 ${d.addTime}`:'',d.startTime?`开始 ${d.startTime}`:'',d.endTime?`结束 ${d.endTime}`:'',d.needCool&&d.coolStart?`降温开始 ${d.coolStart}`:'',d.needCool&&d.coolTargetTemp?`→ ${d.coolTargetTemp}°C`:'',d.needCool&&d.coolEnd?`降温完成 ${d.coolEnd}`:''].filter(Boolean);
+    const times=[addTime?`加料 ${addTime}`:'',d.needCool&&d.coolStart?`降温开始 ${d.coolStart}`:'',d.needCool&&d.coolTargetTemp?`→ ${d.coolTargetTemp}°C`:'',d.needCool&&d.coolEnd?`降温完成 ${d.coolEnd}`:''].filter(Boolean);
     return `<div class="rpt-step">
       <div class="rpt-step-num${hasDone?' done':''}">0${idx+1}</div>
       <div class="rpt-step-content">
@@ -2697,7 +2754,9 @@ async function exportPDF() {
     const stepRowsHTML=PROCESS_STEPS.map(step=>{
       const d=stepData[step.id]||{};
       const params=[d.temp?`温度 ${d.temp}°C`:'',d.rpm?`转速 ${d.rpm}rpm`:''].filter(Boolean).join('，');
-      const times=[d.addTime?`加料 ${d.addTime}`:'',d.startTime?`开始 ${d.startTime}`:'',d.endTime?`结束 ${d.endTime}`:'',d.needCool&&d.coolStart?`降温开始 ${d.coolStart}`:'',d.needCool&&d.coolEnd?`降温完成 ${d.coolEnd}`:''].filter(Boolean).join(' · ');
+      // 兼容旧数据：优先使用addTime，否则使用startTime
+      const addTime = d.addTime || d.startTime || '';
+      const times=[addTime?`加料 ${addTime}`:'',d.needCool&&d.coolStart?`降温开始 ${d.coolStart}`:'',d.needCool&&d.coolEnd?`降温完成 ${d.coolEnd}`:''].filter(Boolean).join(' · ');
       return `<tr><td style="padding:4px 6px;border:1px solid #e2e8f0;font-weight:700;vertical-align:top;white-space:nowrap;">${step.title}</td><td style="padding:4px 6px;border:1px solid #e2e8f0;line-height:1.7;font-size:22px;">${params?`<div>${params}</div>`:''} ${times?`<div>${times}</div>`:''} ${d.obs?`<div>${d.obs}</div>`:''} ${!params&&!times&&!d.obs?'<span style="color:#94a3b8;">（暂无记录）</span>':''}</td></tr>`;
     }).join('');
 
