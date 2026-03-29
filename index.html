@@ -2142,13 +2142,13 @@ function goalSeek() {
   // 反推基于质量计算，如果是 mL 单位需要转换
   const isMlUnit = r.unit === 'mL';
   function compute(mass) {
-    let nco=0, oh=0, polymerMass=0, iso=0, chain=0, polyol=0;
+    let nco=0, oh=0, iso=0, chain=0, polyol=0;
     [...others, {...r,mass}].forEach(x => {
       if (x.type==='solvent') return;
-      const m=x.mass; polymerMass+=m; if(x.f===0)return; const eq=m*x.f/x.mw;
+      const m=x.mass; if(x.f===0)return; const eq=m*x.f/x.mw;
       if(x.type==='iso'){nco+=eq;iso+=m;}else if(x.type==='polyol'){oh+=eq;polyol+=m;}else if(x.type==='chain'){oh+=eq;chain+=m;}
     });
-    const hardMass=iso+chain;
+    const hardMass=iso+chain, polymerMass=hardMass+polyol;
     return {rVal:oh>0?nco/oh:0, hsc:polymerMass>0?hardMass/polymerMass*100:0};
   }
   let lo=0.001, hi=10000, result=null;
