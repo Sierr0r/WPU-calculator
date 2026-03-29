@@ -3,35 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WPU · 智能配方记录本</title>
+<title>WPU · ELN</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
-  --bg: #f4f6f9;
-  --surface: #ffffff;
-  --surface2: #f8fafc;
-  --border: #dde3ec;
-  --border-md: #c8d2e0;
-  --accent: #2563eb;
-  --accent-dim: #eff4ff;
-  --accent-light: #93c5fd;
-  --green: #16a34a;
-  --green-dim: #f0fdf4;
-  --amber: #d97706;
-  --amber-dim: #fffbeb;
-  --red: #dc2626;
-  --red-dim: #fef2f2;
-  --cyan: #0891b2;
-  --cyan-dim: #ecfeff;
-  --text: #1e293b;
-  --text2: #475569;
-  --text3: #94a3b8;
-  --mono: 'JetBrains Mono', monospace;
+  --bg: #0f1117;
+  --bg2: #161820;
+  --bg3: #1c1f2b;
+  --surface: #1e2130;
+  --surface2: #252840;
+  --border: #2e3350;
+  --border2: #3d4468;
+  --accent: #4f8ef7;
+  --accent2: #6da5ff;
+  --accent-dim: rgba(79,142,247,0.12);
+  --accent-glow: rgba(79,142,247,0.3);
+  --green: #3dd68c;
+  --green-dim: rgba(61,214,140,0.1);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.1);
+  --red: #f45b69;
+  --red-dim: rgba(244,91,105,0.1);
+  --cyan: #4dd9e8;
+  --cyan-dim: rgba(77,217,232,0.1);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.1);
+  --text: #e8eaf0;
+  --text2: #9ba3c0;
+  --text3: #5a6080;
+  --mono: 'IBM Plex Mono', monospace;
   --sans: 'Noto Sans SC', sans-serif;
   --r: 10px;
   --rs: 6px;
+  --nav-w: 220px;
+  --header-h: 52px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,160 +48,246 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 20px;
+  font-size: 14px;
   line-height: 1.6;
   min-height: 100vh;
-  padding-bottom: 80px;
+  overflow-x: hidden;
 }
 
-/* ── Header ── */
-.app-header {
-  background: var(--surface);
-  border-bottom: 2px solid var(--border);
-  padding: 0 16px;
-  height: 56px;
-  position: sticky;
-  top: 0;
+/* ── HEADER ── */
+.header {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  z-index: 200;
+  backdrop-filter: blur(12px);
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; }
+.header-exp {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text3);
+}
+.header-exp strong { color: var(--accent); font-weight: 600; }
+.header-actions { display: flex; gap: 8px; }
+
+/* ── LAYOUT ── */
+.layout {
+  display: flex;
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+
+/* ── SIDEBAR NAV ── */
+.sidebar {
+  width: var(--nav-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  padding: 16px 0;
   z-index: 100;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+.nav-section {
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+.nav-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 10px 8px 4px;
+}
+.nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-}
-.app-logo {
-  font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: -0.5px;
-  white-space: nowrap;
-}
-.app-subtitle {
-  font-size: 14px;
-  color: var(--text3);
-  white-space: nowrap;
-}
-.header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-
-/* ── Tabs ── */
-.tab-bar {
-  display: flex;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  position: sticky;
-  top: 56px;
-  z-index: 99;
-}
-.tab-bar::-webkit-scrollbar { display: none; }
-.tab {
-  padding: 10px 18px;
-  font-size: 16px;
-  font-family: var(--mono);
-  color: var(--text3);
+  padding: 9px 12px;
+  border-radius: var(--rs);
   cursor: pointer;
-  white-space: nowrap;
-  border-bottom: 2.5px solid transparent;
-  transition: all 0.18s;
+  font-size: 13px;
+  color: var(--text2);
+  transition: all 0.15s;
   user-select: none;
-  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  margin-bottom: 2px;
 }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-dim); }
-.tab:hover:not(.active) { color: var(--text2); background: var(--bg); }
+.nav-item:hover { background: var(--surface); color: var(--text); }
+.nav-item.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.nav-icon { font-size: 15px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+.nav-divider { height: 1px; background: var(--border); margin: 10px 12px; }
 
-/* ── Pages ── */
+/* ── MAIN CONTENT ── */
+.main {
+  margin-left: var(--nav-w);
+  flex: 1;
+  padding: 24px;
+  min-width: 0;
+}
+
+/* ── PAGES ── */
 .page { display: none; }
-.page.active { display: block; }
-.container { padding: 14px; max-width: 800px; margin: 0 auto; }
+.page.active { display: block; animation: fadeIn 0.18s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── Cards ── */
+/* ── PAGE HEADER ── */
+.page-header {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-title-wrap { flex: 1; }
+.page-title {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+.page-desc { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.page-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* ── CARDS ── */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  padding: 18px;
   margin-bottom: 14px;
 }
 .card-title {
   font-family: var(--mono);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.card-num {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--accent-dim);
-  border: 1.5px solid var(--accent-light);
-  color: var(--accent);
-  font-family: var(--mono);
   font-size: 11px;
   font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title::before {
+  content: '';
+  display: block;
+  width: 3px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--accent-glow);
 }
 
-/* ── Buttons ── */
+/* ── BUTTONS ── */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 8px 14px;
   border-radius: var(--rs);
   font-family: var(--mono);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.15s;
   user-select: none;
-  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
+  letter-spacing: 0.03em;
 }
 .btn:active { transform: scale(0.97); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-.btn-primary:hover { background: #1d4ed8; }
-.btn-secondary { background: var(--surface); color: var(--text2); border-color: var(--border-md); }
-.btn-secondary:hover { background: var(--bg); }
-.btn-danger { background: var(--red-dim); color: var(--red); border-color: #fca5a5; }
-.btn-green { background: var(--green-dim); color: var(--green); border-color: #86efac; }
-.btn-cyan { background: var(--cyan-dim); color: var(--cyan); border-color: #67e8f9; }
-.btn-amber { background: var(--amber-dim); color: var(--amber); border-color: #fcd34d; }
-.btn-sm { padding: 5px 10px; font-size: 13px; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 12px var(--accent-glow); }
+.btn-primary:hover:not(:disabled) { background: #5f9bff; box-shadow: 0 4px 20px var(--accent-glow); }
+.btn-secondary { background: var(--surface2); color: var(--text2); border-color: var(--border2); }
+.btn-secondary:hover { background: var(--surface); color: var(--text); }
+.btn-danger { background: var(--red-dim); color: var(--red); border-color: rgba(244,91,105,0.3); }
+.btn-green { background: var(--green-dim); color: var(--green); border-color: rgba(61,214,140,0.3); }
+.btn-amber { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,166,35,0.3); }
+.btn-cyan { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(77,217,232,0.3); }
+.btn-ghost { background: transparent; color: var(--text3); border-color: transparent; }
+.btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
 .btn-full { width: 100%; }
+.btn-icon { padding: 7px; border-radius: 6px; }
 
-/* ── Form ── */
-.form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.form-group { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 110px; }
-.form-group.full { min-width: 100%; }
+/* ── FORM ── */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.form-grid-2 { grid-template-columns: 1fr 1fr; }
+.form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.span-2 { grid-column: span 2; }
+.form-group.span-full { grid-column: 1 / -1; }
+
 label {
-  font-size: 14px;
+  font-size: 10px;
   font-family: var(--mono);
   color: var(--text3);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-weight: 600;
 }
+
 input[type=text], input[type=number], textarea, select, input[type=time] {
-  background: var(--bg);
-  border: 1px solid var(--border-md);
+  background: var(--bg3);
+  border: 1px solid var(--border);
   border-radius: var(--rs);
   color: var(--text);
   font-family: var(--mono);
-  font-size: 15px;
-  padding: 7px 9px;
+  font-size: 13px;
+  padding: 8px 10px;
   width: 100%;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -202,357 +296,577 @@ input[type=text], input[type=number], textarea, select, input[type=time] {
 }
 input:focus, textarea:focus, select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%2394a3b8' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%235a6080' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 9px center;
-  padding-right: 26px;
+  background-position: right 10px center;
+  padding-right: 28px;
   cursor: pointer;
 }
-textarea { resize: vertical; min-height: 68px; font-size: 15px; }
+textarea { resize: vertical; min-height: 72px; font-size: 13px; }
 input[type=range] {
   -webkit-appearance: none;
-  width: 100%;
-  height: 5px;
-  background: var(--border);
-  border-radius: 3px;
-  outline: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  width: 100%; height: 4px;
+  background: var(--border2);
+  border-radius: 2px;
+  outline: none; border: none; padding: 0; cursor: pointer;
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px; height: 20px;
+  width: 18px; height: 18px;
   border-radius: 50%;
   background: var(--accent);
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 1.5px var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 6px var(--accent-glow);
   cursor: pointer;
 }
-input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; flex-shrink:0; }
+input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
 ::placeholder { color: var(--text3); }
 
-/* ── Divider ── */
-.divider { height: 1px; background: var(--border); margin: 12px 0; }
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
 
-/* ── Summary bar ── */
-.summary-bar {
-  background: var(--bg);
+/* ── STAT CHIPS ── */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.stat-chip {
+  background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--rs);
   padding: 10px 14px;
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+  flex: 1;
+  min-width: 90px;
 }
-.summary-item { display: flex; flex-direction: column; gap: 1px; }
-.s-label { font-size: 13px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
-.s-val { font-size: 17px; font-family: var(--mono); font-weight: 600; color: var(--text); }
-.s-val.good { color: var(--green); }
-.s-val.warn { color: var(--amber); }
-.s-val.bad { color: var(--red); }
+.stat-label { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.stat-value { font-family: var(--mono); font-size: 17px; font-weight: 700; color: var(--text); }
+.stat-value.good { color: var(--green); }
+.stat-value.warn { color: var(--amber); }
+.stat-value.bad { color: var(--red); }
+.stat-value.accent { color: var(--accent); }
+.stat-value.cyan { color: var(--cyan); }
 
-/* ── Reagent list ── */
+/* ── REAGENT ITEMS ── */
+.reagent-list { display: flex; flex-direction: column; gap: 8px; }
 .reagent-item {
-  background: var(--bg);
+  background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--rs);
-  padding: 10px 12px;
-  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s;
 }
+.reagent-item:hover { border-color: var(--border2); }
 .reagent-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
 }
-.rtag {
+.reagent-body { padding: 10px 12px; }
+.type-badge {
   font-family: var(--mono);
-  font-size: 12px;
-  padding: 2px 7px;
-  border-radius: 20px;
+  font-size: 10px;
   font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
   white-space: nowrap;
 }
-.tag-polyol { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
-.tag-iso   { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-.tag-chain { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
-.tag-solvent { background: #fef3c7; color: #b45309; border: 1px solid #fde047; }
-.tag-other { background: #f8fafc; color: #475569; border: 1px solid var(--border-md); }
-.reagent-name { font-size: 16px; font-weight: 600; color: var(--text); }
-.reagent-eq { margin-left: auto; font-family: var(--mono); font-size: 13px; color: var(--text3); }
-.reagent-eq.no-eq { color: var(--amber); font-style: italic; }
+.type-polyol { background: rgba(77,217,232,0.15); color: var(--cyan); border: 1px solid rgba(77,217,232,0.25); }
+.type-iso { background: rgba(245,166,35,0.15); color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
+.type-chain { background: rgba(61,214,140,0.15); color: var(--green); border: 1px solid rgba(61,214,140,0.25); }
+.type-solvent { background: rgba(167,139,250,0.15); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
+.type-other { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+.reagent-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+.reagent-eq-badge { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.reagent-eq-badge.has-eq { color: var(--accent); }
+.reagent-eq-badge.no-eq { color: var(--text3); font-style: italic; }
 
-/* ── Preset quick-add ── */
-.preset-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-.preset-btn {
+/* ── PRESET PILLS ── */
+.preset-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.preset-pill {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 11px;
   padding: 4px 10px;
   border-radius: 20px;
-  border: 1px solid var(--border-md);
-  background: var(--surface);
+  border: 1px solid var(--border);
+  background: var(--bg3);
   color: var(--text2);
   cursor: pointer;
   transition: all 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
-.preset-btn:hover { border-color: var(--accent-light); color: var(--accent); background: var(--accent-dim); }
-.preset-btn:active { transform: scale(0.95); }
-.preset-btn-add {
-  border-style: dashed;
-  color: var(--accent);
-  background: var(--accent-dim);
-}
-.preset-btn-custom {
-  position: relative;
-  padding-right: 24px;
-  border-color: var(--accent-light);
-}
-.preset-btn-custom .preset-del {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: rgba(220,38,38,0.85);
-  color: #fff;
-  font-size: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.preset-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.preset-pill:active { transform: scale(0.95); }
+.preset-pill-add { border-style: dashed; color: var(--accent); border-color: rgba(79,142,247,0.4); background: var(--accent-dim); }
+.preset-pill-custom { border-color: rgba(79,142,247,0.4); position: relative; padding-right: 22px; }
+.preset-pill-del {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--red); color: #fff;
+  font-size: 8px; display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
 
-/* ── Goal seek ── */
-.gs-result {
-  background: var(--green-dim);
-  border: 1px solid #86efac;
-  border-radius: var(--rs);
-  padding: 10px 14px;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--green);
-  margin-top: 10px;
-}
-
-/* ── Solid content ── */
-.sc-big { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--cyan); }
-
-/* ── Process steps ── */
+/* ── STEP CARDS ── */
 .step-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
   margin-bottom: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .step-header {
-  padding: 11px 14px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  background: var(--surface2);
+  background: var(--bg3);
   border-bottom: 1px solid var(--border);
   user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
   transition: background 0.15s;
 }
-.step-header:hover { background: var(--bg); }
+.step-header:hover { background: var(--surface2); }
 .step-num {
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   border-radius: 50%;
-  border: 1.5px solid var(--border-md);
+  border: 1.5px solid var(--border2);
   color: var(--text3);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  flex-shrink: 0; transition: all 0.2s;
 }
-.step-num.done { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-.step-title-wrap { flex: 1; }
-.step-title { font-size: 16px; font-weight: 600; color: var(--text); }
-.step-sub { font-size: 13px; color: var(--text3); }
-.step-chevron { color: var(--text3); font-size: 11px; transition: transform 0.2s; }
+.step-num.done { border-color: var(--green); color: var(--green); background: var(--green-dim); box-shadow: 0 0 8px rgba(61,214,140,0.2); }
+.step-title { font-size: 14px; font-weight: 600; flex: 1; }
+.step-sub { font-size: 11px; color: var(--text3); }
+.step-chevron { color: var(--text3); font-size: 10px; transition: transform 0.2s; }
 .step-card.collapsed .step-chevron { transform: rotate(-90deg); }
-.step-body { padding: 14px; }
+.step-body { padding: 16px; }
 .step-card.collapsed .step-body { display: none; }
 
-/* ── Catalyst alert ── */
-.alert-catalyst {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: #fffbeb;
-  border: 1.5px solid #fbbf24;
+/* ── GOAL SEEK ── */
+.gs-result {
+  background: var(--green-dim);
+  border: 1px solid rgba(61,214,140,0.3);
   border-radius: var(--rs);
-  padding: 10px 12px;
-  margin-bottom: 12px;
+  padding: 12px 16px;
+  font-family: var(--mono);
   font-size: 12px;
-  color: #92400e;
-  line-height: 1.5;
+  color: var(--green);
+  margin-top: 12px;
 }
-.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
-/* ── Time grid ── */
-.time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 8px; }
+/* ── SOLID CONTENT ── */
+.sc-display { font-family: var(--mono); font-size: 32px; font-weight: 700; color: var(--cyan); line-height: 1; }
+.sc-unit { font-family: var(--mono); font-size: 12px; color: var(--text3); margin-left: 4px; }
 
-/* ── Photo ── */
+/* ── PHOTO ── */
 .photo-area {
-  border: 1.5px dashed var(--border-md);
+  border: 1.5px dashed var(--border2);
   border-radius: var(--rs);
-  padding: 12px;
+  padding: 14px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-  margin-bottom: 8px;
+  transition: all 0.15s;
+  margin-bottom: 10px;
 }
 .photo-area:hover { border-color: var(--accent); background: var(--accent-dim); }
-.photo-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 6px; margin-top: 8px; }
+.photo-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 8px; }
 .photo-thumb { position: relative; border-radius: var(--rs); overflow: hidden; aspect-ratio: 1; background: var(--bg); border: 1px solid var(--border); }
 .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .photo-thumb-del {
   position: absolute; top: 2px; right: 2px;
   width: 18px; height: 18px;
-  background: rgba(220,38,38,0.85);
-  color: #fff;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-  cursor: pointer;
-  border: none;
+  background: var(--red); color: #fff;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; cursor: pointer; border: none;
 }
 .photo-caption-chip {
   position: absolute; bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,0.6);
-  font-size: 8.5px; color: #fff;
-  padding: 2px 4px;
-  word-break: break-all;
-  line-height: 1.3;
+  background: rgba(0,0,0,0.75); font-size: 8px; color: #fff;
+  padding: 2px 4px; line-height: 1.3; word-break: break-all;
 }
 
-/* ── History ── */
-.history-item {
+/* ── HISTORY DB ── */
+.db-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-input-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.search-input-wrap input {
+  padding-left: 32px;
+}
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; pointer-events: none; }
+
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.db-table thead th {
+  background: var(--surface2);
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.db-table thead th:hover { color: var(--accent); }
+.db-table thead th.sorted { color: var(--accent); }
+.db-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+  cursor: pointer;
+}
+.db-table tbody tr:hover { background: var(--surface2); }
+.db-table tbody tr.selected { background: var(--accent-dim); }
+.db-table tbody td {
+  padding: 10px 12px;
+  color: var(--text2);
+}
+.db-table tbody td:first-child { color: var(--accent); font-weight: 700; }
+.db-r-good { color: var(--green) !important; font-weight: 600; }
+.db-r-warn { color: var(--amber) !important; font-weight: 600; }
+.db-r-bad  { color: var(--red)   !important; font-weight: 600; }
+.db-empty { text-align: center; padding: 40px; color: var(--text3); }
+
+/* ── REPORT VIEWER ── */
+.report-viewer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.report-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.report-exp-id { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--accent); }
+.report-content { padding: 24px; }
+.report-placeholder {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--text3);
+}
+.report-placeholder-icon { font-size: 40px; margin-bottom: 12px; }
+.report-placeholder-text { font-size: 14px; }
+
+/* ── REPORT SECTIONS ── */
+.rpt-section { margin-bottom: 24px; }
+.rpt-section-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.rpt-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.rpt-info-item { }
+.rpt-info-label { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.rpt-info-value { font-size: 13px; font-weight: 600; color: var(--text); word-break: break-word; }
+.rpt-info-value.highlight { color: var(--accent); font-family: var(--mono); }
+
+.rpt-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.rpt-table th {
+  background: var(--surface2);
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 10px;
+  text-align: left;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.rpt-table td {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.rpt-table tr:hover td { background: var(--surface2); }
+.rpt-table td.r-name { color: var(--text); font-weight: 600; }
+.rpt-table td.r-theory { color: var(--accent); }
+.rpt-table td.r-actual { color: var(--green); }
+.rpt-table td.r-eq { color: var(--cyan); }
+.rpt-table tfoot td { background: var(--surface2); font-weight: 700; color: var(--text); }
+
+.rpt-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.rpt-stat {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  padding: 10px 12px;
+}
+.rpt-stat-label { font-family: var(--mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.rpt-stat-theory { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--text); }
+.rpt-stat-actual { font-family: var(--mono); font-size: 11px; color: var(--green); margin-top: 2px; }
+.rpt-stat.r-good .rpt-stat-theory { color: var(--green); }
+.rpt-stat.r-warn .rpt-stat-theory { color: var(--amber); }
+.rpt-stat.r-bad  .rpt-stat-theory { color: var(--red); }
+.rpt-stat.r-cyan .rpt-stat-theory { color: var(--cyan); }
+
+.rpt-step {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rpt-step:last-child { border-bottom: none; }
+.rpt-step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+  border: 1.5px solid var(--border2); color: var(--text3);
+}
+.rpt-step-num.done { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.rpt-step-content { flex: 1; }
+.rpt-step-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.rpt-step-params { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
+.rpt-step-obs { font-size: 12px; color: var(--text2); padding: 6px 10px; background: var(--bg3); border-radius: var(--rs); margin-top: 4px; border-left: 2px solid var(--border2); }
+.rpt-step-empty { font-size: 12px; color: var(--text3); font-style: italic; }
+
+.rpt-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.rpt-photo { border-radius: var(--rs); overflow: hidden; border: 1px solid var(--border); }
+.rpt-photo img { width: 100%; display: block; aspect-ratio: 1; object-fit: cover; }
+.rpt-photo-cap { padding: 4px 6px; font-size: 10px; color: var(--text3); background: var(--bg3); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--rs);
-  padding: 11px 14px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-}
-.history-item:hover { border-color: var(--accent-light); box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
-.history-id { font-family: var(--mono); font-size: 17px; font-weight: 700; color: var(--accent); }
-.history-meta { font-size: 15px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
-
-/* ── Toast ── */
-#toast {
-  position: fixed;
-  bottom: 20px; left: 50%;
-  transform: translateX(-50%) translateY(70px);
-  background: var(--text);
-  border-radius: var(--rs);
-  padding: 9px 18px;
+  padding: 10px 20px;
   font-family: var(--mono);
   font-size: 12px;
-  color: #fff;
+  color: var(--text);
   transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
   z-index: 9999;
   white-space: nowrap;
   max-width: 88vw;
   text-align: center;
   pointer-events: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 #toast.show { transform: translateX(-50%) translateY(0); }
-#toast.success { background: var(--green); }
-#toast.error { background: var(--red); }
+#toast.success { background: var(--green-dim); border-color: rgba(61,214,140,0.4); color: var(--green); }
+#toast.error { background: var(--red-dim); border-color: rgba(244,91,105,0.4); color: var(--red); }
 
-/* ── Modals ── */
+/* ── MODALS ── */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(15,23,42,0.45);
-  z-index: 200;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
   display: flex; align-items: flex-end;
   opacity: 0; pointer-events: none;
   transition: opacity 0.2s;
+  backdrop-filter: blur(4px);
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r) var(--r) 0 0;
-  padding: 18px 16px;
+  border-top: 1px solid var(--border2);
+  border-radius: 14px 14px 0 0;
+  padding: 20px 18px;
   width: 100%;
   max-height: 88vh;
   overflow-y: auto;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.34,1.2,0.64,1);
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 -8px 48px rgba(0,0,0,0.5);
 }
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+.modal-title { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent); margin-bottom: 16px; }
+.modal-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 16px; }
 
-/* ── Hint ── */
-.hint { font-size: 13px; color: var(--text3); line-height: 1.5; margin-top: 4px; }
+/* ── HINT ── */
+.hint { font-size: 11px; color: var(--text3); line-height: 1.5; margin-top: 6px; }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 2px; }
-
-/* ── Inline checkbox row ── */
-.check-row { display: flex; align-items: center; gap: 7px; margin: 8px 0; }
+/* ── CHECK ROW ── */
+.check-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
 .check-row label { font-size: 12px; color: var(--text2); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 400; }
 
-@media (max-width: 480px) {
-  .container { padding: 10px; }
-  .card { padding: 12px; }
+/* ── ALERT ── */
+.alert {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--rs);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
 }
+.alert-icon { font-size: 14px; flex-shrink: 0; }
+.alert-amber { background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.3); color: var(--amber); }
+
+/* ── PROGRESS BAR ── */
+.progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+/* ── STORAGE INFO ── */
+.storage-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  margin-bottom: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+.storage-size { color: var(--accent); font-weight: 600; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-text { font-size: 13px; margin-bottom: 16px; }
+
+/* ── TIME CHIPS ── */
+.time-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.time-chip {
+  font-family: var(--mono); font-size: 10px;
+  padding: 2px 8px; border-radius: 10px;
+  background: var(--surface2); color: var(--text3);
+  border: 1px solid var(--border);
+}
+.time-chip.has-val { color: var(--cyan); border-color: rgba(77,217,232,0.3); background: var(--cyan-dim); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  :root { --nav-w: 0px; }
+  .sidebar { transform: translateX(-220px); transition: transform 0.28s; }
+  .sidebar.open { transform: translateX(0); --nav-w: 220px; }
+  .main { margin-left: 0; padding: 14px; }
+  .mobile-menu-btn { display: flex !important; }
+  .db-table { font-size: 11px; }
+  .rpt-table { font-size: 11px; }
+}
+.mobile-menu-btn { display: none; }
 </style>
 </head>
 <body>
 
-<header class="app-header">
-  <div>
-    <div class="app-logo">WPU · ELN</div>
-    <div class="app-subtitle">水性聚氨酯智能配方记录本</div>
+<!-- HEADER -->
+<header class="header">
+  <button class="btn btn-ghost btn-icon mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    WPU·ELN
+    <span class="logo-sub">实验记录系统</span>
   </div>
-  <div class="header-right">
+  <div class="header-exp">实验：<strong id="h-exp-id">—</strong></div>
+  <div class="header-actions">
     <button class="btn btn-secondary btn-sm" onclick="saveToCache()">💾 暂存</button>
-    <button class="btn btn-danger btn-sm" onclick="newExperiment()">＋ 新建</button>
+    <button class="btn btn-primary btn-sm" onclick="newExperiment()">＋ 新建</button>
   </div>
 </header>
 
-<nav class="tab-bar">
-  <div class="tab active" onclick="switchTab(0)">⚗️ 配方</div>
-  <div class="tab" onclick="switchTab(1)">🧪 工艺台</div>
-  <div class="tab" onclick="switchTab(2)">📋 历史</div>
-  <div class="tab" onclick="switchTab(3)">📤 导出</div>
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-section">
+    <div class="nav-label">配方录入</div>
+    <div class="nav-item active" onclick="switchPage('formula')" data-page="formula">
+      <span class="nav-icon">⚗️</span> 配方设计
+    </div>
+    <div class="nav-item" onclick="switchPage('process')" data-page="process">
+      <span class="nav-icon">🧪</span> 工艺台
+    </div>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">
+    <div class="nav-label">数据中心</div>
+    <div class="nav-item" onclick="switchPage('database')" data-page="database">
+      <span class="nav-icon">🗄️</span> 实验数据库
+      <span class="nav-badge" id="hist-count">0</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('report')" data-page="report">
+      <span class="nav-icon">📊</span> 可视化报告
+    </div>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-section">
+    <div class="nav-label">工具</div>
+    <div class="nav-item" onclick="switchPage('export')" data-page="export">
+      <span class="nav-icon">📤</span> 导入 / 导出
+    </div>
+    <div class="nav-item" onclick="switchPage('settings')" data-page="settings">
+      <span class="nav-icon">⚙️</span> 预设管理
+    </div>
+  </div>
 </nav>
 
-<!-- ═══════════════════ PAGE 0: 配方 ═══════════════════ -->
-<div class="page active" id="page-formula">
-<div class="container">
+<!-- MAIN CONTENT -->
+<main class="main">
 
-  <!-- 实验信息 -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-num">ID</div>
-      <div class="card-title">实验基本信息</div>
+<!-- ═══════════════ PAGE: 配方设计 ═══════════════ -->
+<div class="page active" id="page-formula">
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <div class="page-title">配方设计</div>
+      <div class="page-desc">填写实验信息、添加原料，系统自动计算当量参数</div>
     </div>
-    <div class="form-row">
+    <div class="page-actions">
+      <button class="btn btn-green btn-sm" onclick="saveCurrentToHistory()">💾 存入数据库</button>
+    </div>
+  </div>
+
+  <!-- 实验基本信息 -->
+  <div class="card">
+    <div class="card-title">实验基本信息</div>
+    <div class="form-grid form-grid-3">
       <div class="form-group">
         <label>实验编号</label>
         <input type="text" id="exp-id" placeholder="如 260328-01" oninput="syncExpId();autoSave()">
@@ -561,15 +875,11 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
         <label>实验日期</label>
         <input type="text" id="exp-date" placeholder="YYYY-MM-DD" oninput="autoSave()">
       </div>
-    </div>
-    <div class="form-row">
       <div class="form-group">
         <label>操作人</label>
         <input type="text" id="exp-operator" placeholder="姓名" oninput="autoSave()">
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group full">
+      <div class="form-group span-full">
         <label>实验目的 / 备注</label>
         <input type="text" id="exp-note" placeholder="如：优化 IPDI/PCD 体系防水性" oninput="autoSave()">
       </div>
@@ -578,16 +888,14 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 
   <!-- 添加原料 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-num">1</div>
-      <div class="card-title">添加原料</div>
+    <div class="card-title">添加原料</div>
+    <div style="margin-bottom:10px;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:7px;">快速选用预设：</div>
+      <div class="preset-grid" id="preset-btns"></div>
     </div>
-    <div class="hint" style="margin-bottom:7px;">快速选用预设原料：</div>
-    <div class="preset-grid" id="preset-btns"></div>
     <div class="divider"></div>
-    <div class="hint" style="margin-bottom:8px;">手动填写（可完全自定义）：</div>
-    <div class="form-row">
-      <div class="form-group" style="flex:2;min-width:130px;">
+    <div class="form-grid">
+      <div class="form-group span-2">
         <label>原料名称</label>
         <input type="text" id="add-name" placeholder="如 IPDI, PCD-2000…">
       </div>
@@ -601,11 +909,9 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
           <option value="other">其他</option>
         </select>
       </div>
-    </div>
-    <div class="form-row">
       <div class="form-group">
         <label>分子量 (g/mol)</label>
-        <input type="number" id="add-mw" placeholder="如 222.28" step="any">
+        <input type="number" id="add-mw" placeholder="222.28" step="any">
       </div>
       <div class="form-group">
         <label>官能度 f</label>
@@ -618,109 +924,74 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
           <option value="mL">mL（体积）</option>
         </select>
       </div>
-    </div>
-    <div class="form-row">
       <div class="form-group" id="add-density-group" style="display:none;">
         <label>密度 (g/mL)</label>
-        <input type="number" id="add-density" placeholder="如 1.058" step="any">
+        <input type="number" id="add-density" placeholder="1.062" step="any">
       </div>
       <div class="form-group">
         <label>理论用量 (<span id="add-unit-label">g</span>)</label>
-        <input type="number" id="add-mass" placeholder="如 30.00" step="any">
+        <input type="number" id="add-mass" placeholder="30.00" step="any">
       </div>
     </div>
     <button class="btn btn-primary btn-full" onclick="addReagent()">+ 加入配方</button>
   </div>
 
-  <!-- 原料列表 -->
+  <!-- 配方表 + 汇总 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-num">2</div>
-      <div class="card-title">当前配方</div>
-      <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearAll()">清空</button>
+    <div class="card-title" style="justify-content:space-between;">
+      <span style="display:flex;align-items:center;gap:8px;"><span style="display:block;width:3px;height:14px;background:var(--accent);border-radius:2px;box-shadow:0 0 6px var(--accent-glow);"></span>当前配方</span>
+      <button class="btn btn-danger btn-sm" onclick="clearAll()">清空</button>
     </div>
-    <div id="reagent-list">
-      <div style="text-align:center;padding:22px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无原料，请在上方添加</div>
+    <div class="reagent-list" id="reagent-list">
+      <div class="empty-state">
+        <div class="empty-icon">🧬</div>
+        <div class="empty-text">暂无原料，请在上方添加</div>
+      </div>
     </div>
     <div class="divider"></div>
-    <div class="summary-bar" id="summary-bar">
-      <div class="summary-item">
-        <div class="s-label">理论总质量</div>
-        <div class="s-val" id="s-total-mass">—</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">实际总质量</div>
-        <div class="s-val" id="s-total-actual">—</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">NCO 当量</div>
-        <div class="s-val" id="s-nco-eq">—</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">OH 当量</div>
-        <div class="s-val" id="s-oh-eq">—</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">R 值 (NCO/OH)</div>
-        <div class="s-val" id="s-r-val">—</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">硬段含量 HSC</div>
-        <div class="s-val" id="s-hsc">—</div>
-      </div>
+    <!-- 当量统计 -->
+    <div class="stats-row" id="summary-stats">
+      <div class="stat-chip"><div class="stat-label">NCO 当量</div><div class="stat-value" id="s-nco-eq">—</div></div>
+      <div class="stat-chip"><div class="stat-label">OH 当量</div><div class="stat-value" id="s-oh-eq">—</div></div>
+      <div class="stat-chip"><div class="stat-label">R 值</div><div class="stat-value" id="s-r-val">—</div></div>
+      <div class="stat-chip"><div class="stat-label">HSC 硬段</div><div class="stat-value" id="s-hsc">—</div></div>
+      <div class="stat-chip"><div class="stat-label">理论总质量</div><div class="stat-value accent" id="s-total-mass">—</div></div>
+      <div class="stat-chip"><div class="stat-label">实际总质量</div><div class="stat-value" id="s-total-actual">—</div></div>
     </div>
   </div>
 
-  <!-- 固含 -->
+  <!-- 固含量 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-num">3</div>
-      <div class="card-title">固含量 & 加水量计算</div>
+    <div class="card-title">固含量 & 加水量</div>
+    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:10px;">
+      <span class="sc-display" id="sc-pct">30.0</span>
+      <span class="sc-unit">% 固含量目标</span>
     </div>
-    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;">
-      <div class="sc-big" id="sc-pct">30.0</div>
-      <div style="font-size:12px;color:var(--text3);font-family:var(--mono);">% 固含量</div>
+    <input type="range" id="sc-slider" min="15" max="60" value="30" step="0.5" oninput="updateSolidContent(this.value)" style="margin-bottom:4px;">
+    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:14px;"><span>15%</span><span>30%</span><span>45%</span><span>60%</span></div>
+    <div class="stats-row">
+      <div class="stat-chip"><div class="stat-label">固体总质量</div><div class="stat-value" id="sc-solid">—</div></div>
+      <div class="stat-chip"><div class="stat-label">需加水量</div><div class="stat-value good" id="sc-water">—</div></div>
+      <div class="stat-chip"><div class="stat-label">乳液总质量</div><div class="stat-value" id="sc-total">—</div></div>
     </div>
-    <input type="range" id="sc-slider" min="15" max="60" value="30" step="0.5" oninput="updateSolidContent(this.value)">
-    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3);margin:4px 0 12px;">
-      <span>15%</span><span>30%</span><span>45%</span><span>60%</span>
-    </div>
-    <div class="summary-bar">
-      <div class="summary-item">
-        <div class="s-label">固体总质量</div>
-        <div class="s-val" id="sc-solid">—</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">需加水量</div>
-        <div class="s-val good" id="sc-water">—</div>
-      </div>
-      <div class="summary-item">
-        <div class="s-label">乳液总质量</div>
-        <div class="s-val" id="sc-total">—</div>
-      </div>
-    </div>
-    <div class="form-row" style="margin-top:4px;">
+    <div class="form-grid form-grid-2" style="margin-top:6px;">
       <div class="form-group">
         <label>实际加水量 (g)</label>
-        <input type="number" id="sc-actual-water" placeholder="实际称量加水" step="any" oninput="onActualWaterInput()">
+        <input type="number" id="sc-actual-water" placeholder="实际称量" step="any" oninput="onActualWaterInput()">
       </div>
       <div class="form-group">
         <label>实际固含量</label>
-        <div style="padding:7px 9px;background:var(--bg);border:1px solid var(--border-md);border-radius:var(--rs);font-family:var(--mono);font-size:15px;color:var(--cyan);" id="sc-actual-pct">—</div>
+        <div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);font-family:var(--mono);font-size:14px;color:var(--cyan);" id="sc-actual-pct">—</div>
       </div>
     </div>
-    <div class="hint">固体质量 = 所有原料理论用量之和（含 TEA 等，不含水）；实际固含 = 固体总质量 / (固体 + 实际加水量)</div>
   </div>
 
   <!-- 目标反推 -->
   <div class="card">
-    <div class="card-header">
-      <div class="card-num">4</div>
-      <div class="card-title">目标反推（Goal Seek）</div>
-    </div>
-    <div class="form-row">
+    <div class="card-title">目标反推 Goal Seek</div>
+    <div class="form-grid form-grid-2">
       <div class="form-group">
-        <label>目标量</label>
+        <label>目标参数</label>
         <select id="gs-target">
           <option value="r">目标 R 值</option>
           <option value="hsc">目标 HSC (%)</option>
@@ -730,10 +1001,8 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
         <label>目标值</label>
         <input type="number" id="gs-val" placeholder="如 1.05" step="any">
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group full">
-        <label>调整原料（f>0 才可参与当量反推）</label>
+      <div class="form-group span-2">
+        <label>调整原料（f > 0 才参与计算）</label>
         <select id="gs-reagent">
           <option value="">— 选择要调整质量的原料 —</option>
         </select>
@@ -742,101 +1011,195 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
     <button class="btn btn-cyan btn-full" onclick="goalSeek()">🔍 反推计算</button>
     <div id="gs-result" style="display:none;" class="gs-result"></div>
   </div>
-
-</div>
 </div>
 
-<!-- ═══════════════════ PAGE 1: 工艺台 ═══════════════════ -->
+<!-- ═══════════════ PAGE: 工艺台 ═══════════════ -->
 <div class="page" id="page-process">
-<div class="container">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-    <span style="font-family:var(--mono);font-size:16px;color:var(--text3);">实验编号：</span>
-    <span style="font-family:var(--mono);font-size:17px;font-weight:700;color:var(--accent);" id="proc-exp-id">—</span>
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <div class="page-title">工艺台</div>
+      <div class="page-desc">记录合成各步骤的温度、时间、现象和照片</div>
+    </div>
+    <div class="page-actions">
+      <span style="font-family:var(--mono);font-size:12px;color:var(--text3);">实验编号：<strong id="proc-exp-id" style="color:var(--accent);">—</strong></span>
+    </div>
   </div>
   <div id="process-steps"></div>
 </div>
-</div>
 
-<!-- ═══════════════════ PAGE 2: 历史 ═══════════════════ -->
-<div class="page" id="page-history">
-<div class="container">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-    <div style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;">本地存档</div>
-    <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearHistory()">清空历史</button>
-  </div>
-  <div id="storage-warning" style="display:none;background:#fffbeb;border:1px solid #fbbf24;border-radius:6px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#92400e;">
-    ⚠️ <strong>存储空间不足！</strong>请导出历史记录后清理，或删除带照片的旧记录。
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-family:var(--mono);font-size:12px;color:var(--text3);">
-    <span>存储使用：</span>
-    <span id="storage-used" style="color:var(--accent);font-weight:600;">计算中...</span>
-    <span id="storage-bar" style="flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
-      <div id="storage-fill" style="height:100%;background:var(--accent);width:0%;transition:width 0.3s;"></div>
-    </span>
-  </div>
-  <div style="display:flex;gap:8px;margin-bottom:10px;">
-    <button class="btn btn-primary btn-sm" style="flex:1;" onclick="exportAllHistory()">📋 导出所有历史</button>
-    <input type="file" id="history-import-file" accept=".json" style="display:none;" onchange="importAllHistory(this)">
-    <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('history-import-file').click()">📥 导入所有历史</button>
-  </div>
-  <div id="history-list">
-    <div style="text-align:center;padding:32px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无历史记录</div>
-  </div>
-</div>
-</div>
-
-<!-- ═══════════════════ PAGE 3: 导出 ═══════════════════ -->
-<div class="page" id="page-export">
-<div class="container">
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">导出实验报告</div>
+<!-- ═══════════════ PAGE: 实验数据库 ═══════════════ -->
+<div class="page" id="page-database">
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <div class="page-title">实验数据库</div>
+      <div class="page-desc">所有历史实验的索引，点击行查看可视化报告</div>
     </div>
-    <div style="font-size:17px;color:var(--text2);line-height:1.9;">
-      导出内容包含：配方信息、当量计算（理论 vs 实际）、工艺步骤记录、照片附录
+    <div class="page-actions">
+      <button class="btn btn-secondary btn-sm" onclick="exportAllHistory()">📋 导出 TXT</button>
+      <button class="btn btn-green btn-sm" onclick="exportToExcel()">📊 导出 Excel</button>
+      <button class="btn btn-danger btn-sm" onclick="clearHistory()">🗑️ 清空</button>
+    </div>
+  </div>
+
+  <div class="storage-info">
+    <span>存储使用：</span>
+    <span class="storage-size" id="storage-used">计算中…</span>
+    <div class="progress-bar" style="flex:1;">
+      <div class="progress-fill" id="storage-fill" style="background:var(--accent);width:0%;"></div>
+    </div>
+  </div>
+
+  <div class="db-toolbar">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="db-search" placeholder="搜索实验编号、操作人、体系…" oninput="filterHistory()">
+    </div>
+    <select id="db-sort" onchange="filterHistory()" style="min-width:130px;">
+      <option value="date-desc">日期 ↓</option>
+      <option value="date-asc">日期 ↑</option>
+      <option value="r-asc">R 值 ↑</option>
+      <option value="r-desc">R 值 ↓</option>
+      <option value="hsc-desc">HSC ↓</option>
+    </select>
+    <input type="file" id="history-import-file" accept=".txt,.json" style="display:none;" onchange="importAllHistory(this)">
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('history-import-file').click()">📥 导入</button>
+  </div>
+
+  <div class="card" style="padding:0;overflow:auto;">
+    <table class="db-table" id="db-table">
+      <thead>
+        <tr>
+          <th>实验编号</th>
+          <th>日期</th>
+          <th>操作人</th>
+          <th>主体系</th>
+          <th>R 值</th>
+          <th>HSC%</th>
+          <th>固含%</th>
+          <th>实验目的</th>
+          <th style="text-align:right;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="db-body">
+        <tr><td colspan="9" class="db-empty">暂无记录</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE: 可视化报告 ═══════════════ -->
+<div class="page" id="page-report">
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <div class="page-title">可视化报告</div>
+      <div class="page-desc">从数据库选择实验，实时渲染完整实验报告</div>
+    </div>
+  </div>
+
+  <div class="report-viewer" id="report-viewer">
+    <div class="report-toolbar">
+      <div class="report-exp-id" id="rpt-exp-id">请选择实验</div>
+      <div style="flex:1;font-size:12px;color:var(--text3);" id="rpt-meta"></div>
+      <select id="rpt-select" style="max-width:220px;" onchange="loadReportFromSelect()">
+        <option value="">— 从数据库选择实验 —</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="exportCurrentPDF()">📑 导出 PDF</button>
+      <button class="btn btn-green btn-sm" onclick="loadReportToEditor()">✏️ 加载编辑</button>
+    </div>
+    <div class="report-content" id="report-content">
+      <div class="report-placeholder">
+        <div class="report-placeholder-icon">📊</div>
+        <div class="report-placeholder-text">在上方下拉菜单选择实验，或在<strong>数据库</strong>页面点击任意记录</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE: 导入/导出 ═══════════════ -->
+<div class="page" id="page-export">
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <div class="page-title">导入 / 导出</div>
+      <div class="page-desc">数据备份、迁移与批量处理工具</div>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:14px;grid-template-columns:1fr 1fr;">
+    <div class="card">
+      <div class="card-title">导出当前实验</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-primary btn-full" onclick="exportJSON()">📄 导出 TXT 数据包</button>
+        <button class="btn btn-amber btn-full" id="pdf-btn" onclick="exportPDF()">📑 生成 PDF 报告</button>
+      </div>
+      <div class="hint" style="margin-top:8px;">TXT 可用于历史复用；PDF 包含配方表、当量结果、工艺记录。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">导入实验数据</div>
+      <input type="file" id="import-file" accept=".txt,.json" style="display:none;" onchange="importJSON(this)">
+      <button class="btn btn-secondary btn-full" onclick="document.getElementById('import-file').click()" style="margin-bottom:8px;">📂 选择 TXT 导入</button>
+      <div class="hint">导入后将覆盖当前配方，可在此基础上继续实验。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">批量数据处理</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" style="flex:1;" onclick="selectBatchTxtFiles()">📂 选择文件</button>
+          <button class="btn btn-green" style="flex:1;" onclick="convertTxtToExcel()">🔄 转 Excel</button>
+        </div>
+        <div id="batch-file-count" style="font-size:11px;color:var(--text3);"></div>
+      </div>
+      <div class="hint" style="margin-top:8px;">将多个 TXT 历史文件批量合并导出为 Excel (4个Sheet)。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">从 Excel 生成报告</div>
+      <input type="file" id="excel-import-file" accept=".xlsx,.xls" style="display:none;" onchange="importFromExcel(this)">
+      <button class="btn btn-amber btn-full" onclick="document.getElementById('excel-import-file').click()">📥 选择 Excel 生成 PDF</button>
+      <div class="hint" style="margin-top:8px;">从历史导出的 Excel 文件中选取实验生成 PDF 报告。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE: 预设管理 ═══════════════ -->
+<div class="page" id="page-settings">
+  <div class="page-header">
+    <div class="page-title-wrap">
+      <div class="page-title">预设管理</div>
+      <div class="page-desc">管理自定义原料预设，支持跨设备导入导出</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary btn-sm" onclick="openPresetModal()">＋ 添加预设</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">内置预设</div>
+    <div class="preset-grid" id="builtin-presets-display"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">自定义预设</div>
+    <div id="custom-presets-list">
+      <div class="empty-state"><div class="empty-icon">🧩</div><div class="empty-text">暂无自定义预设</div></div>
     </div>
     <div class="divider"></div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-primary btn-full" onclick="exportJSON()">📄 导出 JSON 数据包</button>
-      <button class="btn btn-amber btn-full" id="pdf-btn" onclick="exportPDF()">📑 生成 PDF 报告</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-cyan" style="flex:1;" onclick="exportPresets()">📋 导出预设 JSON</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="showPresetImportModal()">📥 导入预设 JSON</button>
     </div>
-    <div class="hint" style="margin-top:10px;">JSON 可用于历史复用；PDF 为 A4 排版实验报告，包含图片。</div>
   </div>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">新建 / 清空实验</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-green btn-full" onclick="newExperiment()">＋ 新建实验（清空当前数据）</button>
-    </div>
-    <div class="hint" style="margin-top:8px;">新建前建议先导出 JSON 存档，或点击"暂存"保留到历史记录。</div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">导入历史 JSON</div>
-    </div>
-    <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importJSON(this)">
-    <button class="btn btn-secondary btn-full" onclick="document.getElementById('import-file').click()">📂 选择 JSON 文件导入</button>
-    <div class="hint" style="margin-top:8px;">导入后可在此配方基础上新建实验。</div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">自定义预设管理</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-cyan btn-full" onclick="exportPresets()">📋 导出预设（复制）</button>
-      <button class="btn btn-secondary btn-full" onclick="showPresetImportModal()">📥 导入预设（粘贴）</button>
-    </div>
-    <div class="hint" style="margin-top:8px;">通过复制粘贴JSON跨设备同步自定义预设。</div>
-  </div>
-</div>
 </div>
 
-<!-- ── Photo Caption Modal ── -->
+</main>
+</div>
+
+<!-- ── MODALS ── -->
+
+<!-- Photo Caption Modal -->
 <div class="modal-overlay" id="photo-modal">
   <div class="modal">
+    <div class="modal-handle"></div>
     <div class="modal-title">📷 添加图片备注</div>
-    <div id="photo-preview" style="margin-bottom:12px;border-radius:var(--rs);overflow:hidden;max-height:220px;text-align:center;background:var(--bg);"></div>
+    <div id="photo-preview" style="margin-bottom:12px;border-radius:var(--rs);overflow:hidden;max-height:220px;text-align:center;background:var(--bg3);"></div>
     <div class="form-group" style="margin-bottom:14px;">
       <label>备注说明（必填）</label>
       <input type="text" id="photo-caption-input" placeholder="一句话描述图片内容…">
@@ -848,27 +1211,16 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
   </div>
 </div>
 
-<!-- ── History Detail Modal ── -->
-<div class="modal-overlay" id="detail-modal">
-  <div class="modal">
-    <div class="modal-title" id="detail-modal-title">实验详情</div>
-    <div id="detail-modal-body" style="max-height:62vh;overflow-y:auto;font-size:12px;"></div>
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-primary" style="flex:1;" onclick="loadFromHistory()">以此配方新建</button>
-      <button class="btn btn-secondary" style="flex:1;" onclick="closeDetailModal()">关闭</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── Custom Preset Modal ── -->
+<!-- Custom Preset Modal -->
 <div class="modal-overlay" id="preset-modal">
   <div class="modal">
+    <div class="modal-handle"></div>
     <div class="modal-title">➕ 添加自定义预设</div>
-    <div class="form-group" style="margin-bottom:12px;">
-      <label>原料名称 *</label>
-      <input type="text" id="cp-name" placeholder="如：PPG-2000">
-    </div>
-    <div class="form-row" style="margin-bottom:12px;">
+    <div class="form-grid">
+      <div class="form-group span-2">
+        <label>原料名称 *</label>
+        <input type="text" id="cp-name" placeholder="如：PPG-2000">
+      </div>
       <div class="form-group">
         <label>类型 *</label>
         <select id="cp-type">
@@ -883,8 +1235,6 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
         <label>分子量 (g/mol) *</label>
         <input type="number" id="cp-mw" placeholder="如 2000" step="any">
       </div>
-    </div>
-    <div class="form-row" style="margin-bottom:12px;">
       <div class="form-group">
         <label>官能度 f</label>
         <input type="number" id="cp-f" value="2" step="1" min="0">
@@ -901,21 +1251,16 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
   </div>
 </div>
 
-<!-- ── Preset Import/Export Modal ── -->
+<!-- Preset IO Modal -->
 <div class="modal-overlay" id="preset-io-modal">
   <div class="modal">
-    <div class="modal-title">📋 预设导入/导出</div>
-    <div id="preset-export-area" style="display:none;">
-      <div style="margin-bottom:10px;font-size:16px;color:var(--text2);">复制下方JSON，在其他设备粘贴导入：</div>
-      <textarea id="preset-export-text" readonly style="width:100%;height:120px;font-family:var(--mono);font-size:14px;padding:8px;border:1px solid var(--border-md);border-radius:var(--rs);background:var(--bg);"></textarea>
-      <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="copyPresetJSON()">📄 复制到剪贴板</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="preset-io-title">预设 导入/导出</div>
+    <textarea id="preset-io-text" style="width:100%;height:130px;margin-bottom:12px;" placeholder='粘贴JSON，如：[{"name":"PPG-2000","type":"polyol","mw":2000,"f":2}]'></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="flex:1;" id="preset-io-action-btn">执行</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closePresetIOModal()">关闭</button>
     </div>
-    <div id="preset-import-area" style="display:none;">
-      <div style="margin-bottom:10px;font-size:16px;color:var(--text2);">粘贴预设JSON到下方：</div>
-      <textarea id="preset-import-text" placeholder='粘贴JSON，如：[{"name":"PPG-2000","type":"polyol","mw":2000,"f":2}]' style="width:100%;height:120px;font-family:var(--mono);font-size:14px;padding:8px;border:1px solid var(--border-md);border-radius:var(--rs);"></textarea>
-      <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="importPresetJSON()">📥 导入预设</button>
-    </div>
-    <button class="btn btn-secondary btn-full" style="margin-top:10px;" onclick="closePresetIOModal()">关闭</button>
   </div>
 </div>
 
@@ -926,51 +1271,137 @@ input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); c
 <script>
 'use strict';
 
-// ─────────────────────────────────────────────
-// PRESETS
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+// INDEXED DB
+// ═══════════════════════════════════════════════
+const WPU_DB = {
+  dbName: 'WPU_Storage', version: 1, db: null,
+  init() {
+    return new Promise((res, rej) => {
+      const req = indexedDB.open(this.dbName, this.version);
+      req.onerror = () => rej(req.error);
+      req.onsuccess = () => { this.db = req.result; res(this.db); };
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('current')) db.createObjectStore('current', {keyPath:'key'});
+        if (!db.objectStoreNames.contains('presets')) db.createObjectStore('presets', {keyPath:'key'});
+        if (!db.objectStoreNames.contains('history')) {
+          const hs = db.createObjectStore('history', {keyPath:'expId'});
+          hs.createIndex('savedAt','savedAt',{unique:false});
+        }
+      };
+    });
+  },
+  async get(store, key) {
+    if (!this.db) await this.init();
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(store,'readonly');
+      const req = tx.objectStore(store).get(key);
+      req.onsuccess = () => res(store==='history' ? req.result||null : (req.result?req.result.value:null));
+      req.onerror = () => rej(req.error);
+    });
+  },
+  async set(store, key, value) {
+    if (!this.db) await this.init();
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(store,'readwrite');
+      const req = store==='history' ? tx.objectStore(store).put(value) : tx.objectStore(store).put({key,value});
+      req.onsuccess = () => res();
+      req.onerror = () => rej(req.error);
+    });
+  },
+  async delete(store, key) {
+    if (!this.db) await this.init();
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(store,'readwrite');
+      const req = tx.objectStore(store).delete(key);
+      req.onsuccess = () => res(); req.onerror = () => rej(req.error);
+    });
+  },
+  async getAll(store) {
+    if (!this.db) await this.init();
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(store,'readonly');
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = () => res(req.result.map(i=>i.value||i));
+      req.onerror = () => rej(req.error);
+    });
+  },
+  async clear(store) {
+    if (!this.db) await this.init();
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(store,'readwrite');
+      const req = tx.objectStore(store).clear();
+      req.onsuccess = () => res(); req.onerror = () => rej(req.error);
+    });
+  },
+  async getStorageSize() {
+    if (!this.db) await this.init();
+    return new Promise((res) => {
+      let total=0, done=0;
+      const stores=['current','presets','history'];
+      stores.forEach(name=>{
+        const tx = this.db.transaction(name,'readonly');
+        const req = tx.objectStore(name).getAll();
+        req.onsuccess = () => { total+=JSON.stringify(req.result).length; done++; if(done===3) res(total); };
+        req.onerror = () => { done++; if(done===3) res(total); };
+      });
+    });
+  }
+};
+
+WPU_DB.init().catch(console.error);
+
+// ═══════════════════════════════════════════════
+// PRESETS DATA
+// ═══════════════════════════════════════════════
 const PRESETS = [
-  { name:'PCD-2000',  type:'polyol', mw:2000,   f:2 },
-  { name:'PTMEG-2000',type:'polyol', mw:2000,   f:2 },
-  { name:'PCL-2000',  type:'polyol', mw:2000,   f:2 },
-  { name:'PEG-1000',  type:'polyol', mw:1000,   f:2 },
-  { name:'PET-2000',  type:'polyol', mw:2000,   f:2 },
-  { name:'IPDI',      type:'iso',    mw:222.28,  f:2 },
-  { name:'HDI',       type:'iso',    mw:168.19,  f:2 },
-  { name:'MDI',       type:'iso',    mw:250.25,  f:2 },
-  { name:'DMPA',      type:'chain',  mw:134.13,  f:2 },
-  { name:'BDO',       type:'chain',  mw:90.12,   f:2 },
-  { name:'TMP',       type:'chain',  mw:134.17,  f:3 },
-  { name:'EDA',       type:'chain',  mw:60.10,   f:2 },
-  { name:'TEA',       type:'other',  mw:101.19,  f:0 }, // 中和剂，不参与当量
-  { name:'DBTDL',     type:'other',  mw:631.56,  f:0 }, // 催化剂
-  { name:'T9 (DBTL)', type:'other',  mw:547.34,  f:0 }, // 催化剂 T9
-  { name:'DMF',       type:'solvent', mw:73.09,   f:0 }, // 溶剂
+  {name:'PCD-2000', type:'polyol', mw:2000,   f:2},
+  {name:'PTMEG-2000',type:'polyol',mw:2000,   f:2},
+  {name:'PCL-2000', type:'polyol', mw:2000,   f:2},
+  {name:'PEG-1000', type:'polyol', mw:1000,   f:2},
+  {name:'PET-2000', type:'polyol', mw:2000,   f:2},
+  {name:'IPDI',     type:'iso',    mw:222.28,  f:2},
+  {name:'HDI',      type:'iso',    mw:168.19,  f:2},
+  {name:'MDI',      type:'iso',    mw:250.25,  f:2},
+  {name:'DMPA',     type:'chain',  mw:134.13,  f:2},
+  {name:'BDO',      type:'chain',  mw:90.12,   f:2},
+  {name:'TMP',      type:'chain',  mw:134.17,  f:3},
+  {name:'EDA',      type:'chain',  mw:60.10,   f:2},
+  {name:'TEA',      type:'other',  mw:101.19,  f:0},
+  {name:'DBTDL',    type:'other',  mw:631.56,  f:0},
+  {name:'DMF',      type:'solvent',mw:73.09,   f:0},
 ];
 
 const PROCESS_STEPS = [
-  { id:'s1', title:'① 脱水', sub:'原料预处理脱水除湿', catalyst:false },
-  { id:'s2', title:'② 预聚', sub:'多元醇与异氰酸酯预聚反应', catalyst:true },
-  { id:'s3', title:'③ 亲水扩链', sub:'加入亲水扩链剂（DMPA 等）', catalyst:false },
-  { id:'s4', title:'④ 小分子扩链', sub:'加入小分子扩链剂（BDO/EDA 等）', catalyst:false },
-  { id:'s5', title:'⑤ 中和', sub:'加入 TEA 中和，降至室温', catalyst:false },
-  { id:'s6', title:'⑥ 乳化分散', sub:'高速搅拌下加水乳化', catalyst:false },
+  {id:'s1', title:'① 脱水', sub:'原料预处理脱水除湿', catalyst:false},
+  {id:'s2', title:'② 预聚', sub:'多元醇与异氰酸酯预聚反应', catalyst:true},
+  {id:'s3', title:'③ 亲水扩链', sub:'加入亲水扩链剂（DMPA 等）', catalyst:false},
+  {id:'s4', title:'④ 小分子扩链', sub:'加入小分子扩链剂（BDO/EDA 等）', catalyst:false},
+  {id:'s5', title:'⑤ 中和', sub:'加入 TEA 中和，降至室温', catalyst:false},
+  {id:'s6', title:'⑥ 乳化分散', sub:'高速搅拌下加水乳化', catalyst:false},
 ];
 
-// ─────────────────────────────────────────────
+const TYPE_NAME = {polyol:'多元醇', iso:'异氰酸酯', chain:'扩链/亲水', solvent:'溶剂', other:'其他'};
+const TYPE_CLASS = {polyol:'type-polyol', iso:'type-iso', chain:'type-chain', solvent:'type-solvent', other:'type-other'};
+
+// ═══════════════════════════════════════════════
 // STATE
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 let reagents = [];
 let solidContent = 30;
 let stepData = {};
 let currentPhotoStep = null;
 let pendingPhotoData = null;
-let currentDetailEntry = null;
+let historyData = [];
+let selectedReportEntry = null;
+let batchTxtFiles = [];
+let dbSortState = 'date-desc';
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 // INIT
-// ─────────────────────────────────────────────
-function init() {
+// ═══════════════════════════════════════════════
+async function init() {
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
   const mm = String(now.getMonth()+1).padStart(2,'0');
@@ -978,372 +1409,299 @@ function init() {
   document.getElementById('exp-date').value = `${now.getFullYear()}-${mm}-${dd}`;
   document.getElementById('exp-id').value = `${yy}${mm}${dd}-01`;
 
-  const cached = localStorage.getItem('wpu_current');
-  if (cached) {
-    try { loadState(JSON.parse(cached)); toast('已恢复上次暂存', 'success'); } catch(e) {}
-  }
+  const cached = await WPU_DB.get('current','state');
+  if (cached) { try { loadState(cached); toast('已恢复上次暂存','success'); } catch(e) {} }
 
-  renderPresetBtns();
+  await renderPresetBtns();
+  renderBuiltinPresetsDisplay();
+  renderCustomPresetsList();
   renderReagents();
   updateSummary();
   updateSolidContent(solidContent);
   updateGoalSeekReagents();
   renderProcessSteps();
-  renderHistory();
+  await loadHistory();
   syncExpId();
 }
 
-// ─────────────────────────────────────────────
-// TABS
-// ─────────────────────────────────────────────
-function switchTab(idx) {
-  document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i===idx));
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
-  if (idx===2) renderHistory();
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  document.querySelector(`[data-page="${name}"]`)?.classList.add('active');
+  // Close sidebar on mobile
+  if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
 }
 
 function syncExpId() {
   const v = document.getElementById('exp-id').value || '—';
   document.getElementById('proc-exp-id').textContent = v;
+  document.getElementById('h-exp-id').textContent = v;
 }
 
-// ─────────────────────────────────────────────
-// REAGENTS
-// ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-// CUSTOM PRESETS (localStorage)
-// ─────────────────────────────────────────────
-function getCustomPresets() {
-  try { return JSON.parse(localStorage.getItem('wpu_custom_presets')||'[]'); } catch(e) { return []; }
+// ═══════════════════════════════════════════════
+// CUSTOM PRESETS
+// ═══════════════════════════════════════════════
+async function getCustomPresets() {
+  try { return await WPU_DB.get('presets','list') || []; } catch(e) { return []; }
 }
+async function saveCustomPresets(p) { await WPU_DB.set('presets','list',p); }
 
-function saveCustomPresets(presets) {
-  localStorage.setItem('wpu_custom_presets', JSON.stringify(presets));
-}
-
-function renderPresetBtns() {
+async function renderPresetBtns() {
   const c = document.getElementById('preset-btns');
   c.innerHTML = '';
-
-  // 内置预设
   PRESETS.forEach(p => {
     const b = document.createElement('button');
-    b.className = 'preset-btn';
+    b.className = 'preset-pill';
     b.textContent = p.name;
     b.onclick = () => fillPreset(p);
     c.appendChild(b);
   });
-
-  // 自定义预设
-  const customs = getCustomPresets();
+  const customs = await getCustomPresets();
   customs.forEach((p, idx) => {
     const b = document.createElement('button');
-    b.className = 'preset-btn preset-btn-custom';
-    b.innerHTML = `${p.name}<span class="preset-del" onclick="event.stopPropagation();deleteCustomPreset(${idx});">✕</span>`;
+    b.className = 'preset-pill preset-pill-custom';
+    b.innerHTML = `${p.name}<span class="preset-pill-del" onclick="event.stopPropagation();deleteCustomPreset(${idx})">✕</span>`;
     b.onclick = () => fillPreset(p);
     c.appendChild(b);
   });
+  const add = document.createElement('button');
+  add.className = 'preset-pill preset-pill-add';
+  add.textContent = '＋ 添加';
+  add.onclick = () => openPresetModal();
+  c.appendChild(add);
+}
 
-  // 添加按钮
-  const addBtn = document.createElement('button');
-  addBtn.className = 'preset-btn preset-btn-add';
-  addBtn.textContent = '＋ 添加预设';
-  addBtn.onclick = () => openPresetModal();
-  c.appendChild(addBtn);
+function renderBuiltinPresetsDisplay() {
+  const c = document.getElementById('builtin-presets-display');
+  c.innerHTML = '';
+  PRESETS.forEach(p => {
+    const b = document.createElement('button');
+    b.className = `preset-pill`;
+    b.textContent = `${p.name} (MW:${p.mw},f:${p.f})`;
+    b.style.cursor = 'default';
+    c.appendChild(b);
+  });
+}
+
+async function renderCustomPresetsList() {
+  const customs = await getCustomPresets();
+  const c = document.getElementById('custom-presets-list');
+  if (!customs.length) {
+    c.innerHTML = '<div class="empty-state"><div class="empty-icon">🧩</div><div class="empty-text">暂无自定义预设</div></div>';
+    return;
+  }
+  c.innerHTML = customs.map((p, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--rs);margin-bottom:6px;border:1px solid var(--border);">
+      <span class="type-badge ${TYPE_CLASS[p.type]||'type-other'}">${TYPE_NAME[p.type]||p.type}</span>
+      <span style="font-weight:600;flex:1;">${p.name}</span>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">MW:${p.mw} f:${p.f}${p.density?` ρ:${p.density}`:''}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteCustomPreset(${i})">删除</button>
+    </div>`).join('');
 }
 
 function openPresetModal() {
-  document.getElementById('cp-name').value = '';
-  document.getElementById('cp-type').value = 'polyol';
-  document.getElementById('cp-mw').value = '';
+  ['cp-name','cp-mw','cp-density'].forEach(id => document.getElementById(id).value='');
   document.getElementById('cp-f').value = '2';
-  document.getElementById('cp-density').value = '';
+  document.getElementById('cp-type').value = 'polyol';
   document.getElementById('preset-modal').classList.add('open');
 }
+function closePresetModal() { document.getElementById('preset-modal').classList.remove('open'); }
 
-function closePresetModal() {
-  document.getElementById('preset-modal').classList.remove('open');
-}
-
-function saveCustomPreset() {
+async function saveCustomPreset() {
   const name = document.getElementById('cp-name').value.trim();
   const type = document.getElementById('cp-type').value;
   const mw = parseFloat(document.getElementById('cp-mw').value);
   const f = parseFloat(document.getElementById('cp-f').value);
   const density = document.getElementById('cp-density').value.trim();
-
-  if (!name) { toast('请输入原料名称', 'error'); return; }
-  if (isNaN(mw) || mw <= 0) { toast('请输入有效分子量', 'error'); return; }
-  if (isNaN(f) || f < 0) { toast('请输入有效官能度', 'error'); return; }
-
-  const customs = getCustomPresets();
-  // 检查重名
-  if (customs.some(p => p.name === name) || PRESETS.some(p => p.name === name)) {
-    toast('该名称已存在，请使用其他名称', 'error'); return;
-  }
-
-  const newPreset = {
-    name, type, mw, f,
-    density: density ? parseFloat(density) : null
-  };
-
-  customs.push(newPreset);
-  saveCustomPresets(customs);
-  renderPresetBtns();
+  if (!name) { toast('请输入原料名称','error'); return; }
+  if (isNaN(mw)||mw<=0) { toast('请输入有效分子量','error'); return; }
+  const customs = await getCustomPresets();
+  if (customs.some(p=>p.name===name)||PRESETS.some(p=>p.name===name)) { toast('该名称已存在','error'); return; }
+  customs.push({name,type,mw,f,density:density?parseFloat(density):null});
+  await saveCustomPresets(customs);
+  await renderPresetBtns();
+  await renderCustomPresetsList();
   closePresetModal();
-  toast(`已添加预设：${name}`, 'success');
+  toast(`已添加预设：${name}`,'success');
 }
 
-function deleteCustomPreset(idx) {
+async function deleteCustomPreset(idx) {
   if (!confirm('确定删除此预设？')) return;
-  const customs = getCustomPresets();
-  customs.splice(idx, 1);
-  saveCustomPresets(customs);
-  renderPresetBtns();
+  const customs = await getCustomPresets();
+  customs.splice(idx,1);
+  await saveCustomPresets(customs);
+  await renderPresetBtns();
+  await renderCustomPresetsList();
   toast('预设已删除');
 }
 
-// ─────────────────────────────────────────────
-// PRESET IMPORT/EXPORT
-// ─────────────────────────────────────────────
-function exportPresets() {
-  const customs = getCustomPresets();
-  if (customs.length === 0) {
-    toast('暂无自定义预设', 'error'); return;
-  }
-  const json = JSON.stringify(customs, null, 2);
-  document.getElementById('preset-export-text').value = json;
-  document.getElementById('preset-export-area').style.display = 'block';
-  document.getElementById('preset-import-area').style.display = 'none';
+async function exportPresets() {
+  const customs = await getCustomPresets();
+  if (!customs.length) { toast('暂无自定义预设','error'); return; }
+  document.getElementById('preset-io-title').textContent = '导出预设 JSON';
+  document.getElementById('preset-io-text').value = JSON.stringify(customs,null,2);
+  document.getElementById('preset-io-text').readOnly = true;
+  document.getElementById('preset-io-action-btn').textContent = '📄 复制';
+  document.getElementById('preset-io-action-btn').onclick = () => {
+    navigator.clipboard.writeText(document.getElementById('preset-io-text').value).then(()=>toast('已复制','success'));
+  };
   document.getElementById('preset-io-modal').classList.add('open');
 }
 
 function showPresetImportModal() {
-  document.getElementById('preset-import-text').value = '';
-  document.getElementById('preset-export-area').style.display = 'none';
-  document.getElementById('preset-import-area').style.display = 'block';
+  document.getElementById('preset-io-title').textContent = '导入预设 JSON';
+  document.getElementById('preset-io-text').value = '';
+  document.getElementById('preset-io-text').readOnly = false;
+  document.getElementById('preset-io-action-btn').textContent = '📥 导入';
+  document.getElementById('preset-io-action-btn').onclick = importPresetJSON;
   document.getElementById('preset-io-modal').classList.add('open');
 }
+function closePresetIOModal() { document.getElementById('preset-io-modal').classList.remove('open'); }
 
-function closePresetIOModal() {
-  document.getElementById('preset-io-modal').classList.remove('open');
-}
-
-function copyPresetJSON() {
-  const textarea = document.getElementById('preset-export-text');
-  textarea.select();
-  document.execCommand('copy');
-  toast('已复制到剪贴板', 'success');
-}
-
-function importPresetJSON() {
-  const text = document.getElementById('preset-import-text').value.trim();
-  if (!text) {
-    toast('请粘贴预设JSON', 'error'); return;
-  }
+async function importPresetJSON() {
   try {
-    const data = JSON.parse(text);
-    if (!Array.isArray(data)) {
-      toast('JSON格式错误：应为数组', 'error'); return;
-    }
-    // 验证每个预设的必需字段
-    for (const p of data) {
-      if (!p.name || !p.type || typeof p.mw !== 'number' || typeof p.f !== 'number') {
-        toast('JSON格式错误：缺少必需字段', 'error'); return;
-      }
-    }
-    // 合并到现有预设
-    const customs = getCustomPresets();
+    const data = JSON.parse(document.getElementById('preset-io-text').value);
+    if (!Array.isArray(data)) { toast('格式错误','error'); return; }
+    const customs = await getCustomPresets();
     let added = 0;
     for (const p of data) {
-      // 检查重名
-      if (!customs.some(c => c.name === p.name) && !PRESETS.some(c => c.name === p.name)) {
-        customs.push({
-          name: p.name,
-          type: p.type,
-          mw: p.mw,
-          f: p.f,
-          density: p.density || null
-        });
-        added++;
+      if (p.name && !customs.some(c=>c.name===p.name) && !PRESETS.some(c=>c.name===p.name)) {
+        customs.push(p); added++;
       }
     }
-    if (added === 0) {
-      toast('所有预设都已存在（名称重复）', 'error'); return;
-    }
-    saveCustomPresets(customs);
-    renderPresetBtns();
+    if (!added) { toast('全部重名，无新内容','error'); return; }
+    await saveCustomPresets(customs);
+    await renderPresetBtns(); await renderCustomPresetsList();
     closePresetIOModal();
-    toast(`已导入 ${added} 个预设`, 'success');
-  } catch (e) {
-    toast('JSON格式错误：' + e.message, 'error');
-  }
+    toast(`已导入 ${added} 个预设`,'success');
+  } catch(e) { toast('JSON 格式错误','error'); }
 }
 
+// ═══════════════════════════════════════════════
+// REAGENT INPUT
+// ═══════════════════════════════════════════════
 function fillPreset(p) {
   document.getElementById('add-name').value = p.name;
   document.getElementById('add-type').value = p.type;
   document.getElementById('add-mw').value = p.mw;
   document.getElementById('add-f').value = p.f;
-  // Suggest mL for common liquids and custom presets with density
   const liquids = ['IPDI','HDI','MDI','BDO','TEA','EDA','DMF'];
-  const isLiquid = liquids.some(l => p.name.toUpperCase().includes(l)) || p.density;
+  const isLiquid = liquids.some(l=>p.name.toUpperCase().includes(l)) || p.density;
   document.getElementById('add-unit').value = isLiquid ? 'mL' : 'g';
   toggleDensityField();
-  // prefill known densities or custom preset density
   if (p.density) {
     document.getElementById('add-density').value = p.density;
   } else {
-    const densities = {IPDI:1.062,HDI:1.05,MDI:1.23,BDO:1.017,TEA:0.726,EDA:0.899,DMF:0.944};
-    const dk = Object.keys(densities).find(k => p.name.toUpperCase().includes(k));
-    if (dk) document.getElementById('add-density').value = densities[dk];
+    const d = {IPDI:1.062,HDI:1.05,MDI:1.23,BDO:1.017,TEA:0.726,EDA:0.899,DMF:0.944};
+    const dk = Object.keys(d).find(k=>p.name.toUpperCase().includes(k));
+    if (dk) document.getElementById('add-density').value = d[dk];
   }
   document.getElementById('add-mass').focus();
 }
 
 function calcEq(mass, mw, f) {
-  // 当量数 = mass / (MW/f)，即 = mass * f / MW
-  // f=0 表示不参与当量（如 TEA, 催化剂）
-  if (f === 0 || isNaN(f) || mw <= 0) return null;
-  return mass * f / mw;
+  if (f===0||isNaN(f)||mw<=0) return null;
+  return mass*f/mw;
 }
 
 function toggleDensityField() {
   const unit = document.getElementById('add-unit').value;
-  document.getElementById('add-density-group').style.display = unit==='mL' ? 'flex' : 'none';
+  document.getElementById('add-density-group').style.display = unit==='mL'?'flex':'none';
   document.getElementById('add-unit-label').textContent = unit;
 }
 
 function addReagent() {
-  const name    = document.getElementById('add-name').value.trim();
-  const type    = document.getElementById('add-type').value;
-  const mw      = parseFloat(document.getElementById('add-mw').value);
-  const f       = parseFloat(document.getElementById('add-f').value);
-  const unit    = document.getElementById('add-unit').value;
+  const name = document.getElementById('add-name').value.trim();
+  const type = document.getElementById('add-type').value;
+  const mw = parseFloat(document.getElementById('add-mw').value);
+  const f = parseFloat(document.getElementById('add-f').value);
+  const unit = document.getElementById('add-unit').value;
   const density = parseFloat(document.getElementById('add-density').value);
-  const rawAmt  = parseFloat(document.getElementById('add-mass').value);
+  const rawAmt = parseFloat(document.getElementById('add-mass').value);
 
-  if (!name) { toast('请输入原料名称', 'error'); return; }
-  if (isNaN(mw) || mw <= 0) { toast('请输入有效分子量', 'error'); return; }
-  if (isNaN(f) || f < 0)    { toast('请输入有效官能度（0=不参与当量）', 'error'); return; }
-  if (isNaN(rawAmt) || rawAmt <= 0) { toast('请输入有效理论用量', 'error'); return; }
-  if (unit === 'mL' && (isNaN(density) || density <= 0)) { toast('使用 mL 单位时请填写密度', 'error'); return; }
+  if (!name) { toast('请输入原料名称','error'); return; }
+  if (isNaN(mw)||mw<=0) { toast('请输入有效分子量','error'); return; }
+  if (isNaN(f)||f<0) { toast('请输入有效官能度','error'); return; }
+  if (isNaN(rawAmt)||rawAmt<=0) { toast('请输入有效用量','error'); return; }
+  if (unit==='mL'&&(isNaN(density)||density<=0)) { toast('mL 单位请填写密度','error'); return; }
 
   let mass, vol;
-  if (unit === 'mL') { vol = rawAmt; mass = rawAmt * density; }
-  else               { mass = rawAmt; vol = null; }
+  if (unit==='mL') { vol=rawAmt; mass=rawAmt*density; } else { mass=rawAmt; vol=null; }
 
-  const eq = calcEq(mass, mw, f);
-  reagents.push({ id: Date.now(), name, type, mw, f, unit, density: unit==='mL'?density:null, vol, mass, actual: '', actualVol: '', eq });
-
-  document.getElementById('add-name').value = '';
-  document.getElementById('add-mw').value = '';
-  document.getElementById('add-f').value = '2';
-  document.getElementById('add-mass').value = '';
-  document.getElementById('add-density').value = '';
-  document.getElementById('add-unit').value = 'g';
+  reagents.push({id:Date.now(),name,type,mw,f,unit,density:unit==='mL'?density:null,vol,mass,actual:'',actualVol:'',eq:calcEq(mass,mw,f)});
+  ['add-name','add-mw','add-mass','add-density'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-f').value='2';
+  document.getElementById('add-unit').value='g';
   toggleDensityField();
-
   renderReagents(); updateSummary(); updateSolidContent(solidContent); updateGoalSeekReagents(); autoSave();
-  toast(`${name} 已添加`, 'success');
+  toast(`${name} 已添加`,'success');
 }
 
 function removeReagent(id) {
-  reagents = reagents.filter(r => r.id !== id);
+  reagents = reagents.filter(r=>r.id!==id);
   renderReagents(); updateSummary(); updateSolidContent(solidContent); updateGoalSeekReagents(); autoSave();
 }
 
 function updateReagentField(id, field, val) {
-  const r = reagents.find(x => x.id === id);
+  const r = reagents.find(x=>x.id===id);
   if (!r) return;
-
-  if (field === 'vol_or_mass') {
+  if (field==='vol_or_mass') {
     const v = parseFloat(val);
-    if (!isNaN(v) && v > 0) {
-      if (r.unit === 'mL') { r.vol = v; r.mass = v * (r.density||1); }
-      else { r.mass = v; }
-      r.eq = calcEq(r.mass, r.mw, r.f);
+    if (!isNaN(v)&&v>0) {
+      if (r.unit==='mL'){r.vol=v;r.mass=v*(r.density||1);}else{r.mass=v;}
+      r.eq = calcEq(r.mass,r.mw,r.f);
       const eqEl = document.getElementById('eq-'+id);
-      if (eqEl) {
-        if (r.eq===null){eqEl.textContent='不参与当量';eqEl.className='reagent-eq no-eq';}
-        else{eqEl.textContent='Eq = '+r.eq.toFixed(4);eqEl.className='reagent-eq';}
-      }
+      if (eqEl) { eqEl.textContent = r.eq===null?'不参与当量':`Eq=${r.eq.toFixed(4)}`; eqEl.className='reagent-eq-badge '+(r.eq===null?'no-eq':'has-eq'); }
       updateSummary(); updateSolidContent(solidContent); autoSave();
-      renderReagents(); // re-render to update mass display for mL
     }
-  } else if (field === 'actual_vol_or_mass') {
-    if (r.unit === 'mL') {
-      r.actualVol = val;
-      const av = parseFloat(val);
-      r.actual = (!isNaN(av) && av>0 && r.density) ? String((av*r.density).toFixed(4)) : '';
-    } else {
-      r.actual = val;
-    }
-    const aeqEl = document.getElementById('aeq-'+id);
-    if (aeqEl && r.f > 0) {
-      const am = parseFloat(r.actual);
-      aeqEl.textContent = (!isNaN(am) && am>0) ? `实 Eq = ${calcEq(am,r.mw,r.f).toFixed(4)}` : '';
-    }
+  } else if (field==='actual_vol_or_mass') {
+    if (r.unit==='mL'){r.actualVol=val;const av=parseFloat(val);r.actual=(!isNaN(av)&&av>0&&r.density)?String((av*r.density).toFixed(4)):'';}else{r.actual=val;}
     updateSummary(); autoSave();
-  } else if (field === 'density') {
-    const v = parseFloat(val);
-    if (!isNaN(v) && v > 0) {
-      r.density = v;
-      if (r.unit==='mL' && r.vol) { r.mass = r.vol * v; r.eq = calcEq(r.mass,r.mw,r.f); }
-      if (r.unit==='mL' && r.actualVol) { r.actual = String((parseFloat(r.actualVol)*v).toFixed(4)); }
-      updateSummary(); updateSolidContent(solidContent); autoSave();
-    }
-  } else if (field === 'mw' || field === 'f') {
-    const v = parseFloat(val);
-    if (!isNaN(v) && (field==='f' ? v>=0 : v>0)) {
-      r[field] = v;
-      r.eq = calcEq(r.mass, r.mw, r.f);
-      const eqEl = document.getElementById('eq-'+id);
-      if (eqEl) {
-        if (r.eq===null){eqEl.textContent='不参与当量';eqEl.className='reagent-eq no-eq';}
-        else{eqEl.textContent='Eq = '+r.eq.toFixed(4);eqEl.className='reagent-eq';}
-      }
-      updateSummary(); updateSolidContent(solidContent); autoSave();
-    }
+  } else if (field==='density') {
+    const v=parseFloat(val);if(!isNaN(v)&&v>0){r.density=v;if(r.unit==='mL'&&r.vol)r.mass=r.vol*v;r.eq=calcEq(r.mass,r.mw,r.f);updateSummary();updateSolidContent(solidContent);autoSave();}
+  } else if (field==='mw'||field==='f') {
+    const v=parseFloat(val);if(!isNaN(v)&&(field==='f'?v>=0:v>0)){r[field]=v;r.eq=calcEq(r.mass,r.mw,r.f);updateSummary();updateSolidContent(solidContent);autoSave();}
   }
 }
-
-const TYPE_NAME = { polyol:'多元醇', iso:'异氰酸酯', chain:'扩链/亲水', solvent:'溶剂', other:'其他' };
-const TYPE_TAG  = { polyol:'tag-polyol', iso:'tag-iso', chain:'tag-chain', solvent:'tag-other', other:'tag-other' };
 
 function renderReagents() {
   const el = document.getElementById('reagent-list');
   if (!reagents.length) {
-    el.innerHTML = '<div style="text-align:center;padding:22px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无原料，请在上方添加</div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🧬</div><div class="empty-text">暂无原料，请在上方添加</div></div>';
     return;
   }
   el.innerHTML = reagents.map(r => {
-    const eqText = r.eq === null ? '不参与当量' : `Eq = ${r.eq.toFixed(4)}`;
-    const eqClass = r.eq === null ? 'reagent-eq no-eq' : 'reagent-eq';
-    const av = parseFloat(r.actual);
-    const aeqText = (r.f > 0 && !isNaN(av) && av > 0) ? `实 Eq = ${calcEq(av, r.mw, r.f).toFixed(4)}` : '';
+    const eqText = r.eq===null ? '不参与当量' : `Eq=${r.eq.toFixed(4)}`;
+    const eqClass = r.eq===null ? 'no-eq' : 'has-eq';
     return `
-      <div class="reagent-item" id="ri-${r.id}">
-        <div class="reagent-header">
-          <span class="rtag ${TYPE_TAG[r.type]}">${TYPE_NAME[r.type]}</span>
-          <span class="reagent-name">${r.name}</span>
-          <span id="eq-${r.id}" class="${eqClass}">${eqText}</span>
-          <button class="btn btn-danger btn-sm" style="padding:3px 8px;margin-left:4px;font-size:13px;" onclick="removeReagent(${r.id})">✕</button>
-        </div>
-        <div class="form-row" style="margin-bottom:4px;">
+    <div class="reagent-item">
+      <div class="reagent-header">
+        <span class="type-badge ${TYPE_CLASS[r.type]}">${TYPE_NAME[r.type]}</span>
+        <span class="reagent-name">${r.name}</span>
+        <span class="reagent-eq-badge ${eqClass}" id="eq-${r.id}">${eqText}</span>
+        <button class="btn btn-danger btn-sm" style="padding:3px 8px;" onclick="removeReagent(${r.id})">✕</button>
+      </div>
+      <div class="reagent-body">
+        <div class="form-grid">
           <div class="form-group">
             <label>理论用量 (${r.unit==='mL'?'mL':'g'})</label>
-            <input type="number" value="${r.unit==='mL'?(r.vol||''):r.mass}" step="any"
-              oninput="updateReagentField(${r.id},'vol_or_mass',this.value)" placeholder="理论">
+            <input type="number" value="${r.unit==='mL'?(r.vol||''):r.mass}" step="any" oninput="updateReagentField(${r.id},'vol_or_mass',this.value)">
           </div>
           ${r.unit==='mL'?`<div class="form-group"><label>密度 (g/mL)</label><input type="number" value="${r.density||''}" step="any" oninput="updateReagentField(${r.id},'density',this.value)"></div>`:''}
           <div class="form-group">
             <label>实际用量 (${r.unit==='mL'?'mL':'g'})</label>
-            <input type="number" value="${r.unit==='mL'?(r.actualVol||''):(r.actual||'')}" step="any"
-              oninput="updateReagentField(${r.id},'actual_vol_or_mass',this.value)" placeholder="实际">
+            <input type="number" value="${r.unit==='mL'?(r.actualVol||''):(r.actual||'')}" step="any" oninput="updateReagentField(${r.id},'actual_vol_or_mass',this.value)" placeholder="实际">
           </div>
           <div class="form-group">
-            <label>分子量</label>
+            <label>分子量 MW</label>
             <input type="number" value="${r.mw}" step="any" oninput="updateReagentField(${r.id},'mw',this.value)">
           </div>
           <div class="form-group">
@@ -1351,11 +1709,9 @@ function renderReagents() {
             <input type="number" value="${r.f}" step="1" min="0" oninput="updateReagentField(${r.id},'f',this.value)">
           </div>
         </div>
-        ${r.unit==='mL'?`<div style="font-size:13px;color:var(--text3);font-family:var(--mono);margin-bottom:2px;">
-          理论质量：${r.mass.toFixed(3)} g${r.actual?` · 实际质量：${parseFloat(r.actual).toFixed(3)} g`:''}
-        </div>`:''}
-        ${aeqText ? `<div style="font-size:13px;color:var(--cyan);font-family:var(--mono);margin-top:2px;" id="aeq-${r.id}">${aeqText}</div>` : `<div id="aeq-${r.id}" style="font-size:13px;color:var(--cyan);font-family:var(--mono);margin-top:2px;"></div>`}
-      </div>`;
+        ${r.unit==='mL'?`<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px;">理论质量 ${r.mass.toFixed(3)} g${r.actual?` · 实际质量 ${parseFloat(r.actual).toFixed(3)} g`:''}</div>`:''}
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -1365,117 +1721,87 @@ function clearAll() {
   renderReagents(); updateSummary(); updateSolidContent(solidContent); updateGoalSeekReagents(); autoSave();
 }
 
-// ─────────────────────────────────────────────
-// EQUIVALENTS (NCO/OH correct model)
-// ─────────────────────────────────────────────
-// For diisocyanate (f=2): EW = MW/f = MW/2
-// Eq = mass / EW = mass*f/MW = mass*2/MW
-// Each Eq of diisocyanate contains 1 Eq of NCO
-// So NCO_Eq = Σ (mass_iso * f_iso / MW_iso) — each "equivalent" is one functional group
-// OH_Eq  = Σ (mass_polyol * f / MW) + Σ (mass_chain * f / MW)
+// ═══════════════════════════════════════════════
+// EQUIVALENTS
+// ═══════════════════════════════════════════════
 function calcEquivalents(useActual=false) {
-  // HSC = (iso + chain) / (iso + chain + polyol)
-  // 分母只含参与聚合的组分，不含 f=0 辅助原料（TEA、催化剂等）和溶剂
-  let ncoEq=0, ohEq=0, totalMass=0, isoMass=0, chainMass=0, polyolMass=0;
+  let ncoEq=0,ohEq=0,totalMass=0,isoMass=0,chainMass=0,polyolMass=0;
   reagents.forEach(r => {
-    // 排除溶剂
-    if (r.type === 'solvent') return;
-
-    const m = useActual ? (parseFloat(r.actual) || r.mass) : r.mass;
+    if (r.type==='solvent') return;
+    const m = useActual ? (parseFloat(r.actual)||r.mass) : r.mass;
     totalMass += m;
-    if (r.f === 0) return;
-    const eq = m * r.f / r.mw;
-    if (r.type === 'iso')         { ncoEq += eq; isoMass += m; }
-    else if (r.type === 'polyol') { ohEq += eq;  polyolMass += m; }
-    else if (r.type === 'chain')  { ohEq += eq;  chainMass += m; }
+    if (r.f===0) return;
+    const eq = m*r.f/r.mw;
+    if (r.type==='iso'){ncoEq+=eq;isoMass+=m;}
+    else if (r.type==='polyol'){ohEq+=eq;polyolMass+=m;}
+    else if (r.type==='chain'){ohEq+=eq;chainMass+=m;}
   });
-  const hardMass = isoMass + chainMass;
-  const polymerMass = hardMass + polyolMass;
-  const hsc = polymerMass > 0 ? hardMass / polymerMass * 100 : 0;
-  const rVal = ohEq > 0 ? ncoEq / ohEq : 0;
-  return { ncoEq, ohEq, rVal, hsc, totalMass, hardMass, polymerMass };
+  const hardMass=isoMass+chainMass, polymerMass=hardMass+polyolMass;
+  return {ncoEq,ohEq,rVal:ohEq>0?ncoEq/ohEq:0,hsc:polymerMass>0?hardMass/polymerMass*100:0,totalMass,hardMass,polymerMass,isoMass,chainMass,polyolMass};
 }
 
 function updateSummary() {
   const th = calcEquivalents(false);
   const ac = calcEquivalents(true);
-  const hasActual = reagents.some(r => parseFloat(r.actual) > 0);
-
-  const rClass = th.rVal < 0.95 ? 'bad' : th.rVal > 1.15 ? 'warn' : 'good';
-
-  document.getElementById('s-total-mass').textContent = th.totalMass > 0 ? `${th.totalMass.toFixed(2)} g` : '—';
-  document.getElementById('s-total-actual').textContent = hasActual ? `${ac.totalMass.toFixed(2)} g` : '—';
-  document.getElementById('s-nco-eq').textContent = th.ncoEq > 0 ? th.ncoEq.toFixed(4) : '—';
-  document.getElementById('s-oh-eq').textContent = th.ohEq > 0 ? th.ohEq.toFixed(4) : '—';
-
-  if (th.rVal > 0) {
-    const rStr = hasActual && ac.rVal > 0
-      ? `${th.rVal.toFixed(3)} / ${ac.rVal.toFixed(3)}`
-      : th.rVal.toFixed(3);
-    document.getElementById('s-r-val').textContent = rStr;
-    document.getElementById('s-r-val').className = `s-val ${rClass}`;
-    const hscStr = hasActual
-      ? `${th.hsc.toFixed(1)}% / ${ac.hsc.toFixed(1)}%`
-      : `${th.hsc.toFixed(1)}%`;
-    document.getElementById('s-hsc').textContent = hscStr;
+  const hasActual = reagents.some(r=>parseFloat(r.actual)>0);
+  const rClass = th.rVal<0.95?'bad':th.rVal>1.15?'warn':'good';
+  document.getElementById('s-total-mass').textContent = th.totalMass>0?`${th.totalMass.toFixed(2)} g`:'—';
+  document.getElementById('s-total-actual').textContent = hasActual?`${ac.totalMass.toFixed(2)} g`:'—';
+  document.getElementById('s-nco-eq').textContent = th.ncoEq>0?th.ncoEq.toFixed(4):'—';
+  document.getElementById('s-oh-eq').textContent = th.ohEq>0?th.ohEq.toFixed(4):'—';
+  if (th.rVal>0) {
+    document.getElementById('s-r-val').textContent = hasActual&&ac.rVal>0?`${th.rVal.toFixed(3)} / ${ac.rVal.toFixed(3)}`:th.rVal.toFixed(3);
+    document.getElementById('s-r-val').className = `stat-value ${rClass}`;
+    document.getElementById('s-hsc').textContent = hasActual?`${th.hsc.toFixed(1)}% / ${ac.hsc.toFixed(1)}%`:`${th.hsc.toFixed(1)}%`;
   } else {
     document.getElementById('s-r-val').textContent = '—';
-    document.getElementById('s-r-val').className = 's-val';
+    document.getElementById('s-r-val').className = 'stat-value';
     document.getElementById('s-hsc').textContent = '—';
   }
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 // SOLID CONTENT
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 function updateSolidContent(val) {
   solidContent = parseFloat(val);
   document.getElementById('sc-slider').value = solidContent;
   document.getElementById('sc-pct').textContent = solidContent.toFixed(1);
-  // 固体质量排除溶剂和水
-  const solidMass = reagents.filter(r => r.type !== 'solvent').reduce((s,r) => s + r.mass, 0);
-  if (solidMass > 0) {
-    const water = solidMass * (100 - solidContent) / solidContent;
+  const solidMass = reagents.filter(r=>r.type!=='solvent').reduce((s,r)=>s+r.mass,0);
+  if (solidMass>0) {
+    const water = solidMass*(100-solidContent)/solidContent;
     document.getElementById('sc-solid').textContent = `${solidMass.toFixed(2)} g`;
     document.getElementById('sc-water').textContent = `${water.toFixed(2)} g`;
     document.getElementById('sc-total').textContent = `${(solidMass+water).toFixed(2)} g`;
   } else {
-    ['sc-solid','sc-water','sc-total'].forEach(id => document.getElementById(id).textContent = '—');
+    ['sc-solid','sc-water','sc-total'].forEach(id=>document.getElementById(id).textContent='—');
   }
   onActualWaterInput();
 }
 
 function onActualWaterInput() {
   const aw = parseFloat(document.getElementById('sc-actual-water').value);
-  // 固体质量排除溶剂
-  const solidMass = reagents.filter(r => r.type !== 'solvent').reduce((s,r) => s + r.mass, 0);
-  const actualSolidMass = reagents.filter(r => r.type !== 'solvent').reduce((s,r) => s + (parseFloat(r.actual)||0), 0);
+  const solidMass = reagents.filter(r=>r.type!=='solvent').reduce((s,r)=>s+r.mass,0);
+  const actualSolidMass = reagents.filter(r=>r.type!=='solvent').reduce((s,r)=>s+(parseFloat(r.actual)||0),0);
   const el = document.getElementById('sc-actual-pct');
-  // 优先使用实际固体质量计算，如果没有实际用量则回退到理论质量
-  const massToUse = (actualSolidMass > 0) ? actualSolidMass : solidMass;
-  if (!isNaN(aw) && aw > 0 && massToUse > 0) {
-    const actualSC = massToUse / (massToUse + aw) * 100;
-    el.textContent = actualSC.toFixed(1) + '%';
-  } else {
-    el.textContent = '—';
-  }
+  const m = actualSolidMass>0?actualSolidMass:solidMass;
+  el.textContent = (!isNaN(aw)&&aw>0&&m>0) ? (m/(m+aw)*100).toFixed(1)+'%' : '—';
   autoSave();
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 // GOAL SEEK
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 function updateGoalSeekReagents() {
   const sel = document.getElementById('gs-reagent');
   const cur = sel.value;
   sel.innerHTML = '<option value="">— 选择要调整质量的原料 —</option>';
-  reagents.filter(r => r.f > 0).forEach(r => {
-    const o = document.createElement('option');
-    o.value = r.id;
-    o.textContent = `${r.name} (当前 ${r.mass}g)`;
+  reagents.filter(r=>r.f>0).forEach(r=>{
+    const o=document.createElement('option');
+    o.value=r.id; o.textContent=`${r.name} (${r.mass}g)`;
     sel.appendChild(o);
   });
-  if (cur) sel.value = cur;
+  if (cur) sel.value=cur;
 }
 
 function goalSeek() {
@@ -1483,951 +1809,822 @@ function goalSeek() {
   const goalVal = parseFloat(document.getElementById('gs-val').value);
   const reagentId = parseInt(document.getElementById('gs-reagent').value);
   const resultEl = document.getElementById('gs-result');
-
-  if (isNaN(goalVal)) { toast('请输入目标值', 'error'); return; }
-  if (!reagentId) { toast('请选择要调整的原料', 'error'); return; }
-
-  const r = reagents.find(x => x.id === reagentId);
+  if (isNaN(goalVal)){toast('请输入目标值','error');return;}
+  if (!reagentId){toast('请选择要调整的原料','error');return;}
+  const r=reagents.find(x=>x.id===reagentId);
   if (!r) return;
-  const others = reagents.filter(x => x.id !== reagentId);
-
+  const others=reagents.filter(x=>x.id!==reagentId);
   function compute(mass) {
-    let ncoEq=0,ohEq=0,totalMass=0,isoMass=0,chainMass=0;
-    const all = [...others, {...r, mass}];
-    all.forEach(x => {
-      const m = x.mass;
-      totalMass += m;
-      if (x.f === 0) return;
-      const eq = m * x.f / x.mw;
-      if (x.type==='iso') { ncoEq+=eq; isoMass+=m; }
-      else if (x.type==='polyol') ohEq+=eq;
-      else if (x.type==='chain') { ohEq+=eq; chainMass+=m; }
+    let nco=0,oh=0,tot=0,iso=0,chain=0;
+    [...others,{...r,mass}].forEach(x=>{
+      const m=x.mass;tot+=m;if(x.f===0)return;const eq=m*x.f/x.mw;
+      if(x.type==='iso'){nco+=eq;iso+=m;}else if(x.type==='polyol')oh+=eq;else if(x.type==='chain'){oh+=eq;chain+=m;}
     });
-    const hardMass = isoMass + chainMass;
-    return {
-      rVal: ohEq>0 ? ncoEq/ohEq : 0,
-      hsc: totalMass>0 ? hardMass/totalMass*100 : 0
-    };
+    return {rVal:oh>0?nco/oh:0,hsc:tot>0?(iso+chain)/tot*100:0};
   }
-
-  let lo=0.001, hi=10000, result=null;
-  const getV = c => target==='r' ? c.rVal : c.hsc;
-  const vLo = getV(compute(lo)), vHi = getV(compute(hi));
-  const inRange = (vLo <= goalVal && goalVal <= vHi) || (vHi <= goalVal && goalVal <= vLo);
-  if (!inRange) { toast('目标值超出可解范围，请调整原料或目标', 'error'); return; }
-
-  for (let i=0;i<80;i++) {
-    const mid=(lo+hi)/2;
-    const cv = getV(compute(mid));
-    if (Math.abs(cv-goalVal) < 0.000001) { result=mid; break; }
-    const vlo = getV(compute(lo));
-    if ((cv-goalVal)*(vlo-goalVal) < 0) hi=mid; else lo=mid;
+  let lo=0.001,hi=10000,result=null;
+  const getV=c=>target==='r'?c.rVal:c.hsc;
+  const vLo=getV(compute(lo)),vHi=getV(compute(hi));
+  if(!((vLo<=goalVal&&goalVal<=vHi)||(vHi<=goalVal&&goalVal<=vLo))){toast('目标值超出可解范围','error');return;}
+  for(let i=0;i<80;i++){
+    const mid=(lo+hi)/2,cv=getV(compute(mid));
+    if(Math.abs(cv-goalVal)<0.000001){result=mid;break;}
+    (cv-goalVal)*(getV(compute(lo))-goalVal)<0?hi=mid:lo=mid;
     result=mid;
   }
-
-  if (result !== null && result > 0) {
-    const c = compute(result);
-    resultEl.style.display = 'block';
-    resultEl.innerHTML = `
-      <div style="margin-bottom:6px;">✅ 建议将 <strong>${r.name}</strong> 理论用量调整为：</div>
+  if (result&&result>0) {
+    const c=compute(result);
+    resultEl.style.display='block';
+    resultEl.innerHTML=`<div style="margin-bottom:6px;">✅ 建议将 <strong>${r.name}</strong> 调整为：</div>
       <div style="font-size:20px;font-weight:700;margin-bottom:6px;">${result.toFixed(4)} g</div>
-      <div style="font-size:14px;color:var(--text2);">验证 → R = ${c.rVal.toFixed(4)}，HSC = ${c.hsc.toFixed(2)}%</div>
-      <button class="btn btn-green btn-sm" style="margin-top:10px;" onclick="applyGoalSeek(${reagentId}, ${result.toFixed(4)})">✓ 应用此质量</button>
-    `;
-  } else {
-    toast('无法找到满足条件的解', 'error');
-  }
+      <div style="font-size:12px;color:var(--text2);">验证 → R = ${c.rVal.toFixed(4)}，HSC = ${c.hsc.toFixed(2)}%</div>
+      <button class="btn btn-green btn-sm" style="margin-top:10px;" onclick="applyGoalSeek(${reagentId},${result.toFixed(4)})">✓ 应用此质量</button>`;
+  } else toast('无法找到满足条件的解','error');
 }
 
 function applyGoalSeek(id, mass) {
-  const r = reagents.find(x => x.id === id);
-  if (!r) return;
-  r.mass = parseFloat(mass.toFixed(4));
-  r.eq = calcEq(r.mass, r.mw, r.f);
-  renderReagents(); updateSummary(); updateSolidContent(solidContent); updateGoalSeekReagents(); autoSave();
-  toast('已应用', 'success');
-  document.getElementById('gs-result').style.display = 'none';
+  const r=reagents.find(x=>x.id===id);
+  if(!r)return;
+  r.mass=parseFloat(mass.toFixed(4));r.eq=calcEq(r.mass,r.mw,r.f);
+  renderReagents();updateSummary();updateSolidContent(solidContent);updateGoalSeekReagents();autoSave();
+  toast('已应用','success');
+  document.getElementById('gs-result').style.display='none';
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 // PROCESS STEPS
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 function renderProcessSteps() {
   const container = document.getElementById('process-steps');
-
-  // 保存当前每个卡片的折叠状态
-  const collapsedStates = {};
-  PROCESS_STEPS.forEach(step => {
-    const existingCard = document.getElementById(`scard-${step.id}`);
-    if (existingCard) {
-      collapsedStates[step.id] = existingCard.classList.contains('collapsed');
-    }
-  });
-
-  container.innerHTML = '';
-  PROCESS_STEPS.forEach((step, idx) => {
-    const data = stepData[step.id] || {};
-    const card = document.createElement('div');
-    // 使用保存的状态，如果是第一次渲染则使用默认行为（第一个展开，其他折叠）
-    const isCollapsed = collapsedStates[step.id] !== undefined ? collapsedStates[step.id] : (idx > 0);
-    card.className = 'step-card' + (isCollapsed ? ' collapsed' : '');
-    card.id = `scard-${step.id}`;
-    const hasDone = !!(data.addTime || data.startTime || data.obs || (data.photos && data.photos.length));
-    card.innerHTML = `
+  const collapsed = {};
+  PROCESS_STEPS.forEach(s=>{const c=document.getElementById(`scard-${s.id}`);if(c)collapsed[s.id]=c.classList.contains('collapsed');});
+  container.innerHTML='';
+  PROCESS_STEPS.forEach((step,idx)=>{
+    const data=stepData[step.id]||{};
+    const card=document.createElement('div');
+    const isCollapsed=collapsed[step.id]!==undefined?collapsed[step.id]:(idx>0);
+    card.className='step-card'+(isCollapsed?' collapsed':'');
+    card.id=`scard-${step.id}`;
+    const hasDone=!!(data.addTime||data.startTime||data.obs||(data.photos&&data.photos.length));
+    card.innerHTML=`
       <div class="step-header" onclick="toggleStep('${step.id}')">
         <div class="step-num${hasDone?' done':''}">0${idx+1}</div>
-        <div class="step-title-wrap">
+        <div style="flex:1;">
           <div class="step-title">${step.title}</div>
           <div class="step-sub">${step.sub}</div>
         </div>
         <div class="step-chevron">▼</div>
       </div>
-      <div class="step-body">${buildStepBody(step, data)}</div>
-    `;
+      <div class="step-body">${buildStepBody(step,data)}</div>`;
     container.appendChild(card);
   });
 }
 
 function buildStepBody(step, data) {
-  const sid = step.id;
-  const photos = data.photos || [];
-  const needCool = !!data.needCool;
-
-  const catalystAlert = step.catalyst ? `
-    <div class="alert-catalyst">
-      <div class="alert-icon">⚠️</div>
-      <div><strong>催化剂提醒：</strong>预聚反应通常需加入催化剂（如 DBTDL，用量约为多元醇质量的 0.05–0.1%），请确认是否已添加。</div>
-    </div>` : '';
-
+  const sid=step.id;
+  const photos=data.photos||[];
+  const needCool=!!data.needCool;
+  const catalystAlert=step.catalyst?`<div class="alert alert-amber"><div class="alert-icon">⚠️</div><div><strong>催化剂提醒：</strong>预聚反应通常需加入催化剂（如 DBTDL，用量约多元醇质量的 0.05–0.1%），请确认是否已添加。</div></div>`:'';
   return `
     ${catalystAlert}
-    <div class="form-row">
-      <div class="form-group">
-        <label>反应温度 (°C)</label>
-        <input type="number" placeholder="如 80" value="${data.temp||''}" step="any" oninput="updateStep('${sid}','temp',this.value)">
-      </div>
-      <div class="form-group">
-        <label>搅拌转速 (rpm)</label>
-        <input type="number" placeholder="可选" value="${data.rpm||''}" step="any" oninput="updateStep('${sid}','rpm',this.value)">
-      </div>
+    <div class="form-grid form-grid-3" style="margin-bottom:10px;">
+      <div class="form-group"><label>反应温度 (°C)</label><input type="number" placeholder="80" value="${data.temp||''}" step="any" oninput="updateStep('${sid}','temp',this.value)"></div>
+      <div class="form-group"><label>搅拌转速 (rpm)</label><input type="number" placeholder="可选" value="${data.rpm||''}" step="any" oninput="updateStep('${sid}','rpm',this.value)"></div>
+      <div class="form-group"><label>加料时间</label><input type="time" value="${data.addTime||''}" oninput="updateStep('${sid}','addTime',this.value)"></div>
+      <div class="form-group"><label>反应开始</label><input type="time" value="${data.startTime||''}" oninput="updateStep('${sid}','startTime',this.value)"></div>
+      <div class="form-group"><label>反应结束</label><input type="time" value="${data.endTime||''}" oninput="updateStep('${sid}','endTime',this.value)"></div>
     </div>
-    <div class="time-grid">
-      <div class="form-group">
-        <label>加料时间</label>
-        <input type="time" value="${data.addTime||''}" oninput="updateStep('${sid}','addTime',this.value)">
-      </div>
-      <div class="form-group">
-        <label>反应开始</label>
-        <input type="time" value="${data.startTime||''}" oninput="updateStep('${sid}','startTime',this.value)">
-      </div>
-      <div class="form-group">
-        <label>反应结束</label>
-        <input type="time" value="${data.endTime||''}" oninput="updateStep('${sid}','endTime',this.value)">
-      </div>
-    </div>
-    <div class="check-row">
-      <input type="checkbox" id="cool-${sid}" ${needCool?'checked':''} onchange="toggleCooling('${sid}',this.checked)">
-      <label for="cool-${sid}">需要降温步骤</label>
-    </div>
+    <div class="check-row"><input type="checkbox" id="cool-${sid}" ${needCool?'checked':''} onchange="toggleCooling('${sid}',this.checked)"><label for="cool-${sid}">需要降温步骤</label></div>
     <div id="cool-times-${sid}" style="display:${needCool?'block':'none'};">
-      <div class="time-grid" style="margin-top:6px;">
-        <div class="form-group">
-          <label>降温开始</label>
-          <input type="time" value="${data.coolStart||''}" oninput="updateStep('${sid}','coolStart',this.value)">
-        </div>
-        <div class="form-group">
-          <label>目标温度 (°C)</label>
-          <input type="number" placeholder="如 40" value="${data.coolTargetTemp||''}" step="any" oninput="updateStep('${sid}','coolTargetTemp',this.value)">
-        </div>
-        <div class="form-group">
-          <label>降温完成</label>
-          <input type="time" value="${data.coolEnd||''}" oninput="updateStep('${sid}','coolEnd',this.value)">
-        </div>
+      <div class="form-grid form-grid-3" style="margin:8px 0;">
+        <div class="form-group"><label>降温开始</label><input type="time" value="${data.coolStart||''}" oninput="updateStep('${sid}','coolStart',this.value)"></div>
+        <div class="form-group"><label>目标温度 (°C)</label><input type="number" placeholder="40" value="${data.coolTargetTemp||''}" step="any" oninput="updateStep('${sid}','coolTargetTemp',this.value)"></div>
+        <div class="form-group"><label>降温完成</label><input type="time" value="${data.coolEnd||''}" oninput="updateStep('${sid}','coolEnd',this.value)"></div>
       </div>
     </div>
-    <div class="form-group full" style="margin:8px 0;">
-      <label>实验现象 / 操作备注</label>
-      <textarea placeholder="如：体系逐渐变粘，颜色微黄，NCO%…" oninput="updateStep('${sid}','obs',this.value)">${data.obs||''}</textarea>
-    </div>
+    <div class="form-group" style="margin:10px 0;"><label>实验现象 / 操作备注</label><textarea placeholder="如：体系逐渐变粘，颜色微黄…" oninput="updateStep('${sid}','obs',this.value)">${data.obs||''}</textarea></div>
     <div class="photo-area" onclick="triggerPhoto('${sid}')">
-      <div style="font-size:22px;margin-bottom:3px;">📷</div>
-      <div style="font-size:15px;color:var(--text3);">点击拍照或上传图片</div>
+      <div style="font-size:20px;margin-bottom:3px;">📷</div>
+      <div style="font-size:12px;color:var(--text3);">点击拍照或上传图片</div>
     </div>
     <div class="photo-thumbs" id="thumbs-${sid}">
-      ${photos.map((p,i) => `
-        <div class="photo-thumb">
-          <img src="${p.data}" alt="${p.caption}">
-          <button class="photo-thumb-del" onclick="removePhoto('${sid}',${i})">✕</button>
-          <div class="photo-caption-chip">${p.caption}</div>
-        </div>`).join('')}
-    </div>
-  `;
+      ${photos.map((p,i)=>`<div class="photo-thumb"><img src="${p.data}" alt="${p.caption}"><button class="photo-thumb-del" onclick="removePhoto('${sid}',${i})">✕</button><div class="photo-caption-chip">${p.caption}</div></div>`).join('')}
+    </div>`;
 }
 
-function toggleStep(sid) {
-  document.getElementById(`scard-${sid}`).classList.toggle('collapsed');
-}
-
+function toggleStep(sid) { document.getElementById(`scard-${sid}`).classList.toggle('collapsed'); }
 function updateStep(sid, key, val) {
-  if (!stepData[sid]) stepData[sid] = {};
-  stepData[sid][key] = val;
-  // mark done
-  const numEl = document.querySelector(`#scard-${sid} .step-num`);
-  if (numEl) numEl.classList.add('done');
+  if(!stepData[sid])stepData[sid]={};
+  stepData[sid][key]=val;
+  const numEl=document.querySelector(`#scard-${sid} .step-num`);
+  if(numEl)numEl.classList.add('done');
   autoSave();
 }
-
 function toggleCooling(sid, checked) {
-  if (!stepData[sid]) stepData[sid] = {};
-  stepData[sid].needCool = checked;
-  document.getElementById(`cool-times-${sid}`).style.display = checked ? 'block' : 'none';
+  if(!stepData[sid])stepData[sid]={};
+  stepData[sid].needCool=checked;
+  document.getElementById(`cool-times-${sid}`).style.display=checked?'block':'none';
   autoSave();
 }
 
-function stampNow(sid) {
-  const now = new Date();
-  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  if (!stepData[sid]) stepData[sid] = {};
-  for (const f of ['addTime','startTime','endTime','coolStart','coolEnd']) {
-    if (!stepData[sid][f]) {
-      stepData[sid][f] = ts;
-      autoSave(); renderProcessSteps();
-      toast(`已记录 ${ts}`, 'success'); return;
-    }
-  }
-  toast(`当前 ${ts}（所有时间已填）`);
-}
-
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 // PHOTOS
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 function triggerPhoto(sid) {
-  currentPhotoStep = sid;
-  document.getElementById('photo-file-input').value = '';
+  currentPhotoStep=sid;
+  document.getElementById('photo-file-input').value='';
   document.getElementById('photo-file-input').click();
 }
-
 function handlePhotoFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  compressImage(file, dataUrl => {
-    pendingPhotoData = dataUrl;
-    document.getElementById('photo-preview').innerHTML =
-      `<img src="${dataUrl}" style="max-width:100%;max-height:200px;object-fit:contain;border-radius:6px;">`;
-    document.getElementById('photo-caption-input').value = '';
+  const file=input.files[0]; if(!file)return;
+  compressImage(file, dataUrl=>{
+    pendingPhotoData=dataUrl;
+    document.getElementById('photo-preview').innerHTML=`<img src="${dataUrl}" style="max-width:100%;max-height:200px;object-fit:contain;border-radius:6px;">`;
+    document.getElementById('photo-caption-input').value='';
     document.getElementById('photo-modal').classList.add('open');
   });
 }
-
 function confirmPhoto() {
-  const caption = document.getElementById('photo-caption-input').value.trim();
-  if (!caption) { toast('请输入图片备注', 'error'); return; }
-  if (!stepData[currentPhotoStep]) stepData[currentPhotoStep] = {};
-  if (!stepData[currentPhotoStep].photos) stepData[currentPhotoStep].photos = [];
-  stepData[currentPhotoStep].photos.push({ data: pendingPhotoData, caption });
-  closePhotoModal();
-  renderProcessSteps();
-  autoSave();
-  toast('图片已添加', 'success');
+  const caption=document.getElementById('photo-caption-input').value.trim();
+  if(!caption){toast('请输入图片备注','error');return;}
+  if(!stepData[currentPhotoStep])stepData[currentPhotoStep]={};
+  if(!stepData[currentPhotoStep].photos)stepData[currentPhotoStep].photos=[];
+  stepData[currentPhotoStep].photos.push({data:pendingPhotoData,caption});
+  closePhotoModal(); renderProcessSteps(); autoSave(); toast('图片已添加','success');
 }
-
-function closePhotoModal() {
-  document.getElementById('photo-modal').classList.remove('open');
-  pendingPhotoData = null;
-}
-
-function removePhoto(sid, idx) {
-  if (stepData[sid]?.photos) {
-    stepData[sid].photos.splice(idx, 1);
-    renderProcessSteps(); autoSave();
-  }
-}
-
-function compressImage(file, callback) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX_W = 1280;
-      let w = img.width, h = img.height;
-      if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
-      const canvas = document.getElementById('compress-canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      callback(canvas.toDataURL('image/jpeg', 0.85));
+function closePhotoModal() { document.getElementById('photo-modal').classList.remove('open'); pendingPhotoData=null; }
+function removePhoto(sid, idx) { if(stepData[sid]?.photos){stepData[sid].photos.splice(idx,1);renderProcessSteps();autoSave();} }
+function compressImage(file, cb) {
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=1280;let w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      const canvas=document.getElementById('compress-canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      cb(canvas.toDataURL('image/jpeg',0.85));
     };
-    img.src = e.target.result;
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-// ─────────────────────────────────────────────
-// CACHE / AUTO-SAVE
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+// STATE SAVE/LOAD
+// ═══════════════════════════════════════════════
 function getState() {
   return {
-    expId: document.getElementById('exp-id').value,
-    expDate: document.getElementById('exp-date').value,
-    expNote: document.getElementById('exp-note').value,
-    expOperator: document.getElementById('exp-operator').value,
-    reagents, solidContent, stepData,
-    actualWater: document.getElementById('sc-actual-water').value,
-    savedAt: new Date().toISOString()
+    expId:document.getElementById('exp-id').value,
+    expDate:document.getElementById('exp-date').value,
+    expNote:document.getElementById('exp-note').value,
+    expOperator:document.getElementById('exp-operator').value,
+    reagents,solidContent,stepData,
+    actualWater:document.getElementById('sc-actual-water').value,
+    savedAt:new Date().toISOString()
   };
 }
 
 function loadState(s) {
-  if (s.expId) document.getElementById('exp-id').value = s.expId;
-  if (s.expDate) document.getElementById('exp-date').value = s.expDate;
-  if (s.expNote) document.getElementById('exp-note').value = s.expNote;
-  if (s.expOperator) document.getElementById('exp-operator').value = s.expOperator;
-  if (s.reagents) reagents = s.reagents;
-  if (s.solidContent) solidContent = s.solidContent;
-  if (s.stepData) stepData = s.stepData;
-  if (s.actualWater !== undefined) { const el = document.getElementById('sc-actual-water'); if(el) el.value = s.actualWater; }
-  renderReagents(); updateSummary(); updateSolidContent(solidContent);
-  updateGoalSeekReagents(); renderProcessSteps(); syncExpId();
+  if(s.expId)document.getElementById('exp-id').value=s.expId;
+  if(s.expDate)document.getElementById('exp-date').value=s.expDate;
+  if(s.expNote)document.getElementById('exp-note').value=s.expNote;
+  if(s.expOperator)document.getElementById('exp-operator').value=s.expOperator;
+  if(s.reagents)reagents=s.reagents;
+  if(s.solidContent)solidContent=s.solidContent;
+  if(s.stepData)stepData=s.stepData;
+  const awEl=document.getElementById('sc-actual-water');if(awEl&&s.actualWater!==undefined)awEl.value=s.actualWater;
+  renderReagents();updateSummary();updateSolidContent(solidContent);
+  updateGoalSeekReagents();renderProcessSteps();syncExpId();
 }
 
-let _autoSave = null;
+let _autoSave=null;
 function autoSave() {
   clearTimeout(_autoSave);
-  _autoSave = setTimeout(() => localStorage.setItem('wpu_current', JSON.stringify(getState())), 700);
+  _autoSave=setTimeout(()=>WPU_DB.set('current','state',getState()),700);
 }
-
-function saveToCache() {
-  localStorage.setItem('wpu_current', JSON.stringify(getState()));
-  toast('已暂存到本地缓存', 'success');
-}
+function saveToCache() { WPU_DB.set('current','state',getState()); toast('已暂存到本地缓存','success'); }
 
 function newExperiment() {
-  if (!confirm('新建实验将清空当前所有配方和工艺数据，确认继续？\n（可先去"导出"页保存 JSON 存档）')) return;
-  reagents = [];
-  solidContent = 30;
-  stepData = {};
-  // Reset form fields
-  const now = new Date();
-  const yy = String(now.getFullYear()).slice(2);
-  const mm = String(now.getMonth()+1).padStart(2,'0');
-  const dd = String(now.getDate()).padStart(2,'0');
-  document.getElementById('exp-id').value = `${yy}${mm}${dd}-01`;
-  document.getElementById('exp-date').value = `${now.getFullYear()}-${mm}-${dd}`;
-  document.getElementById('exp-note').value = '';
-  document.getElementById('exp-operator').value = '';
-  const awEl = document.getElementById('sc-actual-water'); if(awEl) { awEl.value=''; }
-  document.getElementById('sc-actual-pct').textContent = '—';
-  localStorage.removeItem('wpu_current');
-  renderReagents(); updateSummary(); updateSolidContent(30);
-  updateGoalSeekReagents(); renderProcessSteps(); syncExpId();
-  document.getElementById('gs-result').style.display = 'none';
-  switchTab(0);
-  toast('已新建实验，可开始填写配方', 'success');
+  if(!confirm('新建实验将清空当前数据，确认继续？\n（建议先存入数据库或导出 TXT）'))return;
+  reagents=[];solidContent=30;stepData={};
+  const now=new Date(),yy=String(now.getFullYear()).slice(2),mm=String(now.getMonth()+1).padStart(2,'0'),dd=String(now.getDate()).padStart(2,'0');
+  document.getElementById('exp-id').value=`${yy}${mm}${dd}-01`;
+  document.getElementById('exp-date').value=`${now.getFullYear()}-${mm}-${dd}`;
+  document.getElementById('exp-note').value='';document.getElementById('exp-operator').value='';
+  const awEl=document.getElementById('sc-actual-water');if(awEl)awEl.value='';
+  document.getElementById('sc-actual-pct').textContent='—';
+  WPU_DB.delete('current','state');
+  renderReagents();updateSummary();updateSolidContent(30);updateGoalSeekReagents();renderProcessSteps();syncExpId();
+  document.getElementById('gs-result').style.display='none';
+  switchPage('formula');
+  toast('已新建实验','success');
 }
 
-// ─────────────────────────────────────────────
-// HISTORY
-// ─────────────────────────────────────────────
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem('wpu_history')||'[]'); } catch(e) { return []; }
+// ═══════════════════════════════════════════════
+// HISTORY / DATABASE
+// ═══════════════════════════════════════════════
+async function loadHistory() {
+  const items = await WPU_DB.getAll('history');
+  historyData = items.sort((a,b)=>new Date(b.savedAt)-new Date(a.savedAt));
+  renderDatabase();
+  updateHistoryBadge();
+  updateRptSelect();
+  await updateStorageInfo();
 }
 
-function saveToHistory(state) {
+function updateHistoryBadge() {
+  document.getElementById('hist-count').textContent = historyData.length;
+}
+
+function updateRptSelect() {
+  const sel = document.getElementById('rpt-select');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— 从数据库选择实验 —</option>';
+  historyData.forEach(h => {
+    const o=document.createElement('option');
+    o.value=h.expId;
+    o.textContent=`${h.expId} · ${h.expDate} · ${h.expOperator||'—'}`;
+    sel.appendChild(o);
+  });
+  if (cur) sel.value=cur;
+}
+
+function filterHistory() {
+  const q = document.getElementById('db-search').value.toLowerCase();
+  const sort = document.getElementById('db-sort').value;
+  let filtered = historyData.filter(h =>
+    (h.expId||'').toLowerCase().includes(q) ||
+    (h.expOperator||'').toLowerCase().includes(q) ||
+    (h.mainSystem||'').toLowerCase().includes(q) ||
+    (h.expNote||'').toLowerCase().includes(q)
+  );
+  const [field, dir] = sort.split('-');
+  filtered.sort((a,b) => {
+    let av,bv;
+    if(field==='date'){av=new Date(a.savedAt||a.expDate);bv=new Date(b.savedAt||b.expDate);}
+    else if(field==='r'){av=parseFloat(a.rVal)||0;bv=parseFloat(b.rVal)||0;}
+    else if(field==='hsc'){av=parseFloat(a.hsc)||0;bv=parseFloat(b.hsc)||0;}
+    return dir==='desc'?bv-av:av-bv;
+  });
+  renderDBTable(filtered);
+}
+
+function renderDatabase() { filterHistory(); }
+
+function renderDBTable(data) {
+  const tbody = document.getElementById('db-body');
+  if (!data.length) {
+    tbody.innerHTML='<tr><td colspan="9" class="db-empty">暂无记录</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(h => {
+    const r=parseFloat(h.rVal);
+    const rClass=isNaN(r)?'':r<0.95?'db-r-bad':r>1.15?'db-r-warn':'db-r-good';
+    return `<tr onclick="viewReport('${h.expId}')">
+      <td>${h.expId}</td>
+      <td>${h.expDate||'—'}</td>
+      <td>${h.expOperator||'—'}</td>
+      <td style="font-size:11px;">${h.mainSystem||'—'}</td>
+      <td class="${rClass}">${h.rVal||'—'}</td>
+      <td>${h.hsc||'—'}%</td>
+      <td>${h.solidContent||'—'}%</td>
+      <td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h.expNote||'—'}</td>
+      <td style="text-align:right;white-space:nowrap;">
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();loadFromHistory('${h.expId}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteHistoryItem('${h.expId}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function viewReport(expId) {
+  const entry = historyData.find(h=>h.expId===expId);
+  if (!entry) return;
+  selectedReportEntry = entry;
+  renderReport(entry);
+  switchPage('report');
+  document.getElementById('rpt-select').value = expId;
+}
+
+function loadReportFromSelect() {
+  const expId = document.getElementById('rpt-select').value;
+  if (!expId) return;
+  viewReport(expId);
+}
+
+async function loadFromHistory(expId) {
+  const entry = historyData.find(h=>h.expId===expId);
+  if (!entry) return;
+  if (!confirm(`加载实验 ${expId} 将覆盖当前数据，确认？`)) return;
+  loadState(entry);
+  switchPage('formula');
+  toast('配方已加载','success');
+}
+
+function loadReportToEditor() {
+  if (!selectedReportEntry) { toast('请先选择实验','error'); return; }
+  loadFromHistory(selectedReportEntry.expId);
+}
+
+async function saveCurrentToHistory() {
+  const state = getState();
   const th = calcEquivalents(false);
-  const hist = getHistory();
   const entry = {
     ...state,
     rVal: th.rVal.toFixed(3),
     hsc: th.hsc.toFixed(1),
-    mainSystem: [
-      ...reagents.filter(r=>r.type==='iso').map(r=>r.name),
-      ...reagents.filter(r=>r.type==='polyol').map(r=>r.name)
-    ].join('/') || '—',
+    mainSystem: [...reagents.filter(r=>r.type==='iso').map(r=>r.name),...reagents.filter(r=>r.type==='polyol').map(r=>r.name)].join('/') || '—',
     savedAt: new Date().toISOString()
   };
-  const idx = hist.findIndex(h => h.expId === entry.expId);
-  if (idx>=0) hist[idx]=entry; else hist.unshift(entry);
-  try {
-    localStorage.setItem('wpu_history', JSON.stringify(hist.slice(0,50)));
-  } catch (e) {
-    // 存储空间不足，尝试删除最旧的记录
-    if (hist.length > 1) {
-      hist.pop();
-      try {
-        localStorage.setItem('wpu_history', JSON.stringify(hist));
-        toast('存储空间已满，已删除最旧的记录', 'warn');
-      } catch (e2) {
-        toast('存储空间已满，请清理历史记录', 'error');
-      }
-    } else {
-      toast('存储空间已满，无法保存记录', 'error');
-    }
-  }
+  await WPU_DB.set('history', entry.expId, entry);
+  await loadHistory();
+  toast(`实验 ${entry.expId} 已存入数据库`,'success');
 }
 
-function renderHistory() {
-  const hist = getHistory();
-  const el = document.getElementById('history-list');
-  if (!hist.length) {
-    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text3);font-size:16px;font-family:var(--mono);">暂无历史记录</div>';
-  } else {
-    el.innerHTML = hist.map(h => `
-      <div class="history-item">
-        <div style="display:flex;align-items:flex-start;gap:10px;" onclick="showHistoryDetail('${h.expId}')">
-          <div style="flex:1;">
-            <div class="history-id">${h.expId}</div>
-            <div class="history-meta">${h.expDate} · 操作人：${h.expOperator||'—'}</div>
-            <div class="history-meta" style="color:var(--text2);">${h.mainSystem} · R=${h.rVal} · HSC=${h.hsc}% · 固含${h.solidContent}%</div>
-            ${h.expNote ? `<div class="history-meta">${h.expNote}</div>` : ''}
-          </div>
-          <button class="btn btn-danger btn-sm" style="flex-shrink:0;padding:4px 10px;font-size:13px;" onclick="event.stopPropagation();deleteHistoryItem('${h.expId}')">删除</button>
-        </div>
-      </div>`).join('');
-  }
-  updateStorageInfo();
-}
-
-// 计算并显示存储使用情况
-function updateStorageInfo() {
-  let totalUsed = 0;
-  for (let key in localStorage) {
-    if (localStorage.hasOwnProperty(key)) {
-      totalUsed += localStorage[key].length + key.length;
-    }
-  }
-  const usedMB = (totalUsed / 1024 / 1024).toFixed(2);
-  const usedPercent = Math.min((totalUsed / (5 * 1024 * 1024)) * 100, 100); // 假设5MB限制
-
-  document.getElementById('storage-used').textContent = `${usedMB} MB`;
-  document.getElementById('storage-fill').style.width = `${usedPercent}%`;
-
-  // 根据使用量改变颜色
-  const fillEl = document.getElementById('storage-fill');
-  const warningEl = document.getElementById('storage-warning');
-  if (usedPercent > 80) {
-    fillEl.style.background = '#dc2626';
-    warningEl.style.display = 'block';
-  } else if (usedPercent > 60) {
-    fillEl.style.background = '#d97706';
-    warningEl.style.display = 'none';
-  } else {
-    fillEl.style.background = '#2563eb';
-    warningEl.style.display = 'none';
-  }
-}
-
-function showHistoryDetail(expId) {
-  const entry = getHistory().find(h => h.expId === expId);
-  if (!entry) return;
-  currentDetailEntry = entry;
-  document.getElementById('detail-modal-title').textContent = `实验 ${expId}`;
-  const rows = (entry.reagents||[]).map(r =>
-    `<tr>
-      <td style="padding:5px 8px;border:1px solid var(--border);font-weight:600;">${r.name}</td>
-      <td style="padding:5px 8px;border:1px solid var(--border);">${TYPE_NAME[r.type]||r.type}</td>
-      <td style="padding:5px 8px;border:1px solid var(--border);">${r.mass}g</td>
-      <td style="padding:5px 8px;border:1px solid var(--border);">${r.actual||'—'}</td>
-      <td style="padding:5px 8px;border:1px solid var(--border);">${r.mw}</td>
-      <td style="padding:5px 8px;border:1px solid var(--border);">${r.f}</td>
-      <td style="padding:5px 8px;border:1px solid var(--border);">${r.eq!==null&&r.eq!==undefined ? r.eq.toFixed(4) : '—'}</td>
-    </tr>`).join('');
-  document.getElementById('detail-modal-body').innerHTML = `
-    <div style="margin-bottom:10px;font-size:16px;color:var(--text3);">${entry.expDate} · ${entry.expOperator||'—'} · ${entry.expNote||''}</div>
-    <table style="width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono);margin-bottom:12px;">
-      <thead><tr style="background:var(--bg);">
-        <th style="padding:5px 8px;border:1px solid var(--border);text-align:left;">原料</th>
-        <th style="padding:5px 8px;border:1px solid var(--border);">类型</th>
-        <th style="padding:5px 8px;border:1px solid var(--border);">理论</th>
-        <th style="padding:5px 8px;border:1px solid var(--border);">实际</th>
-        <th style="padding:5px 8px;border:1px solid var(--border);">MW</th>
-        <th style="padding:5px 8px;border:1px solid var(--border);">f</th>
-        <th style="padding:5px 8px;border:1px solid var(--border);">Eq</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="summary-bar">
-      <div class="summary-item"><div class="s-label">R 值</div><div class="s-val good">${entry.rVal}</div></div>
-      <div class="summary-item"><div class="s-label">HSC</div><div class="s-val">${entry.hsc}%</div></div>
-      <div class="summary-item"><div class="s-label">固含</div><div class="s-val">${entry.solidContent}%</div></div>
-    </div>`;
-  document.getElementById('detail-modal').classList.add('open');
-}
-
-function closeDetailModal() {
-  document.getElementById('detail-modal').classList.remove('open');
-  currentDetailEntry = null;
-}
-
-function loadFromHistory() {
-  if (!currentDetailEntry) return;
-  if (!confirm('加载此配方将覆盖当前数据，确认？')) return;
-  loadState(currentDetailEntry);
-  closeDetailModal(); switchTab(0);
-  toast('配方已加载', 'success');
-}
-
-function clearHistory() {
+async function clearHistory() {
   if (!confirm('确定清空所有历史记录？')) return;
-  localStorage.removeItem('wpu_history');
-  renderHistory(); toast('历史已清空');
+  await WPU_DB.clear('history');
+  historyData=[];
+  renderDatabase();updateHistoryBadge();updateRptSelect();
+  toast('历史已清空');
 }
 
-function deleteHistoryItem(expId) {
-  if (!confirm(`确定删除实验 ${expId} 的记录？`)) return;
-  const hist = getHistory();
-  const newHist = hist.filter(h => h.expId !== expId);
-  localStorage.setItem('wpu_history', JSON.stringify(newHist.slice(0,50)));
-  renderHistory();
-  toast('记录已删除');
+async function deleteHistoryItem(expId) {
+  if (!confirm(`确定删除实验 ${expId}？`)) return;
+  await WPU_DB.delete('history', expId);
+  historyData = historyData.filter(h=>h.expId!==expId);
+  renderDatabase();updateHistoryBadge();updateRptSelect();
+  toast('已删除');
 }
 
-function exportAllHistory() {
-  const hist = getHistory();
-  if (!hist.length) {
-    toast('暂无历史记录可导出', 'error'); return;
-  }
-  const blob = new Blob([JSON.stringify(hist,null,2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download=`wpu_history_${new Date().toISOString().slice(0,10)}.json`; a.click();
-  URL.revokeObjectURL(url);
-  toast(`已导出 ${hist.length} 条历史记录`, 'success');
+async function updateStorageInfo() {
+  const total = await WPU_DB.getStorageSize();
+  const mb = (total/1024/1024).toFixed(2);
+  const pct = Math.min(total/(100*1024*1024)*100, 100);
+  document.getElementById('storage-used').textContent = `${mb} MB`;
+  const fill = document.getElementById('storage-fill');
+  fill.style.width = pct+'%';
+  fill.style.background = pct>80?'var(--red)':pct>60?'var(--amber)':'var(--accent)';
 }
 
-function importAllHistory(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) {
-        toast('JSON 格式错误：应为数组', 'error'); return;
-      }
-      if (!confirm(`导入 ${data.length} 条历史记录？将合并到现有历史中。`)) return;
-      const existing = getHistory();
-      const existingIds = new Set(existing.map(h => h.expId));
-      let added = 0;
-      for (const entry of data) {
-        if (entry.expId && !existingIds.has(entry.expId)) {
-          existing.unshift(entry);
-          existingIds.add(entry.expId);
-          added++;
-        }
-      }
-      localStorage.setItem('wpu_history', JSON.stringify(existing.slice(0,50)));
-      renderHistory();
-      input.value = '';
-      toast(`已导入 ${added} 条历史记录`, 'success');
-    } catch(err) { toast('JSON 格式错误：' + err.message, 'error'); }
-  };
-  reader.readAsText(file);
+// ═══════════════════════════════════════════════
+// REPORT RENDERER
+// ═══════════════════════════════════════════════
+function renderReport(entry) {
+  document.getElementById('rpt-exp-id').textContent = entry.expId;
+  document.getElementById('rpt-meta').textContent = `${entry.expDate} · ${entry.expOperator||'—'} · ${entry.expNote||''}`;
+
+  const th = computeEquiv(entry.reagents||[], false);
+  const ac = computeEquiv(entry.reagents||[], true);
+  const hasActual = (entry.reagents||[]).some(r=>parseFloat(r.actual)>0);
+  const solidMass = (entry.reagents||[]).filter(r=>r.type!=='solvent').reduce((s,r)=>s+r.mass,0);
+  const actualSolidMass = (entry.reagents||[]).filter(r=>r.type!=='solvent').reduce((s,r)=>s+(parseFloat(r.actual)||0),0);
+  const water = solidMass>0?solidMass*(100-(entry.solidContent||30))/(entry.solidContent||30):0;
+  const aw = parseFloat(entry.actualWater)||0;
+  const actualSC = (actualSolidMass>0&&aw>0)?(actualSolidMass/(actualSolidMass+aw)*100).toFixed(1)+'%':'—';
+
+  // Reagent rows
+  const reagentRows = (entry.reagents||[]).map(r=>{
+    const thEq = (r.f>0&&r.eq!=null)?r.eq.toFixed(4):'—';
+    const am = parseFloat(r.actual)||0;
+    const acEq = (r.f>0&&am>0)?calcEq(am,r.mw,r.f).toFixed(4):'—';
+    const thDisplay = r.unit==='mL'&&r.vol?`${r.vol}mL (${r.mass.toFixed(3)}g)`:r.mass?`${r.mass}g`:'—';
+    const acDisplay = r.actual?(r.unit==='mL'&&r.actualVol?`${r.actualVol}mL (${am.toFixed(3)}g)`:`${r.actual}g`):'—';
+    return `<tr>
+      <td class="r-name">${r.name}</td>
+      <td><span class="type-badge ${TYPE_CLASS[r.type]||'type-other'}">${TYPE_NAME[r.type]||r.type}</span></td>
+      <td style="text-align:center;">${r.mw}</td>
+      <td style="text-align:center;">${r.f}</td>
+      <td class="r-theory" style="text-align:center;">${thDisplay}</td>
+      <td class="r-actual" style="text-align:center;">${acDisplay}</td>
+      <td class="r-eq" style="text-align:center;">${thEq}</td>
+      <td class="r-eq" style="text-align:center;color:var(--green);">${acEq}</td>
+    </tr>`;
+  }).join('');
+
+  // Calc stats
+  const rVal = th.rVal;
+  const rClass = rVal<0.95?'r-bad':rVal>1.15?'r-warn':'r-good';
+  const calcStats = [
+    {label:'R 值 (NCO/OH)', theory:th.rVal.toFixed(4), actual:hasActual?ac.rVal.toFixed(4):'—', class:rClass},
+    {label:'HSC 硬段含量', theory:th.hsc.toFixed(2)+'%', actual:hasActual?ac.hsc.toFixed(2)+'%':'—', class:''},
+    {label:'NCO 当量', theory:th.ncoEq.toFixed(4), actual:hasActual?ac.ncoEq.toFixed(4):'—', class:'r-cyan'},
+    {label:'OH 当量', theory:th.ohEq.toFixed(4), actual:hasActual?ac.ohEq.toFixed(4):'—', class:'r-cyan'},
+    {label:'固含量', theory:(entry.solidContent||30)+'%', actual:actualSC, class:''},
+    {label:'固体质量 (g)', theory:solidMass.toFixed(3), actual:actualSolidMass>0?actualSolidMass.toFixed(3):'—', class:''},
+    {label:'加水量 (g)', theory:water.toFixed(3), actual:aw>0?aw.toFixed(3):'—', class:''},
+    {label:'乳液总质量 (g)', theory:(solidMass+water).toFixed(3), actual:(actualSolidMass>0&&aw>0)?(actualSolidMass+aw).toFixed(3):'—', class:''},
+  ].map(s=>`<div class="rpt-stat ${s.class}">
+    <div class="rpt-stat-label">${s.label}</div>
+    <div class="rpt-stat-theory">${s.theory}</div>
+    ${s.actual&&s.actual!=='—'?`<div class="rpt-stat-actual">实际：${s.actual}</div>`:''}
+  </div>`).join('');
+
+  // Process steps
+  const processStepsHTML = PROCESS_STEPS.map((step,idx)=>{
+    const d=(entry.stepData||{})[step.id]||{};
+    const hasDone=!!(d.addTime||d.startTime||d.obs);
+    const params=[d.temp?`🌡 ${d.temp}°C`:'',d.rpm?`⚙ ${d.rpm}rpm`:''].filter(Boolean);
+    const times=[d.addTime?`加料 ${d.addTime}`:'',d.startTime?`开始 ${d.startTime}`:'',d.endTime?`结束 ${d.endTime}`:'',d.needCool&&d.coolStart?`降温开始 ${d.coolStart}`:'',d.needCool&&d.coolTargetTemp?`→ ${d.coolTargetTemp}°C`:'',d.needCool&&d.coolEnd?`降温完成 ${d.coolEnd}`:''].filter(Boolean);
+    return `<div class="rpt-step">
+      <div class="rpt-step-num${hasDone?' done':''}">0${idx+1}</div>
+      <div class="rpt-step-content">
+        <div class="rpt-step-title">${step.title}</div>
+        ${params.length?`<div class="rpt-step-params">${params.join(' · ')}</div>`:''}
+        ${times.length?`<div class="rpt-step-params">${times.join(' · ')}</div>`:''}
+        ${d.obs?`<div class="rpt-step-obs">${d.obs}</div>`:''}
+        ${!hasDone?'<div class="rpt-step-empty">（暂无记录）</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Photos
+  const allPhotos = [];
+  PROCESS_STEPS.forEach(step=>{((entry.stepData||{})[step.id]?.photos||[]).forEach(p=>allPhotos.push({stepTitle:step.title,...p}));});
+  const photosHTML = allPhotos.length?`
+    <div class="rpt-section">
+      <div class="rpt-section-title">📷 实验照片附录</div>
+      <div class="rpt-photos">
+        ${allPhotos.map(p=>`<div class="rpt-photo"><img src="${p.data}" alt="${p.caption}"><div class="rpt-photo-cap"><strong>${p.stepTitle}</strong>：${p.caption}</div></div>`).join('')}
+      </div>
+    </div>`:'';
+
+  document.getElementById('report-content').innerHTML = `
+    <div class="rpt-section">
+      <div class="rpt-section-title">🔬 实验基本信息</div>
+      <div class="rpt-info-grid">
+        <div class="rpt-info-item"><div class="rpt-info-label">实验编号</div><div class="rpt-info-value highlight">${entry.expId||'—'}</div></div>
+        <div class="rpt-info-item"><div class="rpt-info-label">实验日期</div><div class="rpt-info-value">${entry.expDate||'—'}</div></div>
+        <div class="rpt-info-item"><div class="rpt-info-label">操作人</div><div class="rpt-info-value">${entry.expOperator||'—'}</div></div>
+        <div class="rpt-info-item" style="grid-column:span 3;"><div class="rpt-info-label">实验目的</div><div class="rpt-info-value">${entry.expNote||'—'}</div></div>
+        <div class="rpt-info-item"><div class="rpt-info-label">主体系</div><div class="rpt-info-value highlight">${entry.mainSystem||'—'}</div></div>
+        <div class="rpt-info-item"><div class="rpt-info-label">存档时间</div><div class="rpt-info-value">${entry.savedAt?new Date(entry.savedAt).toLocaleString('zh-CN'):'—'}</div></div>
+      </div>
+    </div>
+
+    <div class="rpt-section">
+      <div class="rpt-section-title">⚗️ 原料配方表</div>
+      <div style="overflow-x:auto;">
+        <table class="rpt-table">
+          <thead><tr>
+            <th>原料名称</th><th>类型</th><th style="text-align:center;">MW</th><th style="text-align:center;">f</th>
+            <th style="text-align:center;">理论用量</th><th style="text-align:center;">实际用量</th>
+            <th style="text-align:center;">理论 Eq</th><th style="text-align:center;">实际 Eq</th>
+          </tr></thead>
+          <tbody>${reagentRows}</tbody>
+          <tfoot><tr>
+            <td colspan="4">合计</td>
+            <td style="text-align:center;">${solidMass.toFixed(3)} g</td>
+            <td style="text-align:center;">${actualSolidMass>0?actualSolidMass.toFixed(3)+' g':'—'}</td>
+            <td colspan="2"></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="rpt-section">
+      <div class="rpt-section-title">📐 当量计算结果</div>
+      <div class="rpt-stats-grid">${calcStats}</div>
+    </div>
+
+    <div class="rpt-section">
+      <div class="rpt-section-title">🧪 合成工艺操作记录</div>
+      <div>${processStepsHTML}</div>
+    </div>
+
+    ${photosHTML}
+  `;
 }
 
-// ─────────────────────────────────────────────
-// EXPORT JSON
-// ─────────────────────────────────────────────
-function exportJSON() {
+function computeEquiv(rList, useActual) {
+  let ncoEq=0,ohEq=0,isoMass=0,chainMass=0,polyolMass=0;
+  rList.forEach(r=>{
+    if(r.type==='solvent')return;
+    const m=useActual?(parseFloat(r.actual)||r.mass):r.mass;
+    if(r.f===0)return;
+    const eq=m*r.f/r.mw;
+    if(r.type==='iso'){ncoEq+=eq;isoMass+=m;}
+    else if(r.type==='polyol'){ohEq+=eq;polyolMass+=m;}
+    else if(r.type==='chain'){ohEq+=eq;chainMass+=m;}
+  });
+  const hardMass=isoMass+chainMass,polymerMass=hardMass+polyolMass;
+  return {ncoEq,ohEq,rVal:ohEq>0?ncoEq/ohEq:0,hsc:polymerMass>0?hardMass/polymerMass*100:0};
+}
+
+// ═══════════════════════════════════════════════
+// EXPORT: JSON/TXT
+// ═══════════════════════════════════════════════
+async function exportJSON() {
+  await saveCurrentToHistory();
   const state = getState();
   const th = calcEquivalents(false);
-  const ac = calcEquivalents(true);
   const solidMass = reagents.reduce((s,r)=>s+r.mass,0);
-  const water = solidMass*(100-solidContent)/solidContent;
-  const pkg = {
-    ...state,
-    calculated: {
-      theory: { ...th, water, solidContent },
-      actual: { ...ac }
-    },
-    exportedAt: new Date().toISOString()
-  };
-  saveToHistory(state); renderHistory();
-  const blob = new Blob([JSON.stringify(pkg,null,2)], {type:'application/json'});
+  const pkg = {...state, calculated:{theory:{...th,water:solidMass*(100-solidContent)/solidContent,solidContent}}, exportedAt:new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(pkg,null,2)],{type:'application/json'});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download=`${state.expId||'exp'}.json`; a.click();
+  const a=document.createElement('a');a.href=url;a.download=`${state.expId||'exp'}.txt`;a.click();
   URL.revokeObjectURL(url);
-  toast('JSON 已导出', 'success');
+  toast('TXT 已导出','success');
 }
 
-// ─────────────────────────────────────────────
-// EXPORT PDF — 全程 html2canvas，彻底规避中文乱码
-// ─────────────────────────────────────────────
-async function exportPDF() {
-  const btn = document.getElementById('pdf-btn');
-  btn.disabled = true; btn.textContent = '⏳ 生成中…';
-
-  try {
-    const state = getState();
-    saveToHistory(state); renderHistory();
-
-    const th = calcEquivalents(false);
-    const ac = calcEquivalents(true);
-    const hasActual = reagents.some(r => parseFloat(r.actual) > 0);
-    // 固体质量排除溶剂
-    const solidMass  = reagents.filter(r => r.type !== 'solvent').reduce((s,r) => s + r.mass, 0);
-    const actualSolidMass = reagents.filter(r => r.type !== 'solvent').reduce((s,r) => s + (parseFloat(r.actual)||0), 0);
-    const water       = solidMass > 0 ? solidMass*(100-solidContent)/solidContent : 0;
-    const actualWaterInput = parseFloat(document.getElementById('sc-actual-water').value) || 0;
-    const actualSC    = (actualSolidMass > 0 && actualWaterInput > 0)
-                        ? (actualSolidMass/(actualSolidMass+actualWaterInput)*100).toFixed(1)+'%' : '—';
-
-    // helper: mass display string for a reagent
-    function massDisplay(r, useActual) {
-      const m = useActual ? (parseFloat(r.actual)||0) : r.mass;
-      if (r.unit === 'mL' && r.density) {
-        const vol = useActual ? (parseFloat(r.actualVol)||0) : (r.vol||0);
-        return vol > 0 ? `${vol} mL (${m.toFixed(3)}g)` : `${m.toFixed(3)} g`;
-      }
-      return m > 0 ? `${m} g` : '—';
-    }
-
-    // ── Build one big HTML document, then canvas-render page by page ──
-    const PX_PER_MM = 3.7795;
-    const PAGE_W_MM = 210, PAGE_H_MM = 297;
-    const ML_MM = 15, MR_MM = 15, MT_MM = 16, MB_MM = 14;
-    const CONTENT_W_MM = PAGE_W_MM - ML_MM - MR_MM;
-    // 简化：不使用高倍缩放，直接用正常尺寸
-    const CONTENT_W_PX = Math.round(CONTENT_W_MM * PX_PER_MM * 1.5);
-
-    async function renderBlock(html) {
-      const div = document.createElement('div');
-      div.style.cssText = [
-        `position:fixed`, `left:-9999px`, `top:0`,
-        `width:${CONTENT_W_PX}px`,
-        `font-family:'Noto Sans SC',sans-serif`,
-        `font-size:26px`,      // 适中的基础字体
-        `color:#111`,
-        `line-height:1.5`,
-        `background:#ffffff`,
-        `padding:0`,
-        `box-sizing:border-box`,
-      ].join(';');
-      div.innerHTML = html;
-      document.body.appendChild(div);
-      // Wait for fonts
-      await document.fonts.ready;
-      const canvas = await html2canvas(div, {
-        scale: 2,              // 2x 渲染分辨率
-        backgroundColor: '#ffffff',
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-      });
-      document.body.removeChild(div);
-      return canvas;
-    }
-
-    // Sections to render
-    const TYPE_NAME_PDF = {polyol:'多元醇', iso:'异氰酸酯', chain:'扩链/亲水', solvent:'溶剂', other:'其他'};
-
-    const fRows = reagents.map((r,i) => {
-      const typeStr = TYPE_NAME_PDF[r.type]||r.type;
-      const thEqStr = (r.f>0 && r.eq!=null) ? r.eq.toFixed(4) : '—';
-      const acMass = parseFloat(r.actual)||0;
-      const acEqStr = (r.f>0 && acMass>0) ? calcEq(acMass,r.mw,r.f).toFixed(4) : '—';
-      const thDisplay = massDisplay(r, false);
-      const acDisplay = r.actual ? massDisplay(r, true) : '—';
-      const bg = i%2===0 ? '#ffffff' : '#f8fafc';
-      return `<tr style="background:${bg};">
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;font-weight:600;">${r.name}</td>
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;text-align:center;">${typeStr}</td>
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;text-align:center;">${r.mw}</td>
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;text-align:center;">${r.f}</td>
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;text-align:center;font-weight:600;">${thDisplay}</td>
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;text-align:center;">${acDisplay}</td>
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;text-align:center;">${thEqStr}</td>
-        <td style="padding:4px 4px;border:1px solid #e2e8f0;text-align:center;">${acEqStr}</td>
-      </tr>`;
-    }).join('');
-
-    const calcRows = [
-      ['NCO 当量 (Eq)', th.ncoEq.toFixed(4), hasActual ? ac.ncoEq.toFixed(4) : '—'],
-      ['OH 当量 (Eq)',  th.ohEq.toFixed(4),  hasActual ? ac.ohEq.toFixed(4)  : '—'],
-      ['R 值 (NCO/OH)', th.rVal.toFixed(4),  hasActual ? ac.rVal.toFixed(4)  : '—'],
-      ['硬段含量 HSC',  th.hsc.toFixed(2)+'%', hasActual ? ac.hsc.toFixed(2)+'%' : '—'],
-      ['固体总质量 (g)', solidMass.toFixed(3), actualSolidMass>0 ? actualSolidMass.toFixed(3) : '—'],
-      ['加水量 (g)', water.toFixed(3), actualWaterInput>0 ? actualWaterInput.toFixed(3) : '—'],
-      ['固含量', solidContent+'%', actualSC],
-      ['乳液总质量 (g)', (solidMass+water).toFixed(3),
-        (actualSolidMass>0&&actualWaterInput>0) ? (actualSolidMass+actualWaterInput).toFixed(3) : '—'],
-    ];
-
-    const calcRowsHTML = calcRows.map((row,i) => `
-      <tr style="background:${i%2===0?'#fff':'#f8fafc'};">
-        <td style="padding:4px 6px;border:1px solid #e2e8f0;font-weight:600;">${row[0]}</td>
-        <td style="padding:4px 6px;border:1px solid #e2e8f0;text-align:center;">${row[1]}</td>
-        <td style="padding:4px 6px;border:1px solid #e2e8f0;text-align:center;${row[2]&&row[2]!=='—'?'color:#16a34a;font-weight:600;':''}">${row[2]||'—'}</td>
-      </tr>`).join('');
-
-    const stepRowsHTML = PROCESS_STEPS.map(step => {
-      const d = stepData[step.id] || {};
-      const times = [
-        d.addTime   ? `加料 ${d.addTime}`   : '',
-        d.startTime ? `开始 ${d.startTime}` : '',
-        d.endTime   ? `结束 ${d.endTime}`   : '',
-        d.needCool && d.coolStart       ? `降温开始 ${d.coolStart}`       : '',
-        d.needCool && d.coolTargetTemp  ? `目标 ${d.coolTargetTemp}°C`   : '',
-        d.needCool && d.coolEnd         ? `降温完成 ${d.coolEnd}`         : '',
-      ].filter(Boolean).join(' · ');
-      const params = [
-        d.temp ? `温度 ${d.temp}°C` : '',
-        d.rpm  ? `转速 ${d.rpm}rpm` : '',
-      ].filter(Boolean).join('，');
-      return `
-        <tr>
-          <td style="padding:4px 6px;border:1px solid #e2e8f0;font-weight:700;white-space:nowrap;vertical-align:top;">${step.title}</td>
-          <td style="padding:4px 6px;border:1px solid #e2e8f0;font-size:22px;color:#475569;line-height:1.7;">
-            ${params ? `<div>工艺条件：${params}</div>` : ''}
-            ${times  ? `<div>时间记录：${times}</div>`  : ''}
-            ${d.obs  ? `<div>实验现象：${d.obs}</div>`  : ''}
-            ${(!params&&!times&&!d.obs) ? '<span style="color:#94a3b8;">（暂无记录）</span>' : ''}
-          </td>
-        </tr>`;
-    }).join('');
-
-    // Collect all photos
-    const allPhotos = [];
-    PROCESS_STEPS.forEach(step => {
-      (stepData[step.id]?.photos||[]).forEach(p => allPhotos.push({stepTitle:step.title,...p}));
-    });
-
-    // Section header style
-    const SH = `font-weight:700;font-size:28px;color:#1e40af;border-left:5px solid #2563eb;padding-left:10px;margin-bottom:14px;`;
-
-    const sections = [
-      // ── Header ──
-      `<div style="text-align:center;padding-bottom:12px;border-bottom:2px solid #e2e8f0;margin-bottom:16px;">
-        <div style="font-size:39px;font-weight:700;color:#1e293b;letter-spacing:-0.5px;">水性聚氨酯合成实验记录</div>
-        <div style="font-size:21px;color:#94a3b8;margin-top:4px;font-family:monospace;">WPU · ELN System</div>
-      </div>`,
-      // ── Basic Info ──
-      `<div style="${SH}">一、实验基本信息</div>
-       <table style="width:100%;border-collapse:collapse;font-size:23px;margin-bottom:4px;">
-         <tr>
-           <td style="padding:4px 6px;background:#f0f4ff;font-weight:600;white-space:nowrap;">实验编号</td>
-           <td style="padding:4px 6px;border-bottom:1px solid #e2e8f0;">${state.expId||'—'}</td>
-           <td style="padding:4px 6px;background:#f0f4ff;font-weight:600;white-space:nowrap;">实验日期</td>
-           <td style="padding:4px 6px;border-bottom:1px solid #e2e8f0;">${state.expDate||'—'}</td>
-         </tr>
-         <tr>
-           <td style="padding:4px 6px;background:#f0f4ff;font-weight:600;white-space:nowrap;">操作人</td>
-           <td style="padding:4px 6px;border-bottom:1px solid #e2e8f0;" colspan="3">${state.expOperator||'—'}</td>
-         </tr>
-         <tr>
-           <td style="padding:4px 6px;background:#f0f4ff;font-weight:600;white-space:nowrap;">实验目的</td>
-           <td style="padding:4px 6px;" colspan="3">${state.expNote||'—'}</td>
-         </tr>
-       </table>`,
-      // ── Formula Table ──
-      `<div style="${SH}">二、原料配方表</div>
-       <table style="width:100%;border-collapse:collapse;font-size:23px;">
-         <thead>
-           <tr style="background:#1e40af;color:#fff;">
-             <th style="padding:4px 4px;text-align:left;">原料</th>
-             <th style="padding:4px 4px;text-align:center;">类型</th>
-             <th style="padding:4px 4px;text-align:center;">MW</th>
-             <th style="padding:4px 4px;text-align:center;">f</th>
-             <th style="padding:4px 4px;text-align:center;">理论用量</th>
-             <th style="padding:4px 4px;text-align:center;">实际用量</th>
-             <th style="padding:4px 4px;text-align:center;">理论Eq</th>
-             <th style="padding:4px 4px;text-align:center;">实际Eq</th>
-           </tr>
-         </thead>
-         <tbody>${fRows}</tbody>
-         <tfoot>
-           <tr style="background:#e0e7ff;font-weight:700;">
-             <td style="padding:4px 4px;border:1px solid #c7d2fe;" colspan="4">合计</td>
-             <td style="padding:4px 4px;border:1px solid #c7d2fe;text-align:center;">${solidMass.toFixed(3)} g</td>
-             <td style="padding:4px 4px;border:1px solid #c7d2fe;text-align:center;">${actualSolidMass>0?actualSolidMass.toFixed(3)+' g':'—'}</td>
-             <td colspan="2" style="padding:4px 4px;border:1px solid #c7d2fe;"></td>
-           </tr>
-         </tfoot>
-       </table>`,
-      // ── Calculation Results ──
-      `<div style="${SH}">三、当量计算结果</div>
-       <table style="width:100%;border-collapse:collapse;font-size:23px;">
-         <thead>
-           <tr style="background:#f0f4ff;">
-             <th style="padding:4px 6px;border:1px solid #dde3ec;text-align:left;">参数</th>
-             <th style="padding:4px 6px;border:1px solid #dde3ec;text-align:center;">理论值</th>
-             <th style="padding:4px 6px;border:1px solid #dde3ec;text-align:center;">实际值</th>
-           </tr>
-         </thead>
-         <tbody>${calcRowsHTML}</tbody>
-       </table>`,
-      // ── Process Steps ──
-      `<div style="${SH}">四、合成工艺操作记录</div>
-       <table style="width:100%;border-collapse:collapse;font-size:23px;">
-         <thead>
-           <tr style="background:#f0f4ff;">
-             <th style="padding:4px 6px;border:1px solid #dde3ec;text-align:left;white-space:nowrap;width:110px;">步骤</th>
-             <th style="padding:4px 6px;border:1px solid #dde3ec;text-align:left;">记录内容</th>
-           </tr>
-         </thead>
-         <tbody>${stepRowsHTML}</tbody>
-       </table>`,
-    ];
-
-    // ── Render all sections to canvases ──
-    const canvases = [];
-    for (const html of sections) {
-      canvases.push(await renderBlock(html));
-    }
-
-    // ── Paginate: stack canvases into A4 pages ──
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-    const PW=210, PH=297, ML=15, MR=15, MT=16, MB=14;
-    const CW = PW-ML-MR;
-    const CH_AVAIL = PH-MT-MB;
-
-    let pageY = MT; // current y on current page
-    let firstPage = true;
-
-    function mmFromCanvas(c) {
-      // canvas is at 1x but representing CONTENT_W_PX pixels = CONTENT_W_MM mm
-      const CONTENT_W_MM = PW-ML-MR;
-      return c.height / c.width * CONTENT_W_MM;
-    }
-
-    function addBlock(canvas, extraTopMM=0) {
-      const hMM = mmFromCanvas(canvas);
-      const needed = hMM + extraTopMM;
-      // If doesn't fit and not at top of page, new page
-      if (pageY + needed > PH-MB && pageY > MT+2) {
-        pdf.addPage(); pageY=MT;
-      }
-      pageY += extraTopMM;
-      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG', ML, pageY, CW, hMM);
-      pageY += hMM + 6;
-    }
-
-    // Add header section
-    addBlock(canvases[0]);
-    // Add remaining sections with a small gap
-    for (let i=1; i<canvases.length; i++) {
-      addBlock(canvases[i], 2);
-    }
-
-    // ── Photos: 2 per row using jsPDF native addImage ──
-    if (allPhotos.length) {
-      // Photos section title
-      const photoTitleCanvas = await renderBlock(
-        `<div style="font-weight:700;font-size:28px;color:#1e40af;border-left:5px solid #2563eb;padding-left:10px;">五、实验照片附录</div>`
-      );
-      addBlock(photoTitleCanvas, 6);
-
-      const photoW = (CW - 4) / 2; // Two photos per row
-      const photoH = 50; // 50mm height
-
-      for (let i=0; i<allPhotos.length; i+=2) {
-        // Check space for a row of photos (2 photos)
-        if (pageY + photoH + 15 > PH - MB && pageY > MT + 10) {
-          pdf.addPage();
-          pageY = MT;
-        }
-
-        const row = allPhotos.slice(i, i+2);
-        for (let j=0; j<row.length; j++) {
-          const p = row[j];
-          const x = ML + j * (photoW + 4);
-
-          // Add photo
-          pdf.addImage(p.data, 'JPEG', x, pageY, photoW, photoH);
-
-          // Add caption (render Chinese text to canvas)
-          const capText = `[${p.stepTitle}] ${p.caption}`;
-          const capCanvas = await renderChineseText(capText, 50);
-          const capH = capCanvas.height / capCanvas.width * photoW;
-          pdf.addImage(capCanvas, 'PNG', x, pageY + photoH + 2, photoW, capH);
-        }
-        pageY += photoH + 12;
-      }
-    }
-
-    // Helper to render Chinese caption text
-    async function renderChineseText(text, maxWidthMM) {
-      const div = document.createElement('div');
-      div.style.cssText = `
-        position:fixed; left:-9999px; top:0;
-        width:${maxWidthMM * 3.78}px;
-        font-family:'Noto Sans SC',sans-serif;
-        font-size:12px;
-        color:#475569;
-        line-height:1.4;
-        background:#fff;
-        padding:0;
-      `;
-      div.innerHTML = `<span style="font-weight:700;color:#1e40af;">[${text.split(']')[0]}]</span> ${text.split(']').slice(1).join(']')}`;
-      document.body.appendChild(div);
-      await document.fonts.ready;
-      const canvas = await html2canvas(div, { scale:2, backgroundColor:'#ffffff' });
-      document.body.removeChild(div);
-      return canvas;
-    }
-
-    // ── Footer on every page ──
-    const totalPages = pdf.getNumberOfPages();
-    const exportTime = new Date().toLocaleString('zh-CN');
-    for (let i=1; i<=totalPages; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(7.5); pdf.setFont('helvetica','normal'); pdf.setTextColor(160);
-      pdf.text(`WPU·ELN  ${exportTime}`, ML, PH-6);
-      pdf.text(`${i} / ${totalPages}`, PW-MR, PH-6, {align:'right'});
-      pdf.setDrawColor(210); pdf.setLineWidth(0.2);
-      pdf.line(ML, PH-9, PW-MR, PH-9);
-      pdf.setTextColor(0);
-    }
-
-    pdf.save(`${state.expId||'experiment'}.pdf`);
-    toast('PDF 已生成', 'success');
-  } catch(err) {
-    console.error(err);
-    toast('PDF 生成失败: '+err.message, 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = '📑 生成 PDF 报告';
-  }
+async function exportAllHistory() {
+  if (!historyData.length){toast('暂无历史记录','error');return;}
+  const blob=new Blob([JSON.stringify(historyData,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`wpu_history_${new Date().toISOString().slice(0,10)}.txt`;a.click();
+  URL.revokeObjectURL(url);
+  toast(`已导出 ${historyData.length} 条记录`,'success');
 }
 
-// ─────────────────────────────────────────────
-// IMPORT JSON
-// ─────────────────────────────────────────────
-function importJSON(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+async function importAllHistory(input) {
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
     try {
-      const state = JSON.parse(e.target.result);
-      if (!confirm(`导入实验 ${state.expId||'?'} 的数据？当前数据将被覆盖。`)) return;
-      loadState(state); switchTab(0);
-      toast('JSON 已导入', 'success');
-    } catch(err) { toast('JSON 格式错误', 'error'); }
+      const data=JSON.parse(e.target.result);
+      if(!Array.isArray(data)){toast('格式错误','error');return;}
+      if(!confirm(`导入 ${data.length} 条记录？将合并到现有历史。`))return;
+      const existIds=new Set(historyData.map(h=>h.expId));
+      let added=0;
+      for(const entry of data){
+        if(entry.expId&&!existIds.has(entry.expId)){
+          await WPU_DB.set('history',entry.expId,entry);existIds.add(entry.expId);added++;
+        }
+      }
+      await loadHistory();input.value='';
+      toast(`已导入 ${added} 条记录`,'success');
+    }catch(err){toast('JSON 格式错误','error');}
   };
   reader.readAsText(file);
 }
 
-// ─────────────────────────────────────────────
-// TOAST
-// ─────────────────────────────────────────────
-let _toastTimer;
-function toast(msg, type='') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = `show${type?' '+type:''}`;
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.className = '', 2400);
+function importJSON(input) {
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try {
+      const state=JSON.parse(e.target.result);
+      if(!confirm(`导入实验 ${state.expId||'?'} 的数据？当前数据将被覆盖。`))return;
+      loadState(state);switchPage('formula');toast('数据已导入','success');
+    }catch(err){toast('JSON 格式错误','error');}
+  };
+  reader.readAsText(file);
 }
 
-// ─────────────────────────────────────────────
-// MODAL CLOSE ON OVERLAY
-// ─────────────────────────────────────────────
-document.getElementById('photo-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closePhotoModal(); });
-document.getElementById('detail-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDetailModal(); });
-document.getElementById('preset-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closePresetModal(); });
-document.getElementById('preset-io-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closePresetIOModal(); });
+// ═══════════════════════════════════════════════
+// EXPORT: EXCEL
+// ═══════════════════════════════════════════════
+async function exportToExcel() {
+  if (!historyData.length){toast('暂无历史记录','error');return;}
+  const wb=XLSX.utils.book_new();
+  const summaryRows=[['实验编号','日期','操作人','备注','R值','HSC%','固含%','主体系','保存时间']];
+  historyData.forEach(h=>summaryRows.push([h.expId||'',h.expDate||'',h.expOperator||'',h.expNote||'',h.rVal||'',h.hsc||'',h.solidContent||'',h.mainSystem||'',h.savedAt?new Date(h.savedAt).toLocaleString('zh-CN'):'']));
+  const ws1=XLSX.utils.aoa_to_sheet(summaryRows);
+  ws1['!cols']=[{wch:15},{wch:12},{wch:10},{wch:20},{wch:8},{wch:8},{wch:8},{wch:25},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws1,'实验汇总');
+  const reagentRows=[['实验编号','原料名称','类型','单位','理论用量','实际用量','密度','分子量','官能度f','当量Eq']];
+  historyData.forEach(h=>(h.reagents||[]).forEach(r=>reagentRows.push([h.expId||'',r.name||'',r.type||'',r.unit||'g',r.unit==='mL'?(r.vol||''):(r.mass||''),r.unit==='mL'?(r.actualVol||''):(r.actual||''),r.density||'',r.mw||'',r.f||'',r.eq!=null?r.eq.toFixed(4):''])));
+  const ws2=XLSX.utils.aoa_to_sheet(reagentRows);
+  XLSX.utils.book_append_sheet(wb,ws2,'原料明细');
+  const jsonRows=[['实验编号','完整JSON数据']];
+  historyData.forEach(h=>{
+    const clean={...h};
+    if(clean.stepData)Object.keys(clean.stepData).forEach(sid=>{if(clean.stepData[sid].photos)clean.stepData[sid].photos=clean.stepData[sid].photos.map(p=>({caption:p.caption}));});
+    jsonRows.push([h.expId||'',JSON.stringify(clean)]);
+  });
+  const ws3=XLSX.utils.aoa_to_sheet(jsonRows);ws3['!cols']=[{wch:15},{wch:200}];
+  XLSX.utils.book_append_sheet(wb,ws3,'完整JSON');
+  XLSX.writeFile(wb,`wpu_history_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast(`已导出 ${historyData.length} 条记录`,'success');
+}
 
-// ─────────────────────────────────────────────
+async function importFromExcel(input) {
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try {
+      const data=new Uint8Array(e.target.result);
+      const wb=XLSX.read(data,{type:'array'});
+      let records=[];
+      if(wb.SheetNames.includes('完整JSON')){
+        const rows=XLSX.utils.sheet_to_json(wb.Sheets['完整JSON'],{header:1});
+        for(let i=1;i<rows.length;i++){
+          if(!rows[i][0]||!rows[i][1])continue;
+          try{records.push({expId:rows[i][0],data:JSON.parse(rows[i][1])});}catch(e){}
+        }
+      }
+      if(!records.length){toast('未找到有效记录','error');return;}
+      const list=records.map((r,i)=>`${i+1}. ${r.expId} - ${r.data.expDate||''} ${r.data.expOperator||''} ${r.data.expNote||''}`).join('\n');
+      const choice=prompt(`找到 ${records.length} 条记录：\n\n${list}\n\n请输入编号 (1-${records.length})，或输入 'all' 生成全部：`);
+      if(!choice)return;
+      const indices=choice.toLowerCase()==='all'?records.map((_,i)=>i):choice.split(/[,，]/).map(s=>parseInt(s.trim())-1).filter(i=>i>=0&&i<records.length);
+      for(const i of indices){
+        loadState(records[i].data);
+        await new Promise(r=>setTimeout(r,100));
+        await exportPDF();
+        await new Promise(r=>setTimeout(r,500));
+      }
+      toast(`已生成 ${indices.length} 个 PDF`,'success');
+      input.value='';
+    }catch(err){toast('Excel 解析错误：'+err.message,'error');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ═══════════════════════════════════════════════
+// BATCH TXT → EXCEL
+// ═══════════════════════════════════════════════
+function selectBatchTxtFiles() {
+  const input=document.createElement('input');
+  input.type='file';input.multiple=true;input.accept='.txt,.json';
+  input.onchange=e=>{
+    batchTxtFiles=Array.from(e.target.files);
+    const el=document.getElementById('batch-file-count');
+    if(el)el.textContent=`已选择 ${batchTxtFiles.length} 个文件`;
+    toast(`已选择 ${batchTxtFiles.length} 个文件`,'success');
+  };
+  input.click();
+}
+
+async function convertTxtToExcel() {
+  if(!batchTxtFiles.length){toast('请先选择文件','error');return;}
+  const allData=[];
+  for(const file of batchTxtFiles){
+    try{allData.push(JSON.parse(await file.text()));}catch(e){console.error(`解析 ${file.name} 失败`);}
+  }
+  if(!allData.length){toast('没有成功解析任何文件','error');return;}
+  const wb=XLSX.utils.book_new();
+  const summaryRows=[['实验编号','日期','操作人','备注','R值','HSC%','固含%','主体系','保存时间']];
+  allData.forEach(h=>summaryRows.push([h.expId||'',h.expDate||'',h.expOperator||'',h.expNote||'',h.rVal||'',h.hsc||'',h.solidContent||'',h.mainSystem||'',h.savedAt?new Date(h.savedAt).toLocaleString('zh-CN'):'']));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(summaryRows),'实验汇总');
+  const reagentRows=[['实验编号','原料名称','类型','单位','理论用量','实际用量','密度','分子量','官能度f','当量Eq']];
+  allData.forEach(h=>(h.reagents||[]).forEach(r=>reagentRows.push([h.expId||'',r.name||'',r.type||'',r.unit||'g',r.unit==='mL'?(r.vol||''):(r.mass||''),r.unit==='mL'?(r.actualVol||''):(r.actual||''),r.density||'',r.mw||'',r.f||'',r.eq!=null?r.eq.toFixed(4):''])));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(reagentRows),'原料明细');
+  const jsonRows=[['实验编号','完整JSON数据']];
+  allData.forEach(h=>jsonRows.push([h.expId||'',JSON.stringify(h)]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(jsonRows),'完整JSON');
+  XLSX.writeFile(wb,`wpu_batch_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast(`已将 ${allData.length} 条记录转为 Excel`,'success');
+  batchTxtFiles=[];
+  const el=document.getElementById('batch-file-count');if(el)el.textContent='';
+}
+
+// ═══════════════════════════════════════════════
+// EXPORT: PDF
+// ═══════════════════════════════════════════════
+async function exportCurrentPDF() {
+  if (!selectedReportEntry) { toast('请先在报告页选择实验','error'); return; }
+  const origReagents=[...reagents], origSC=solidContent, origStepData=JSON.parse(JSON.stringify(stepData));
+  loadState(selectedReportEntry);
+  await exportPDF();
+  reagents=origReagents; solidContent=origSC; stepData=origStepData;
+}
+
+async function exportPDF() {
+  const btn=document.getElementById('pdf-btn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ 生成中…';}
+  try {
+    const state=getState();
+    await saveCurrentToHistory();
+    const th=calcEquivalents(false),ac=calcEquivalents(true);
+    const hasActual=reagents.some(r=>parseFloat(r.actual)>0);
+    const solidMass=reagents.filter(r=>r.type!=='solvent').reduce((s,r)=>s+r.mass,0);
+    const actualSolidMass=reagents.filter(r=>r.type!=='solvent').reduce((s,r)=>s+(parseFloat(r.actual)||0),0);
+    const water=solidMass>0?solidMass*(100-solidContent)/solidContent:0;
+    const awInput=parseFloat(document.getElementById('sc-actual-water').value)||0;
+    const actualSC=(actualSolidMass>0&&awInput>0)?(actualSolidMass/(actualSolidMass+awInput)*100).toFixed(1)+'%':'—';
+    const PX_PER_MM=3.7795,CW_MM=180,CW_PX=Math.round(CW_MM*PX_PER_MM*1.5);
+
+    async function renderBlock(html) {
+      const div=document.createElement('div');
+      div.style.cssText=`position:fixed;left:-9999px;top:0;width:${CW_PX}px;font-family:'Noto Sans SC',sans-serif;font-size:26px;color:#1e293b;line-height:1.5;background:#ffffff;box-sizing:border-box;`;
+      div.innerHTML=html;
+      document.body.appendChild(div);
+      await document.fonts.ready;
+      const canvas=await html2canvas(div,{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:true,allowTaint:true});
+      document.body.removeChild(div);
+      return canvas;
+    }
+
+    const fRows=reagents.map((r,i)=>{
+      const thEq=(r.f>0&&r.eq!=null)?r.eq.toFixed(4):'—';
+      const am=parseFloat(r.actual)||0;
+      const acEq=(r.f>0&&am>0)?calcEq(am,r.mw,r.f).toFixed(4):'—';
+      const thD=r.unit==='mL'&&r.vol?`${r.vol}mL(${r.mass.toFixed(3)}g)`:`${r.mass}g`;
+      const acD=r.actual?(r.unit==='mL'&&r.actualVol?`${r.actualVol}mL(${am.toFixed(3)}g)`:`${r.actual}g`):'—';
+      return `<tr style="background:${i%2?'#f8fafc':'#fff'}"><td style="padding:4px 5px;border:1px solid #e2e8f0;font-weight:600;">${r.name}</td><td style="padding:4px 5px;border:1px solid #e2e8f0;">${TYPE_NAME[r.type]||r.type}</td><td style="padding:4px 5px;border:1px solid #e2e8f0;text-align:center;">${r.mw}</td><td style="padding:4px 5px;border:1px solid #e2e8f0;text-align:center;">${r.f}</td><td style="padding:4px 5px;border:1px solid #e2e8f0;text-align:center;font-weight:600;">${thD}</td><td style="padding:4px 5px;border:1px solid #e2e8f0;text-align:center;">${acD}</td><td style="padding:4px 5px;border:1px solid #e2e8f0;text-align:center;">${thEq}</td><td style="padding:4px 5px;border:1px solid #e2e8f0;text-align:center;">${acEq}</td></tr>`;
+    }).join('');
+
+    const calcRows=[
+      ['R 值 (NCO/OH)',th.rVal.toFixed(4),hasActual?ac.rVal.toFixed(4):'—'],
+      ['OH 当量',th.ohEq.toFixed(4),hasActual?ac.ohEq.toFixed(4):'—'],
+      ['NCO 当量',th.ncoEq.toFixed(4),hasActual?ac.ncoEq.toFixed(4):'—'],
+      ['HSC 硬段含量',th.hsc.toFixed(2)+'%',hasActual?ac.hsc.toFixed(2)+'%':'—'],
+      ['固体总质量',solidMass.toFixed(3)+' g',actualSolidMass>0?actualSolidMass.toFixed(3)+' g':'—'],
+      ['加水量',water.toFixed(3)+' g',awInput>0?awInput.toFixed(3)+' g':'—'],
+      ['固含量',solidContent+'%',actualSC],
+      ['乳液总质量',(solidMass+water).toFixed(3)+' g',(actualSolidMass>0&&awInput>0)?(actualSolidMass+awInput).toFixed(3)+' g':'—'],
+    ].map((row,i)=>`<tr style="background:${i%2?'#f8fafc':'#fff'}"><td style="padding:4px 6px;border:1px solid #e2e8f0;font-weight:600;">${row[0]}</td><td style="padding:4px 6px;border:1px solid #e2e8f0;text-align:center;">${row[1]}</td><td style="padding:4px 6px;border:1px solid #e2e8f0;text-align:center;${row[2]&&row[2]!=='—'?'color:#16a34a;font-weight:600;':''}">${row[2]}</td></tr>`).join('');
+
+    const stepRowsHTML=PROCESS_STEPS.map(step=>{
+      const d=stepData[step.id]||{};
+      const params=[d.temp?`温度 ${d.temp}°C`:'',d.rpm?`转速 ${d.rpm}rpm`:''].filter(Boolean).join('，');
+      const times=[d.addTime?`加料 ${d.addTime}`:'',d.startTime?`开始 ${d.startTime}`:'',d.endTime?`结束 ${d.endTime}`:'',d.needCool&&d.coolStart?`降温开始 ${d.coolStart}`:'',d.needCool&&d.coolEnd?`降温完成 ${d.coolEnd}`:''].filter(Boolean).join(' · ');
+      return `<tr><td style="padding:4px 6px;border:1px solid #e2e8f0;font-weight:700;vertical-align:top;white-space:nowrap;">${step.title}</td><td style="padding:4px 6px;border:1px solid #e2e8f0;line-height:1.7;font-size:22px;">${params?`<div>${params}</div>`:''} ${times?`<div>${times}</div>`:''} ${d.obs?`<div>${d.obs}</div>`:''} ${!params&&!times&&!d.obs?'<span style="color:#94a3b8;">（暂无记录）</span>':''}</td></tr>`;
+    }).join('');
+
+    const SH=`font-weight:700;font-size:28px;color:#1e40af;border-left:5px solid #2563eb;padding-left:10px;margin-bottom:14px;`;
+    const sections=[
+      `<div style="text-align:center;padding-bottom:12px;border-bottom:2px solid #e2e8f0;margin-bottom:16px;"><div style="font-size:38px;font-weight:700;color:#1e293b;">水性聚氨酯合成实验记录</div><div style="font-size:20px;color:#94a3b8;margin-top:4px;">WPU · ELN System</div></div>`,
+      `<div style="${SH}">一、实验基本信息</div><table style="width:100%;border-collapse:collapse;font-size:23px;margin-bottom:4px;"><tr><td style="padding:4px 6px;background:#f0f4ff;font-weight:600;">实验编号</td><td style="padding:4px 6px;border-bottom:1px solid #e2e8f0;">${state.expId||'—'}</td><td style="padding:4px 6px;background:#f0f4ff;font-weight:600;">日期</td><td style="padding:4px 6px;border-bottom:1px solid #e2e8f0;">${state.expDate||'—'}</td></tr><tr><td style="padding:4px 6px;background:#f0f4ff;font-weight:600;">操作人</td><td colspan="3" style="padding:4px 6px;border-bottom:1px solid #e2e8f0;">${state.expOperator||'—'}</td></tr><tr><td style="padding:4px 6px;background:#f0f4ff;font-weight:600;">实验目的</td><td colspan="3" style="padding:4px 6px;">${state.expNote||'—'}</td></tr></table>`,
+      `<div style="${SH}">二、原料配方表</div><table style="width:100%;border-collapse:collapse;font-size:22px;"><thead><tr style="background:#1e40af;color:#fff;"><th style="padding:4px 5px;text-align:left;">原料</th><th style="padding:4px 5px;">类型</th><th style="padding:4px 5px;text-align:center;">MW</th><th style="padding:4px 5px;text-align:center;">f</th><th style="padding:4px 5px;text-align:center;">理论用量</th><th style="padding:4px 5px;text-align:center;">实际用量</th><th style="padding:4px 5px;text-align:center;">理论Eq</th><th style="padding:4px 5px;text-align:center;">实际Eq</th></tr></thead><tbody>${fRows}</tbody><tfoot><tr style="background:#e0e7ff;font-weight:700;"><td colspan="4" style="padding:4px 5px;border:1px solid #c7d2fe;">合计</td><td style="padding:4px 5px;border:1px solid #c7d2fe;text-align:center;">${solidMass.toFixed(3)} g</td><td style="padding:4px 5px;border:1px solid #c7d2fe;text-align:center;">${actualSolidMass>0?actualSolidMass.toFixed(3)+' g':'—'}</td><td colspan="2" style="padding:4px 5px;border:1px solid #c7d2fe;"></td></tr></tfoot></table>`,
+      `<div style="${SH}">三、当量计算结果</div><table style="width:100%;border-collapse:collapse;font-size:23px;"><thead><tr style="background:#f0f4ff;"><th style="padding:4px 6px;border:1px solid #dde3ec;text-align:left;">参数</th><th style="padding:4px 6px;border:1px solid #dde3ec;text-align:center;">理论值</th><th style="padding:4px 6px;border:1px solid #dde3ec;text-align:center;">实际值</th></tr></thead><tbody>${calcRows}</tbody></table>`,
+      `<div style="${SH}">四、合成工艺操作记录</div><table style="width:100%;border-collapse:collapse;font-size:23px;"><thead><tr style="background:#f0f4ff;"><th style="padding:4px 6px;border:1px solid #dde3ec;text-align:left;width:100px;">步骤</th><th style="padding:4px 6px;border:1px solid #dde3ec;text-align:left;">记录内容</th></tr></thead><tbody>${stepRowsHTML}</tbody></table>`,
+    ];
+
+    const canvases=[];
+    for(const html of sections) canvases.push(await renderBlock(html));
+
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const PW=210,PH=297,ML=15,MR=15,MT=16,MB=14,CW=PW-ML-MR;
+    let pageY=MT;
+
+    function mmFromCanvas(c){return c.height/c.width*CW;}
+    function addBlock(canvas,gap=4){
+      const hMM=mmFromCanvas(canvas);
+      if(pageY+hMM>PH-MB&&pageY>MT+4){pdf.addPage();pageY=MT;}
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',ML,pageY,CW,hMM);
+      pageY+=hMM+gap;
+    }
+    addBlock(canvases[0]);
+    for(let i=1;i<canvases.length;i++) addBlock(canvases[i],4);
+
+    // Photos
+    const allPhotos=[];
+    PROCESS_STEPS.forEach(step=>(stepData[step.id]?.photos||[]).forEach(p=>allPhotos.push({stepTitle:step.title,...p})));
+    if(allPhotos.length){
+      const titleC=await renderBlock(`<div style="${SH}">五、实验照片附录</div>`);
+      addBlock(titleC,4);
+      const photoW=(CW-4)/2,photoH=50;
+      for(let i=0;i<allPhotos.length;i+=2){
+        if(pageY+photoH+18>PH-MB&&pageY>MT+10){pdf.addPage();pageY=MT;}
+        const row=allPhotos.slice(i,i+2);
+        for(let j=0;j<row.length;j++){
+          const p=row[j],x=ML+j*(photoW+4);
+          pdf.addImage(p.data,'JPEG',x,pageY,photoW,photoH);
+          const capDiv=document.createElement('div');
+          capDiv.style.cssText=`position:fixed;left:-9999px;top:0;width:${photoW*3.78}px;font-family:'Noto Sans SC',sans-serif;font-size:12px;color:#475569;background:#fff;`;
+          capDiv.textContent=`[${p.stepTitle}] ${p.caption}`;
+          document.body.appendChild(capDiv);
+          await document.fonts.ready;
+          const capC=await html2canvas(capDiv,{scale:2,backgroundColor:'#fff'});
+          document.body.removeChild(capDiv);
+          const capH=capC.height/capC.width*photoW;
+          pdf.addImage(capC,'PNG',x,pageY+photoH+2,photoW,capH);
+        }
+        pageY+=photoH+16;
+      }
+    }
+
+    const totalPages=pdf.getNumberOfPages();
+    const exportTime=new Date().toLocaleString('zh-CN');
+    for(let i=1;i<=totalPages;i++){
+      pdf.setPage(i);
+      pdf.setFontSize(7.5);pdf.setFont('helvetica','normal');pdf.setTextColor(160);
+      pdf.text(`WPU·ELN  ${exportTime}`,ML,PH-6);
+      pdf.text(`${i}/${totalPages}`,PW-MR,PH-6,{align:'right'});
+      pdf.setDrawColor(210);pdf.setLineWidth(0.2);
+      pdf.line(ML,PH-9,PW-MR,PH-9);pdf.setTextColor(0);
+    }
+    pdf.save(`${state.expId||'experiment'}.pdf`);
+    toast('PDF 已生成','success');
+  } catch(err){console.error(err);toast('PDF 生成失败: '+err.message,'error');}
+  finally{if(btn){btn.disabled=false;btn.textContent='📑 生成 PDF 报告';}}
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+let _toastT;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className=`show${type?' '+type:''}`;
+  clearTimeout(_toastT);_toastT=setTimeout(()=>el.className='',2400);
+}
+
+// ═══════════════════════════════════════════════
+// MODAL CLOSE ON OVERLAY
+// ═══════════════════════════════════════════════
+['photo-modal','preset-modal','preset-io-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
+});
+
+// ═══════════════════════════════════════════════
 // START
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 init();
 </script>
 </body>
