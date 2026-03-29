@@ -10,6 +10,39 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
+  --bg: #f0f2f5;
+  --bg2: #fafbfc;
+  --bg3: #e4e7ed;
+  --surface: #ffffff;
+  --surface2: #eef0f4;
+  --border: #d0d5dd;
+  --border2: #b0b8c4;
+  --accent: #0066cc;
+  --accent2: #3385e6;
+  --accent-dim: rgba(0,102,204,0.08);
+  --accent-glow: rgba(0,102,204,0.2);
+  --green: #058c42;
+  --green-dim: rgba(5,140,66,0.08);
+  --amber: #d97706;
+  --amber-dim: rgba(217,119,6,0.08);
+  --red: #dc2626;
+  --red-dim: rgba(220,38,38,0.08);
+  --cyan: #077985;
+  --cyan-dim: rgba(7,121,133,0.08);
+  --purple: #7c3aed;
+  --purple-dim: rgba(124,58,237,0.08);
+  --text: #1a1d23;
+  --text2: #5c6370;
+  --text3: #8a92a5;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Noto Sans SC', sans-serif;
+  --r: 10px;
+  --rs: 6px;
+  --nav-w: 220px;
+  --header-h: 52px;
+}
+
+:root[data-theme=dark] {
   --bg: #0f1117;
   --bg2: #161820;
   --bg3: #1c1f2b;
@@ -34,12 +67,6 @@
   --text: #e8eaf0;
   --text2: #9ba3c0;
   --text3: #5a6080;
-  --mono: 'IBM Plex Mono', monospace;
-  --sans: 'Noto Sans SC', sans-serif;
-  --r: 10px;
-  --rs: 6px;
-  --nav-w: 220px;
-  --header-h: 52px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -80,13 +107,30 @@ body {
 .logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 .logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; }
 .header-exp {
-  margin-left: auto;
   font-family: var(--mono);
   font-size: 12px;
   color: var(--text3);
 }
 .header-exp strong { color: var(--accent); font-weight: 600; }
 .header-actions { display: flex; gap: 8px; }
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--rs);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { background: var(--surface); border-color: var(--accent); }
+.theme-toggle:active { transform: scale(0.95); }
 
 /* ── LAYOUT ── */
 .layout {
@@ -785,11 +829,99 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 @media (max-width: 768px) {
   :root { --nav-w: 0px; }
   .sidebar { transform: translateX(-220px); transition: transform 0.28s; }
-  .sidebar.open { transform: translateX(0); --nav-w: 220px; }
+  .sidebar.open { transform: translateX(0); --nav-w: 220px; box-shadow: 2px 0 20px rgba(0,0,0,0.3); }
+
+  /* Sidebar overlay for mobile */
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .sidebar-overlay.show { display: block; opacity: 1; }
   .main { margin-left: 0; padding: 14px; }
   .mobile-menu-btn { display: flex !important; }
-  .db-table { font-size: 11px; }
-  .rpt-table { font-size: 11px; }
+
+  /* Header mobile layout */
+  .header { flex-wrap: wrap; padding: 0 12px; height: auto; min-height: var(--header-h); gap: 8px; }
+  .logo { font-size: 13px; flex-wrap: wrap; }
+  .logo-sub { display: none; }
+  .logo-dot { width: 6px; height: 6px; }
+  .header-exp { display: none; }
+  .header-actions { margin-left: auto; gap: 6px; }
+  .header-actions .btn { padding: 6px 10px; font-size: 11px; }
+  .theme-toggle { width: 30px; height: 30px; font-size: 13px; }
+
+  /* Mobile form grids */
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .form-grid-3 { grid-template-columns: 1fr; }
+  .form-group.span-2 { grid-column: span 1; }
+
+  /* Stats row mobile */
+  .stats-row { flex-direction: column; }
+  .stat-chip { width: 100%; }
+
+  /* Tables mobile */
+  .db-table { font-size: 11px; min-width: 600px; }
+  .db-table thead th { padding: 8px 6px; }
+  .db-table tbody td { padding: 8px 6px; }
+  .db-table th:nth-child(4), .db-table td:nth-child(4),  /* 主体系 */
+  .db-table th:nth-child(7), .db-table td:nth-child(7),  /* 固含% */
+  .db-table th:nth-child(8), .db-table td:nth-child(8) { /* 实验目的 */
+    display: none;
+  }
+  .rpt-table { font-size: 10px; }
+  .rpt-table th { padding: 6px 4px; }
+  .rpt-table td { padding: 6px 4px; }
+
+  /* Page header mobile */
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .page-title-wrap { width: 100%; }
+  .page-title { font-size: 18px; }
+  .page-actions { width: 100%; margin-top: 12px; display: flex; flex-wrap: wrap; }
+  .page-actions .btn { flex: 1; min-width: calc(50% - 4px); }
+
+  /* Database toolbar mobile */
+  .db-toolbar { flex-direction: column; align-items: stretch; }
+  .search-input-wrap { width: 100%; min-width: auto; }
+  #db-sort { width: 100%; min-width: auto; }
+
+  /* Report toolbar mobile */
+  .report-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+  #rpt-select { max-width: 100%; }
+  .report-toolbar .btn { width: 100%; }
+
+  /* Import/Export page mobile */
+  #page-export > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+  #page-export > div > div[style*="display:flex;gap:8px;"] { flex-direction: column; }
+  #page-export > div > div > button[style*="flex:1;"] { width: 100%; }
+
+  /* Report viewer mobile */
+  .report-content { padding: 16px 12px; }
+  .rpt-info-grid { grid-template-columns: 1fr; }
+  .rpt-stats-grid { grid-template-columns: 1fr; }
+  .rpt-step-params { flex-direction: column; gap: 6px; }
+
+  /* Step cards mobile */
+  .step-header { padding: 10px 12px; }
+  .step-body { padding: 12px; }
+
+  /* Modal mobile */
+  .modal { padding: 16px; max-height: 85vh; }
+  .modal-title { font-size: 15px; }
+
+  /* Toast mobile */
+  #toast { font-size: 11px; padding: 8px 16px; max-width: 92vw; }
+}
+
+@media (max-width: 480px) {
+  .header { padding: 0 8px; }
+  .logo { font-size: 13px; }
+  .btn { padding: 7px 10px; font-size: 11px; }
+  .main { padding: 12px 10px; }
 }
 .mobile-menu-btn { display: none; }
 </style>
@@ -806,6 +938,7 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   </div>
   <div class="header-exp">实验：<strong id="h-exp-id">—</strong></div>
   <div class="header-actions">
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="切换主题">🌙</button>
     <button class="btn btn-secondary btn-sm" onclick="saveToCache()">💾 暂存</button>
     <button class="btn btn-primary btn-sm" onclick="newExperiment()">＋ 新建</button>
   </div>
@@ -813,6 +946,9 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
 
 <!-- LAYOUT -->
 <div class="layout">
+
+<!-- SIDEBAR OVERLAY (Mobile) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <!-- SIDEBAR -->
 <nav class="sidebar" id="sidebar">
@@ -1402,6 +1538,8 @@ let dbSortState = 'date-desc';
 // INIT
 // ═══════════════════════════════════════════════
 async function init() {
+  initTheme();
+
   const now = new Date();
   const yy = String(now.getFullYear()).slice(2);
   const mm = String(now.getMonth()+1).padStart(2,'0');
@@ -1433,11 +1571,39 @@ function switchPage(name) {
   document.getElementById(`page-${name}`).classList.add('active');
   document.querySelector(`[data-page="${name}"]`)?.classList.add('active');
   // Close sidebar on mobile
-  if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
+  if (window.innerWidth < 768) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('show');
+  }
 }
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+
+// ═══════════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════════
+function initTheme() {
+  const saved = localStorage.getItem('wpu-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeBtn(saved);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('wpu-theme', next);
+  updateThemeBtn(next);
+}
+
+function updateThemeBtn(theme) {
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 function syncExpId() {
