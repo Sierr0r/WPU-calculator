@@ -1517,6 +1517,18 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   </div>
 </div>
 
+<div class="modal-overlay" id="paste-io-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="paste-io-title">📥 粘贴导入实验数据</div>
+    <textarea id="paste-io-text" style="width:100%;height:200px;margin-bottom:12px;font-family:var(--mono);font-size:11px;" placeholder="在此粘贴复制的实验数据 JSON...&#10;&#10;提示：先在「导出当前实验」中点击「复制到剪贴板」，然后在此处按 Ctrl+V 粘贴"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="flex:1;" id="paste-io-action-btn">✓ 确认导入</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closePasteIOModal()">取消</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 <canvas id="compress-canvas" style="display:none;"></canvas>
 <input type="file" id="photo-file-input" accept="image/*" style="display:none;" onchange="handlePhotoFile(this)">
@@ -3051,21 +3063,50 @@ async function copyToClipboard() {
   }
 }
 
-// 从剪贴板粘贴导入
+// 从剪贴板粘贴导入（使用弹窗方式，兼容性更好）
 async function pasteFromClipboard() {
+  // 先尝试自动读取剪贴板
+  let pastedText = '';
   try {
-    const text = await navigator.clipboard.readText();
-    if (!text.trim()) { toast('剪贴板为空','error'); return; }
+    pastedText = await navigator.clipboard.readText();
+  } catch(e) {
+    // 如果自动读取失败（浏览器限制），继续使用弹窗
+  }
+
+  // 显示粘贴弹窗
+  document.getElementById('paste-io-title').textContent = '📥 粘贴导入实验数据';
+  document.getElementById('paste-io-text').value = pastedText;
+  document.getElementById('paste-io-text').readOnly = false;
+  document.getElementById('paste-io-text').placeholder = '在此粘贴复制的实验数据 JSON...';
+  document.getElementById('paste-io-action-btn').textContent = '✓ 确认导入';
+  document.getElementById('paste-io-action-btn').onclick = confirmPasteImport;
+  document.getElementById('paste-io-modal').classList.add('open');
+  // 聚焦并全选文本，方便直接 Ctrl+V
+  setTimeout(() => {
+    const textarea = document.getElementById('paste-io-text');
+    textarea.focus();
+    if (pastedText) textarea.select();
+  }, 100);
+}
+
+// 确认粘贴导入
+async function confirmPasteImport() {
+  try {
+    const text = document.getElementById('paste-io-text').value.trim();
+    if (!text) { toast('请粘贴或输入实验数据','error'); return; }
     const state = JSON.parse(text);
-    if (!state.expId && !state.reagents) { toast('剪贴板内容格式不正确','error'); return; }
+    if (!state.expId && !state.reagents) { toast('数据格式不正确','error'); return; }
     if (!confirm(`导入实验 ${state.expId||'?'} 的数据？当前数据将被覆盖。`)) return;
     loadState(state);
+    closePasteIOModal();
     switchPage('formula');
     toast('数据已导入','success');
   } catch(err) {
-    toast('粘贴失败：' + err.message,'error');
+    toast('导入失败：' + err.message,'error');
   }
 }
+
+function closePasteIOModal() { document.getElementById('paste-io-modal').classList.remove('open'); }
 
 async function exportAllHistory() {
   if (!historyData.length) { toast('暂无历史记录','error'); return; }
@@ -3396,7 +3437,7 @@ function toast(msg, type='') {
 // ═══════════════════════════════════════════════
 // MODAL CLOSE ON OVERLAY
 // ═══════════════════════════════════════════════
-['photo-modal','preset-modal','preset-io-modal'].forEach(id => {
+['photo-modal','preset-modal','preset-io-modal','paste-io-modal'].forEach(id => {
   document.getElementById(id).addEventListener('click', e => {
     if (e.target===e.currentTarget) e.currentTarget.classList.remove('open');
   });
