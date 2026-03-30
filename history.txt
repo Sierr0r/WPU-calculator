@@ -1,0 +1,232 @@
+[
+  {
+    "expId": "260319-01",
+    "expDate": "2026-03-19",
+    "expNote": "初试PCD1000",
+    "expOperator": "",
+    "reagents": [
+      {
+        "id": 1774761130094,
+        "name": "PCD-1000",
+        "type": "polyol",
+        "mw": 1000,
+        "f": 2,
+        "unit": "g",
+        "density": null,
+        "vol": null,
+        "mass": 25,
+        "actual": "25.11",
+        "actualVol": "",
+        "eq": 0.05
+      },
+      {
+        "id": 1774761148606,
+        "name": "IPDI",
+        "type": "iso",
+        "mw": 222.28,
+        "f": 2,
+        "unit": "g",
+        "density": null,
+        "vol": null,
+        "mass": 11.55,
+        "actual": "11.55",
+        "actualVol": "",
+        "eq": 0.10392298002519346
+      },
+      {
+        "id": 1774761156770,
+        "name": "DMPA",
+        "type": "chain",
+        "mw": 134.13,
+        "f": 2,
+        "unit": "g",
+        "density": null,
+        "vol": null,
+        "mass": 1.55,
+        "actual": "1.56",
+        "actualVol": "",
+        "eq": 0.02311190635950198
+      },
+      {
+        "id": 1774761168896,
+        "name": "BDO",
+        "type": "chain",
+        "mw": 90.12,
+        "f": 2,
+        "unit": "mL",
+        "density": 1.017,
+        "vol": 0.4,
+        "mass": 0.4068,
+        "actual": "0.5085",
+        "actualVol": "0.5",
+        "eq": 0.009027962716378162
+      },
+      {
+        "id": 1774761177590,
+        "name": "TEA",
+        "type": "other",
+        "mw": 101.19,
+        "f": 0,
+        "unit": "mL",
+        "density": 0.726,
+        "vol": 1.62,
+        "mass": 1.17612,
+        "actual": "1.2342",
+        "actualVol": "1.7",
+        "eq": null
+      },
+      {
+        "id": 1774761235094,
+        "name": "DMF",
+        "type": "solvent",
+        "mw": 73.09,
+        "f": 0,
+        "unit": "mL",
+        "density": 0.944,
+        "vol": 6,
+        "mass": 5.664,
+        "actual": "5.6640",
+        "actualVol": "6",
+        "eq": null
+      },
+      {
+        "id": 1774761309436,
+        "name": "丙酮",
+        "type": "solvent",
+        "mw": 58.08,
+        "f": 0,
+        "unit": "mL",
+        "density": 0.7899,
+        "vol": 12,
+        "mass": 9.4788,
+        "actual": "9.4788",
+        "actualVol": "12",
+        "eq": null
+      },
+      {
+        "id": 1774761492959,
+        "name": "T9",
+        "type": "other",
+        "mw": 631.57,
+        "f": 2,
+        "unit": "g",
+        "density": null,
+        "vol": null,
+        "mass": 0.01,
+        "actual": "",
+        "actualVol": "",
+        "eq": 0.00003166711528413319
+      }
+    ],
+    "solidContent": 30,
+    "stepData": {
+      "s1": {
+        "temp": "110",
+        "rpm": "300",
+        "addTime": "10:39",
+        "startTime": "10:39",
+        "needCool": true,
+        "endTime": "11:27",
+        "coolStart": "11:07",
+        "coolTargetTemp": "85",
+        "coolEnd": "11:27",
+        "obs": "有少量气泡，透明无色",
+        "addedReagents": [],
+        "addWater": false
+      },
+      "s2": {
+        "temp": "85",
+        "rpm": "500",
+        "addTime": "11:31",
+        "startTime": "11:31",
+        "endTime": "14:01",
+        "needCool": true,
+        "coolStart": "14:01",
+        "coolTargetTemp": "55",
+        "coolEnd": "14:38",
+        "obs": "逐渐变白 有少量气泡",
+        "addedReagents": [],
+        "addWater": false
+      },
+      "s3": {
+        "temp": "55",
+        "rpm": "500",
+        "addTime": "14:44",
+        "startTime": "14:44",
+        "endTime": "16:46",
+        "obs": "较黏 白色",
+        "addedReagents": []
+      },
+      "s4": {
+        "temp": "55",
+        "rpm": "500",
+        "obs": "体系气压过大，楼都被大气压挤压喷出摔碎。",
+        "needCool": true,
+        "addTime": "16:46",
+        "coolStart": "17:57",
+        "coolTargetTemp": "35",
+        "coolEnd": "18:55"
+      },
+      "s5": {
+        "temp": "35",
+        "rpm": "1000",
+        "addTime": "18:56",
+        "obs": "降温过程中，器壁有也低回流，46度时很黏，转速500至300。19:18变稠"
+      },
+      "s6": {
+        "temp": "35",
+        "rpm": "1000",
+        "addTime": "19:28",
+        "obs": "变稀白色有气泡"
+      },
+      "sc_1774781244164": {
+        "addedReagents": [
+          "water"
+        ]
+      }
+    },
+    "processSteps": [
+      {
+        "id": "s1",
+        "title": "步骤 1",
+        "sub": "",
+        "catalyst": false
+      },
+      {
+        "id": "s2",
+        "title": "步骤 2",
+        "sub": "",
+        "catalyst": false
+      },
+      {
+        "id": "s3",
+        "title": "步骤 3",
+        "sub": "",
+        "catalyst": false
+      },
+      {
+        "id": "s4",
+        "title": "步骤 4",
+        "sub": "",
+        "catalyst": false
+      },
+      {
+        "id": "s5",
+        "title": "步骤 5",
+        "sub": "",
+        "catalyst": false
+      },
+      {
+        "id": "sc_1774781244164",
+        "title": "6",
+        "sub": "",
+        "catalyst": false
+      }
+    ],
+    "actualWater": "94",
+    "savedAt": "2026-03-29T11:50:38.020Z",
+    "rVal": "1.265",
+    "hsc": "35.1",
+    "mainSystem": "IPDI/PCD-1000"
+  }
+]
