@@ -1313,7 +1313,8 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
       <option value="hsc-desc">HSC ↓</option>
     </select>
     <input type="file" id="history-import-file" accept=".txt,.json" style="display:none;" onchange="importAllHistory(this)">
-    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('history-import-file').click()">📥 导入</button>
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('history-import-file').click()">📥 本地导入</button>
+    <button class="btn btn-primary btn-sm" onclick="syncFromGitHub()">🔄 从 GitHub 同步</button>
   </div>
 
   <div class="card" style="padding:0;overflow:auto;">
@@ -3034,9 +3035,35 @@ async function exportAllHistory() {
   if (!historyData.length) { toast('暂无历史记录','error'); return; }
   const blob = new Blob([JSON.stringify(historyData,null,2)], {type:'application/json'});
   const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a'); a.href=url; a.download=`wpu_history_${new Date().toISOString().slice(0,10)}.txt`; a.click();
+  const a    = document.createElement('a'); a.href=url; a.download='history.txt'; a.click();
   URL.revokeObjectURL(url);
   toast(`已导出 ${historyData.length} 条记录`,'success');
+}
+
+// 从 GitHub 仓库同步历史记录
+async function syncFromGitHub() {
+  try {
+    toast('正在从 GitHub 同步...','info');
+    // 从 GitHub raw 读取
+    const response = await fetch('https://raw.githubusercontent.com/Sierr0r/WPU-calculator/main/history.txt?t=' + Date.now());
+    if (!response.ok) throw new Error('文件不存在或网络错误');
+    const text = await response.text();
+    if (!text.trim()) throw new Error('文件为空');
+    const data = JSON.parse(text);
+    if (!Array.isArray(data)) throw new Error('格式错误');
+
+    const existIds = new Set(historyData.map(h=>h.expId));
+    let added = 0;
+    for (const entry of data) {
+      if (entry.expId && !existIds.has(entry.expId)) {
+        await WPU_DB.set('history', entry.expId, entry); existIds.add(entry.expId); added++;
+      }
+    }
+    await loadHistory();
+    toast(`同步完成，新增 ${added} 条记录`,'success');
+  } catch(err) {
+    toast('同步失败：' + err.message,'error');
+  }
 }
 
 async function importAllHistory(input) {
