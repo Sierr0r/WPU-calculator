@@ -58,7 +58,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 
 /* ── HEADER ── */
 .header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 200; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.header-exp { font-family: var(--mono); font-size: var(--f-xl); font-weight: 700; color: var(--text); }
+.header-exp { font-family: var(--sans); font-size: var(--f-xl); font-weight: 700; color: var(--text); }
 .header-exp strong { color: var(--accent); }
 .header-actions { display: flex; gap: 8px; margin-left: auto; }
 .theme-toggle { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: var(--rs); background: var(--bg3); border: 1px solid var(--border); cursor: pointer; font-size: var(--f-xl); transition: all 0.2s; flex-shrink: 0; }
@@ -70,13 +70,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 .sidebar { width: var(--nav-w); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; top: var(--header-h); left: 0; bottom: 0; overflow-y: auto; padding: 20px 0; z-index: 100; scrollbar-width: none; }
 .sidebar::-webkit-scrollbar { display: none; }
 .nav-section { padding: 0 16px; margin-bottom: 8px; }
-.nav-label { font-family: var(--mono); font-size: var(--f-xs); font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.15em; padding: 8px 8px 4px; }
+.nav-label { font-family: var(--sans); font-size: var(--f-xs); font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.15em; padding: 8px 8px 4px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--rs); cursor: pointer; font-size: var(--f-md); color: var(--text2); transition: all 0.15s; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; margin-bottom: 2px; }
 .nav-item:hover { background: var(--bg3); color: var(--text); }
 .nav-item.active { background: var(--accent); color: #fff; font-weight: 600; box-shadow: 0 2px 8px var(--accent-glow); }
 .nav-item.active::before { display: none; }
 .nav-icon { font-size: var(--f-base); flex-shrink: 0; }
-.nav-badge { margin-left: auto; background: var(--red); color: #fff; font-family: var(--mono); font-size: var(--f-xs); font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+.nav-badge { margin-left: auto; background: var(--red); color: #fff; font-family: var(--sans); font-size: var(--f-xs); font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
 .nav-divider { height: 1px; background: var(--border); margin: 12px 16px; }
 .main { margin-left: var(--nav-w); flex: 1; padding: 28px; min-width: 0; }
 .page { display: none; }
@@ -91,9 +91,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 .page-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 /* ── CARDS ── */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-.card-title { font-family: var(--sans); font-size: var(--f-md); font-weight: 700; color: var(--text); letter-spacing: 0.02em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.card-title::before { content: ''; display: block; width: 4px; height: 16px; background: var(--accent); border-radius: 3px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; }
+.card-header { padding: 14px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: var(--bg3); border-bottom: 1px solid var(--border); user-select: none; transition: background 0.15s; position: relative; }
+.card-header:hover { background: var(--bg2); }
+.card-title { font-family: var(--sans); font-size: var(--f-md); font-weight: 700; color: var(--text); letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; flex: 1; }
+.card-title::before { content: ''; display: block; width: 4px; height: 16px; background: var(--accent); border-radius: 3px; flex-shrink: 0; }
+.card-chevron { color: var(--text3); font-size: var(--f-sm); transition: transform 0.2s; flex-shrink: 0; }
+.card.collapsed .card-chevron { transform: rotate(-90deg); }
+.card-body { padding: 20px; transition: all 0.2s; }
+.card.collapsed .card-body { display: none; }
+/* 红点提示 */
+.card-header .incomplete-dot { position: absolute; right: 40px; width: 8px; height: 8px; background: var(--red); border-radius: 50%; box-shadow: 0 0 6px var(--red); animation: pulse 2s infinite; flex-shrink: 0; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
 
 /* ── BUTTONS ── */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px; border-radius: var(--rs); font-family: var(--sans); font-size: var(--f-md); font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; user-select: none; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
@@ -125,6 +134,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 label { font-size: var(--f-xs); font-family: var(--sans); color: var(--text2); font-weight: 500; letter-spacing: 0.02em; }
 input[type=text], input[type=number], textarea, select, input[type=time] { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); color: var(--text); font-family: var(--sans); font-size: var(--f-md); padding: 10px 12px; width: 100%; outline: none; transition: all 0.15s; -webkit-appearance: none; appearance: none; }
 input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); background: var(--surface); }
+input.input-empty, textarea.input-empty, select.input-empty { border-color: var(--red); background: var(--red-dim); }
+input.input-empty:focus, textarea.input-empty:focus, select.input-empty:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
 select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath fill='%2364748b' d='M0 0l6 7 6-7z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
 textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
 input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: var(--border); border-radius: 3px; outline: none; border: none; padding: 0; cursor: pointer; }
@@ -138,7 +149,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .stat-chip { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); padding: 12px 16px; flex: 1; min-width: 100px; }
 .stat-label { font-family: var(--sans); font-size: var(--f-xs); color: var(--text3); font-weight: 500; letter-spacing: 0.05em; margin-bottom: 4px; }
-.stat-value { font-family: var(--mono); font-size: var(--f-17); font-weight: 700; color: var(--text); }
+.stat-value { font-family: var(--sans); font-size: var(--f-17); font-weight: 700; color: var(--text); }
 .stat-value.good { color: var(--green); }
 .stat-value.warn { color: var(--amber); }
 .stat-value.bad  { color: var(--red); }
@@ -158,7 +169,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .type-solvent{ background: var(--purple-dim); color: var(--purple); }
 .type-other  { background: var(--bg3); color: var(--text3); }
 .reagent-name { font-size: var(--f-md); font-weight: 600; color: var(--text); flex: 1; }
-.reagent-eq-badge { font-family: var(--mono); font-size: var(--f-sm); color: var(--text3); }
+.reagent-eq-badge { font-family: var(--sans); font-size: var(--f-sm); color: var(--text3); }
 .reagent-eq-badge.has-eq { color: var(--accent); }
 .reagent-eq-badge.no-eq  { color: var(--text3); font-style: italic; }
 
@@ -177,7 +188,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .step-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 .step-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; background: var(--bg3); border-bottom: 1px solid var(--border); user-select: none; transition: background 0.15s; }
 .step-header:hover { background: var(--bg2); }
-.step-num { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border2); color: var(--text3); font-family: var(--mono); font-size: var(--f-sm); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border2); color: var(--text3); font-family: var(--sans); font-size: var(--f-sm); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
 .step-num.done { border-color: var(--green); color: #fff; background: var(--green); box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
 .step-title  { font-size: var(--f-md); font-weight: 600; flex: 1; }
 .step-sub    { font-size: var(--f-sm); color: var(--text3); }
@@ -195,13 +206,13 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .reagent-tag.checked { border-color: var(--green); background: var(--green-dim); }
 .reagent-tag.checked .reagent-tag-name { color: var(--green); }
 .reagent-tag-name   { font-weight: 500; font-size: var(--f-sm); transition: color 0.15s; }
-.reagent-tag-amount { font-size: var(--f-xs); color: var(--text3); font-family: var(--mono); }
-.selected-reagents-display { padding: 10px 14px; background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--rs); font-size: var(--f-sm); color: var(--green); margin-bottom: 10px; font-family: var(--mono); font-weight: 500; }
+.reagent-tag-amount { font-size: var(--f-xs); color: var(--text3); font-family: var(--sans); }
+.selected-reagents-display { padding: 10px 14px; background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--rs); font-size: var(--f-sm); color: var(--green); margin-bottom: 10px; font-family: var(--sans); font-weight: 500; }
 
 /* ── GOAL SEEK ── */
-.gs-result { background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--rs); padding: 14px 18px; font-family: var(--mono); font-size: var(--f-md); color: var(--green); margin-top: 12px; }
-.sc-display { font-family: var(--mono); font-size: var(--f-display); font-weight: 700; color: var(--accent); line-height: 1; }
-.sc-unit    { font-family: var(--mono); font-size: var(--f-md); color: var(--text3); margin-left: 4px; }
+.gs-result { background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--rs); padding: 14px 18px; font-family: var(--sans); font-size: var(--f-md); color: var(--green); margin-top: 12px; }
+.sc-display { font-family: var(--sans); font-size: var(--f-display); font-weight: 700; color: var(--accent); line-height: 1; }
+.sc-unit    { font-family: var(--sans); font-size: var(--f-md); color: var(--text3); margin-left: 4px; }
 
 /* ── PHOTO ── */
 .photo-area { border: 2px dashed var(--border2); border-radius: var(--r); padding: 20px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 12px; }
@@ -226,7 +237,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .db-table tbody tr:hover { background: var(--bg3); }
 .db-table tbody tr.selected { background: var(--accent-dim); }
 .db-table tbody td { padding: 12px 16px; color: var(--text2); }
-.db-table tbody td:first-child { color: var(--accent); font-weight: 600; font-family: var(--mono); }
+.db-table tbody td:first-child { color: var(--accent); font-weight: 600; font-family: var(--sans); }
 .db-r-good { color: var(--green) !important; font-weight: 600; }
 .db-r-warn { color: var(--amber) !important; font-weight: 600; }
 .db-r-bad  { color: var(--red)   !important; font-weight: 600; }
@@ -235,7 +246,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 /* ── REPORT VIEWER ── */
 .report-viewer { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
 .report-toolbar { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--bg3); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-.report-exp-id { font-family: var(--mono); font-size: var(--f-base); font-weight: 700; color: var(--accent); }
+.report-exp-id { font-family: var(--sans); font-size: var(--f-base); font-weight: 700; color: var(--accent); }
 .report-content { padding: 28px; }
 .report-placeholder { text-align: center; padding: 80px 24px; color: var(--text3); }
 .report-placeholder-icon { font-size: var(--f-40); margin-bottom: 16px; }
@@ -247,10 +258,10 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .rpt-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
 .rpt-info-label { font-family: var(--sans); font-size: var(--f-xs); color: var(--text3); font-weight: 500; letter-spacing: 0.05em; margin-bottom: 4px; }
 .rpt-info-value { font-size: var(--f-md); font-weight: 600; color: var(--text); word-break: break-word; }
-.rpt-info-value.highlight { color: var(--accent); font-family: var(--mono); }
+.rpt-info-value.highlight { color: var(--accent); font-family: var(--sans); }
 .rpt-table { width: 100%; border-collapse: collapse; font-size: var(--f-md); }
 .rpt-table th { background: var(--bg3); color: var(--text3); font-family: var(--sans); font-size: var(--f-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
-.rpt-table td { padding: 10px 12px; border: 1px solid var(--border); color: var(--text2); font-family: var(--mono); font-size: var(--f-sm); }
+.rpt-table td { padding: 10px 12px; border: 1px solid var(--border); color: var(--text2); font-family: var(--sans); font-size: var(--f-sm); }
 .rpt-table tr:hover td { background: var(--bg3); }
 .rpt-table td.r-name   { color: var(--text); font-weight: 600; font-family: var(--sans); }
 .rpt-table td.r-theory { color: var(--accent); }
@@ -260,19 +271,19 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .rpt-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .rpt-stat { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); padding: 12px 14px; }
 .rpt-stat-label  { font-family: var(--sans); font-size: var(--f-xs); color: var(--text3); font-weight: 500; letter-spacing: 0.05em; margin-bottom: 6px; }
-.rpt-stat-theory { font-family: var(--mono); font-size: var(--f-2xl); font-weight: 700; color: var(--text); }
-.rpt-stat-actual { font-family: var(--mono); font-size: var(--f-sm); color: var(--green); margin-top: 2px; }
+.rpt-stat-theory { font-family: var(--sans); font-size: var(--f-2xl); font-weight: 700; color: var(--text); }
+.rpt-stat-actual { font-family: var(--sans); font-size: var(--f-sm); color: var(--green); margin-top: 2px; }
 .rpt-stat.r-good .rpt-stat-theory { color: var(--green); }
 .rpt-stat.r-warn .rpt-stat-theory { color: var(--amber); }
 .rpt-stat.r-bad  .rpt-stat-theory { color: var(--red); }
 .rpt-stat.r-cyan .rpt-stat-theory { color: var(--cyan); }
 .rpt-step { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
 .rpt-step:last-child { border-bottom: none; }
-.rpt-step-num { width: 32px; height: 32px; border-radius: 50%; font-family: var(--mono); font-size: var(--f-sm); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; border: 2px solid var(--border2); color: var(--text3); }
+.rpt-step-num { width: 32px; height: 32px; border-radius: 50%; font-family: var(--sans); font-size: var(--f-sm); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; border: 2px solid var(--border2); color: var(--text3); }
 .rpt-step-num.done { border-color: var(--green); color: #fff; background: var(--green); }
 .rpt-step-content { flex: 1; }
 .rpt-step-title    { font-weight: 600; font-size: var(--f-md); margin-bottom: 6px; }
-.rpt-step-params   { font-family: var(--mono); font-size: var(--f-sm); color: var(--text3); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+.rpt-step-params   { font-family: var(--sans); font-size: var(--f-sm); color: var(--text3); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
 .rpt-step-obs      { font-size: var(--f-sm); color: var(--text2); padding: 8px 12px; background: var(--bg3); border-radius: var(--rs); margin-top: 6px; }
 .rpt-step-reagents { font-size: var(--f-sm); color: var(--green); padding: 8px 12px; background: var(--green-dim); border-radius: var(--rs); margin-top: 6px; }
 .rpt-step-empty    { font-size: var(--f-sm); color: var(--text3); font-style: italic; }
@@ -304,7 +315,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 .alert-amber { background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.3); color: var(--amber); }
 .progress-bar  { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-.storage-info  { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); margin-bottom: 16px; font-family: var(--mono); font-size: var(--f-sm); color: var(--text3); }
+.storage-info  { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); margin-bottom: 16px; font-family: var(--sans); font-size: var(--f-sm); color: var(--text3); }
 .storage-size  { color: var(--accent); font-weight: 600; }
 .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
 .empty-icon  { font-size: var(--f-40); margin-bottom: 16px; }
@@ -351,10 +362,12 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   .rpt-info-grid, .rpt-stats-grid { grid-template-columns: 1fr; }
   .rpt-step-params { flex-direction: column; gap: 6px; }
   .step-header, .step-body { padding: 12px 14px; }
+  .card-header { padding: 12px 14px; }
+  .card-body { padding: 16px 14px; }
   .modal { padding: 20px; max-height: 85vh; }
   .modal-title { font-size: var(--f-xl); }
   #toast { font-size: var(--f-sm); padding: 10px 18px; max-width: 90vw; }
-  .card { padding: 16px; margin-bottom: 12px; }
+  .card { margin-bottom: 12px; }
   .stats-row { gap: 8px; }
 }
 @media (max-width: 480px) {
@@ -362,7 +375,8 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   .header-exp { font-size: var(--f-sm); }
   .btn { padding: 8px 12px; font-size: var(--f-sm); }
   .main { padding: 14px 12px; }
-  .card { padding: 14px; }
+  .card-header { padding: 12px; }
+  .card-body { padding: 14px 12px; }
   .page-title { font-size: var(--f-xl); }
 }
 .mobile-menu-btn { display: none; }
@@ -374,7 +388,6 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   <button class="btn btn-ghost btn-icon mobile-menu-btn" onclick="toggleSidebar()">☰</button>
   <div class="header-exp">实验：<strong id="h-exp-id">—</strong></div>
   <div class="header-actions">
-    <button class="theme-toggle" id="theme-btn" title="切换主题" onclick="toggleTheme()">🌙</button>
     <button class="btn btn-primary btn-sm" onclick="newExperiment()">＋ 新建</button>
     <button class="btn btn-secondary btn-sm" onclick="saveCurrentToHistory()">💾 保存</button>
   </div>
@@ -392,13 +405,13 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   <div class="nav-divider"></div>
   <div class="nav-section">
     <div class="nav-label">数据管理</div>
-    <div class="nav-item" data-page="database" onclick="switchPage('database')"><span class="nav-icon">🗄️</span> 实验库<span class="nav-badge" id="hist-count">0</span></div>
-    <div class="nav-item" data-page="report" onclick="switchPage('report')"><span class="nav-icon">📊</span> 实验报告</div>
+    <div class="nav-item" data-page="database" onclick="switchPage('database')"><span class="nav-icon">🗄️</span> 实验历史<span class="nav-badge" id="hist-count">0</span></div>
+    <div class="nav-item" data-page="report" onclick="switchPage('report')"><span class="nav-icon">📊</span> 报告可视化</div>
   </div>
   <div class="nav-divider"></div>
   <div class="nav-section">
     <div class="nav-label">系统</div>
-    <div class="nav-item" data-page="settings" onclick="switchPage('settings')"><span class="nav-icon">⚙️</span> 设置与预设</div>
+    <div class="nav-item" data-page="settings" onclick="switchPage('settings')"><span class="nav-icon">⚙️</span> 设置与导出</div>
   </div>
 </nav>
 
@@ -413,145 +426,165 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">实验基本信息</div>
-    <div class="form-grid form-grid-3">
-      <div class="form-group">
-        <label>实验编号</label>
-        <input type="text" id="exp-id" placeholder="如 260328-01" oninput="syncExpId();autoSave()">
-      </div>
-      <div class="form-group">
-        <label>实验日期</label>
-        <input type="text" id="exp-date" placeholder="YYYY-MM-DD" oninput="autoSave()">
-      </div>
-      <div class="form-group">
-        <label>操作人</label>
-        <input type="text" id="exp-operator" placeholder="姓名" oninput="autoSave()">
-      </div>
-      <div class="form-group span-full">
-        <label>实验目的 / 备注</label>
-        <input type="text" id="exp-note" placeholder="如：优化 IPDI/PCD 体系防水性" oninput="autoSave()">
+  <div class="card" data-card="basic-info" data-required="exp-id,exp-date,exp-operator,exp-note">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">实验基本信息</div>
+      <div class="card-chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid form-grid-3">
+        <div class="form-group">
+          <label>实验编号</label>
+          <input type="text" id="exp-id" placeholder="如 260328-01" oninput="syncExpId();autoSave();checkCardCompletion()">
+        </div>
+        <div class="form-group">
+          <label>实验日期</label>
+          <input type="text" id="exp-date" placeholder="YYYY-MM-DD" oninput="autoSave();checkCardCompletion()">
+        </div>
+        <div class="form-group">
+          <label>操作人</label>
+          <input type="text" id="exp-operator" placeholder="姓名" oninput="autoSave();checkCardCompletion()">
+        </div>
+        <div class="form-group span-full">
+          <label>实验目的 / 备注</label>
+          <input type="text" id="exp-note" placeholder="如：优化 IPDI/PCD 体系防水性" oninput="autoSave();checkCardCompletion()">
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">添加原料</div>
-    <div style="margin-bottom:10px;">
-      <div style="font-size:11px;color:var(--text3);margin-bottom:7px;">快速选用预设：</div>
-      <div class="preset-grid" id="preset-btns"></div>
+  <div class="card" data-card="add-reagent">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">添加原料</div>
+      <div class="card-chevron">▼</div>
     </div>
-    <div class="divider"></div>
-    <div class="form-grid">
-      <div class="form-group span-2">
-        <label>原料名称</label>
-        <input type="text" id="add-name" placeholder="如 IPDI, PCD-2000…">
+    <div class="card-body">
+      <div style="margin-bottom:10px;">
+        <div style="font-size:var(--f-xs);color:var(--text3);margin-bottom:7px;">快速选用预设：</div>
+        <div class="preset-grid" id="preset-btns"></div>
       </div>
-      <div class="form-group">
-        <label>类型</label>
-        <select id="add-type">
-          <option value="polyol">多元醇</option>
-          <option value="iso">异氰酸酯</option>
-          <option value="chain">扩链/亲水</option>
-          <option value="solvent">溶剂</option>
-          <option value="other">其他</option>
-        </select>
+      <div class="divider"></div>
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label>原料名称</label>
+          <input type="text" id="add-name" placeholder="如 IPDI, PCD-2000…">
+        </div>
+        <div class="form-group">
+          <label>类型</label>
+          <select id="add-type">
+            <option value="polyol">多元醇</option>
+            <option value="iso">异氰酸酯</option>
+            <option value="chain">扩链/亲水</option>
+            <option value="solvent">溶剂</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>分子量 (g/mol)</label>
+          <input type="number" id="add-mw" placeholder="222.28" step="any">
+        </div>
+        <div class="form-group">
+          <label>官能度 f</label>
+          <input type="number" id="add-f" placeholder="2" value="2" step="1" min="0">
+        </div>
+        <div class="form-group">
+          <label>计量单位</label>
+          <select id="add-unit" onchange="toggleDensityField()">
+            <option value="g">g（质量）</option>
+            <option value="mL">mL（体积）</option>
+          </select>
+        </div>
+        <div class="form-group" id="add-density-group" style="display:none;">
+          <label>密度 (g/mL)</label>
+          <input type="number" id="add-density" placeholder="1.062" step="any">
+        </div>
+        <div class="form-group">
+          <label>理论用量 (<span id="add-unit-label">g</span>)</label>
+          <input type="number" id="add-mass" placeholder="30.00" step="any">
+        </div>
       </div>
-      <div class="form-group">
-        <label>分子量 (g/mol)</label>
-        <input type="number" id="add-mw" placeholder="222.28" step="any">
-      </div>
-      <div class="form-group">
-        <label>官能度 f</label>
-        <input type="number" id="add-f" placeholder="2" value="2" step="1" min="0">
-      </div>
-      <div class="form-group">
-        <label>计量单位</label>
-        <select id="add-unit" onchange="toggleDensityField()">
-          <option value="g">g（质量）</option>
-          <option value="mL">mL（体积）</option>
-        </select>
-      </div>
-      <div class="form-group" id="add-density-group" style="display:none;">
-        <label>密度 (g/mL)</label>
-        <input type="number" id="add-density" placeholder="1.062" step="any">
-      </div>
-      <div class="form-group">
-        <label>理论用量 (<span id="add-unit-label">g</span>)</label>
-        <input type="number" id="add-mass" placeholder="30.00" step="any">
-      </div>
-    </div>
-    <button class="btn btn-primary btn-full" onclick="addReagent()">+ 加入配方</button>
-  </div>
-
-  <div class="card">
-    <div class="card-title" style="justify-content:space-between;">
-      <span style="display:flex;align-items:center;gap:8px;">
-        <span style="display:block;width:3px;height:14px;background:var(--accent);border-radius:2px;box-shadow:0 0 6px var(--accent-glow);"></span>
-        当前配方
-      </span>
-      <button class="btn btn-danger btn-sm" onclick="clearAll()">清空</button>
-    </div>
-    <div class="reagent-list" id="reagent-list">
-      <div class="empty-state"><div class="empty-icon">🧬</div><div class="empty-text">暂无原料，请在上方添加</div></div>
-    </div>
-    <div class="divider"></div>
-    <div class="stats-row">
-      <div class="stat-chip"><div class="stat-label">NCO 当量</div><div class="stat-value" id="s-nco-eq">—</div></div>
-      <div class="stat-chip"><div class="stat-label">OH 当量</div><div class="stat-value" id="s-oh-eq">—</div></div>
-      <div class="stat-chip"><div class="stat-label">R 值</div><div class="stat-value" id="s-r-val">—</div></div>
-      <div class="stat-chip"><div class="stat-label">HSC 硬段</div><div class="stat-value" id="s-hsc">—</div></div>
-      <div class="stat-chip"><div class="stat-label">理论总质量</div><div class="stat-value accent" id="s-total-mass">—</div></div>
-      <div class="stat-chip"><div class="stat-label">实际总质量</div><div class="stat-value" id="s-total-actual">—</div></div>
+      <button class="btn btn-primary btn-full" onclick="addReagent()">+ 加入配方</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">固含量 &amp; 加水量</div>
-    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:10px;">
-      <span class="sc-display" id="sc-pct">30.0</span>
-      <span class="sc-unit">% 固含量目标</span>
+  <div class="card" data-card="current-formula" data-required="reagent-list">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">当前配方</div>
+      <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();clearAll()">清空</button>
+      <div class="card-chevron">▼</div>
     </div>
-    <input type="range" id="sc-slider" min="15" max="60" value="30" step="0.5" oninput="updateSolidContent(this.value)" style="margin-bottom:4px;">
-    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:14px;"><span>15%</span><span>30%</span><span>45%</span><span>60%</span></div>
-    <div class="stats-row">
-      <div class="stat-chip"><div class="stat-label">固体总质量</div><div class="stat-value" id="sc-solid">—</div></div>
-      <div class="stat-chip"><div class="stat-label">需加水量</div><div class="stat-value good" id="sc-water">—</div></div>
-      <div class="stat-chip"><div class="stat-label">乳液总质量</div><div class="stat-value" id="sc-total">—</div></div>
-    </div>
-    <div class="form-grid form-grid-2" style="margin-top:6px;">
-      <div class="form-group">
-        <label>实际加水量 (g)</label>
-        <input type="number" id="sc-actual-water" placeholder="实际称量" step="any" oninput="onActualWaterInput()">
+    <div class="card-body">
+      <div class="reagent-list" id="reagent-list">
+        <div class="empty-state"><div class="empty-icon">🧬</div><div class="empty-text">暂无原料，请在上方添加</div></div>
       </div>
-      <div class="form-group">
-        <label>实际固含量</label>
-        <div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);font-family:var(--mono);font-size:14px;color:var(--cyan);" id="sc-actual-pct">—</div>
+      <div class="divider"></div>
+      <div class="stats-row">
+        <div class="stat-chip"><div class="stat-label">NCO 当量</div><div class="stat-value" id="s-nco-eq">—</div></div>
+        <div class="stat-chip"><div class="stat-label">OH 当量</div><div class="stat-value" id="s-oh-eq">—</div></div>
+        <div class="stat-chip"><div class="stat-label">R 值</div><div class="stat-value" id="s-r-val">—</div></div>
+        <div class="stat-chip"><div class="stat-label">HSC 硬段</div><div class="stat-value" id="s-hsc">—</div></div>
+        <div class="stat-chip"><div class="stat-label">理论总质量</div><div class="stat-value accent" id="s-total-mass">—</div></div>
+        <div class="stat-chip"><div class="stat-label">实际总质量</div><div class="stat-value" id="s-total-actual">—</div></div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">目标反推 Goal Seek</div>
-    <div class="form-grid form-grid-2">
-      <div class="form-group">
-        <label>目标参数</label>
-        <select id="gs-target">
-          <option value="r">目标 R 值</option>
-          <option value="hsc">目标 HSC (%)</option>
-        </select>
+  <div class="card" data-card="solid-content" data-required="sc-actual-water">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">固含量 &amp; 加水量</div>
+      <div class="card-chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:10px;">
+        <span class="sc-display" id="sc-pct">30.0</span>
+        <span class="sc-unit">% 固含量目标</span>
       </div>
-      <div class="form-group">
-        <label>目标值</label>
-        <input type="number" id="gs-val" placeholder="如 1.05" step="any">
+      <input type="range" id="sc-slider" min="15" max="60" value="30" step="0.5" oninput="updateSolidContent(this.value)" style="margin-bottom:4px;">
+      <div style="display:flex;justify-content:space-between;font-family:var(--sans);font-size:var(--f-xs);color:var(--text3);margin-bottom:14px;"><span>15%</span><span>30%</span><span>45%</span><span>60%</span></div>
+      <div class="stats-row">
+        <div class="stat-chip"><div class="stat-label">固体总质量</div><div class="stat-value" id="sc-solid">—</div></div>
+        <div class="stat-chip"><div class="stat-label">需加水量</div><div class="stat-value good" id="sc-water">—</div></div>
+        <div class="stat-chip"><div class="stat-label">乳液总质量</div><div class="stat-value" id="sc-total">—</div></div>
       </div>
-      <div class="form-group span-2">
-        <label>调整原料（f &gt; 0 才参与计算）</label>
-        <select id="gs-reagent"><option value="">— 选择要调整质量的原料 —</option></select>
+      <div class="form-grid form-grid-2" style="margin-top:6px;">
+        <div class="form-group">
+          <label>实际加水量 (g)</label>
+          <input type="number" id="sc-actual-water" placeholder="实际称量" step="any" oninput="onActualWaterInput();checkCardCompletion()">
+        </div>
+        <div class="form-group">
+          <label>实际固含量</label>
+          <div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);font-family:var(--sans);font-size:var(--f-md);color:var(--cyan);" id="sc-actual-pct">—</div>
+        </div>
       </div>
     </div>
-    <button class="btn btn-cyan btn-full" onclick="goalSeek()">🔍 反推计算</button>
-    <div id="gs-result" style="display:none;" class="gs-result"></div>
+  </div>
+
+  <div class="card" data-card="goal-seek">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">目标反推 Goal Seek</div>
+      <div class="card-chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label>目标参数</label>
+          <select id="gs-target">
+            <option value="r">目标 R 值</option>
+            <option value="hsc">目标 HSC (%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>目标值</label>
+          <input type="number" id="gs-val" placeholder="如 1.05" step="any">
+        </div>
+        <div class="form-group span-2">
+          <label>调整原料（f &gt; 0 才参与计算）</label>
+          <select id="gs-reagent"><option value="">— 选择要调整质量的原料 —</option></select>
+        </div>
+      </div>
+      <button class="btn btn-cyan btn-full" onclick="goalSeek()">🔍 反推计算</button>
+      <div id="gs-result" style="display:none;" class="gs-result"></div>
+    </div>
   </div>
 </div>
 
@@ -563,18 +596,18 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
       <div class="page-desc">记录合成各步骤的温度、时间、现象和照片</div>
     </div>
     <div class="page-actions">
-      <span style="font-family:var(--mono);font-size:12px;color:var(--text3);">实验编号：<strong id="proc-exp-id" style="color:var(--accent);">—</strong></span>
+      <span style="font-family:var(--sans);font-size:var(--f-xs);color:var(--text3);">实验编号：<strong id="proc-exp-id" style="color:var(--accent);">—</strong></span>
       <button class="btn btn-primary btn-sm" onclick="openAddStepModal()">＋ 添加步骤</button>
     </div>
   </div>
   <div id="process-steps"></div>
 </div>
 
-<!-- ═══ PAGE: 实验数据库 ═══ -->
+<!-- ═══ PAGE: 实验历史 ═══ -->
 <div class="page" id="page-database">
   <div class="page-header">
     <div class="page-title-wrap">
-      <div class="page-title">实验数据库</div>
+      <div class="page-title">实验历史</div>
       <div class="page-desc">所有历史实验的索引，点击行查看可视化报告</div>
     </div>
     <div class="page-actions">
@@ -583,15 +616,20 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
       <button class="btn btn-danger btn-sm" onclick="clearHistory()">🗑️ 清空</button>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">数据导入</div>
-    <div class="form-grid form-grid-3">
-      <button class="btn btn-secondary" onclick="pasteFromClipboard()">📥 粘贴导入实验</button>
-      <input type="file" id="import-file" accept=".txt,.json" style="display:none;" onchange="importJSON(this)">
-      <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">📂 文件导入实验</button>
-      <input type="file" id="history-import-file" accept=".txt,.json" style="display:none;" onchange="importAllHistory(this)">
-      <button class="btn btn-secondary" onclick="document.getElementById('history-import-file').click()">📥 批量导入历史</button>
-      <button class="btn btn-primary" onclick="syncFromGitHub()">🔄 GitHub 同步</button>
+  <div class="card" data-card="data-import">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">数据导入</div>
+      <div class="card-chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid form-grid-3">
+        <button class="btn btn-secondary" onclick="pasteFromClipboard()">📥 粘贴导入实验</button>
+        <input type="file" id="import-file" accept=".txt,.json" style="display:none;" onchange="importJSON(this)">
+        <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">📂 文件导入实验</button>
+        <input type="file" id="history-import-file" accept=".txt,.json" style="display:none;" onchange="importAllHistory(this)">
+        <button class="btn btn-secondary" onclick="document.getElementById('history-import-file').click()">📥 批量导入历史</button>
+        <button class="btn btn-primary" onclick="syncFromGitHub()">🔄 GitHub 同步</button>
+      </div>
     </div>
   </div>
   <div class="storage-info">
@@ -626,18 +664,18 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   </div>
 </div>
 
-<!-- ═══ PAGE: 实验报告 ═══ -->
+<!-- ═══ PAGE: 报告可视化 ═══ -->
 <div class="page" id="page-report">
   <div class="page-header">
     <div class="page-title-wrap">
-      <div class="page-title">实验报告</div>
+      <div class="page-title">报告可视化</div>
       <div class="page-desc">从数据库选择实验，实时渲染完整实验报告</div>
     </div>
   </div>
   <div class="report-viewer">
     <div class="report-toolbar">
       <div class="report-exp-id" id="rpt-exp-id">请选择实验</div>
-      <div style="flex:1;font-size:12px;color:var(--text3);" id="rpt-meta"></div>
+      <div style="flex:1;font-size:var(--f-xs);color:var(--text3);" id="rpt-meta"></div>
       <select id="rpt-select" style="max-width:220px;" onchange="loadReportFromSelect()">
         <option value="">— 从数据库选择实验 —</option>
       </select>
@@ -655,64 +693,91 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
 
 <!-- ═══ PAGE: 已移除（导入导出功能已整合）═══ -->
 
-<!-- ═══ PAGE: 设置与预设 ═══ -->
+<!-- ═══ PAGE: 设置与导出 ═══ -->
 <div class="page" id="page-settings">
   <div class="page-header">
     <div class="page-title-wrap">
-      <div class="page-title">设置与预设</div>
+      <div class="page-title">设置与导出</div>
       <div class="page-desc">管理原料预设和系统设置</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">当前实验导出</div>
-    <div class="form-grid form-grid-3">
-      <button class="btn btn-primary" onclick="copyToClipboard()">📋 复制到剪贴板</button>
-      <button class="btn btn-secondary" onclick="exportJSON()">📄 导出 TXT 数据包</button>
-      <button class="btn btn-amber" id="pdf-btn" onclick="exportPDF()">📑 生成 PDF 报告</button>
+  <div class="card" data-card="interface-settings">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">界面设置</div>
+      <div class="card-chevron">▼</div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">批量数据处理</div>
-    <div class="form-grid form-grid-2">
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-secondary" style="flex:1;" onclick="selectBatchTxtFiles()">📂 选择 TXT 文件</button>
-        <button class="btn btn-green" style="flex:1;" onclick="convertTxtToExcel()">🔄 转为 Excel</button>
+    <div class="card-body">
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>主题模式</label>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" style="flex:1;" onclick="setTheme('light')">☀️ 浅色</button>
+          <button class="btn btn-secondary" style="flex:1;" onclick="setTheme('dark')">🌙 深色</button>
+        </div>
       </div>
-      <input type="file" id="excel-import-file" accept=".xlsx,.xls" style="display:none;" onchange="importFromExcel(this)">
-      <button class="btn btn-amber" onclick="document.getElementById('excel-import-file').click()">📥 从 Excel 生成 PDF</button>
-    </div>
-    <div id="batch-file-count" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">原料预设</div>
-    <div class="form-group" style="margin-bottom:12px;">
-      <label>内置预设</label>
-      <div class="preset-grid" id="builtin-presets-display"></div>
-    </div>
-    <div class="divider"></div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <button class="btn btn-primary" onclick="openPresetModal()">＋ 添加自定义预设</button>
-      <button class="btn btn-secondary" onclick="resetProcessSteps()">🔄 重置默认步骤</button>
-    </div>
-    <div id="custom-presets-list"><div class="empty-state"><div class="empty-icon">🧩</div><div class="empty-text">暂无自定义预设</div></div></div>
-    <div class="divider"></div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-cyan" style="flex:1;" onclick="exportPresets()">📋 导出预设 JSON</button>
-      <button class="btn btn-secondary" style="flex:1;" onclick="showPresetImportModal()">📥 导入预设 JSON</button>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>字体大小缩放: <span id="font-scale-value">100%</span></label>
+        <input type="range" id="font-scale-slider" min="75" max="130" value="100" step="5" oninput="updateFontScale(this.value)" style="margin-bottom:4px;">
+        <div style="display:flex;justify-content:space-between;font-family:var(--sans);font-size:var(--f-xs);color:var(--text3);margin-bottom:8px;"><span>75%</span><span>100%</span><span>130%</span></div>
+      </div>
+      <div class="hint">调节字体大小后实时生效，设置会自动保存。</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">界面设置</div>
-    <div class="form-group" style="margin-bottom:12px;">
-      <label>字体大小缩放: <span id="font-scale-value">100%</span></label>
-      <input type="range" id="font-scale-slider" min="75" max="130" value="100" step="5" oninput="updateFontScale(this.value)" style="margin-bottom:4px;">
-      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:var(--f-xs);color:var(--text3);margin-bottom:8px;"><span>75%</span><span>100%</span><span>130%</span></div>
+  <div class="card" data-card="export-current">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">当前实验导出</div>
+      <div class="card-chevron">▼</div>
     </div>
-    <div class="hint">调节字体大小后实时生效，设置会自动保存。</div>
+    <div class="card-body">
+      <div class="form-grid form-grid-3">
+        <button class="btn btn-primary" onclick="copyToClipboard()">📋 复制到剪贴板</button>
+        <button class="btn btn-secondary" onclick="exportJSON()">📄 导出 TXT 数据包</button>
+        <button class="btn btn-amber" id="pdf-btn" onclick="exportPDF()">📑 生成 PDF 报告</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-card="batch-process">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">批量数据处理</div>
+      <div class="card-chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid form-grid-2">
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" style="flex:1;" onclick="selectBatchTxtFiles()">📂 选择 TXT 文件</button>
+          <button class="btn btn-green" style="flex:1;" onclick="convertTxtToExcel()">🔄 转为 Excel</button>
+        </div>
+        <input type="file" id="excel-import-file" accept=".xlsx,.xls" style="display:none;" onchange="importFromExcel(this)">
+        <button class="btn btn-amber" onclick="document.getElementById('excel-import-file').click()">📥 从 Excel 生成 PDF</button>
+      </div>
+      <div id="batch-file-count" style="font-size:var(--f-xs);color:var(--text3);margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <div class="card" data-card="presets">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-title">原料预设</div>
+      <div class="card-chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>内置预设</label>
+        <div class="preset-grid" id="builtin-presets-display"></div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="openPresetModal()">＋ 添加自定义预设</button>
+        <button class="btn btn-secondary" onclick="resetProcessSteps()">🔄 重置默认步骤</button>
+      </div>
+      <div id="custom-presets-list"><div class="empty-state"><div class="empty-icon">🧩</div><div class="empty-text">暂无自定义预设</div></div></div>
+      <div class="divider"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-cyan" style="flex:1;" onclick="exportPresets()">📋 导出预设 JSON</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="showPresetImportModal()">📥 导入预设 JSON</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -770,7 +835,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="paste-io-title">📥 粘贴导入实验数据</div>
-    <textarea id="paste-io-text" style="width:100%;height:200px;margin-bottom:12px;font-family:var(--mono);font-size:11px;" placeholder="在此粘贴复制的实验数据 JSON..."></textarea>
+    <textarea id="paste-io-text" style="width:100%;height:200px;margin-bottom:12px;font-family:var(--sans);font-size:var(--f-xs);" placeholder="在此粘贴复制的实验数据 JSON..."></textarea>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-primary" style="flex:1;" id="paste-io-action-btn" onclick="confirmPasteImport()">✓ 确认导入</button>
       <button class="btn btn-secondary" style="flex:1;" onclick="closePasteIOModal()">取消</button>
@@ -782,7 +847,7 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); c
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="copy-io-title">📋 复制实验数据</div>
-    <textarea id="copy-io-text" style="width:100%;height:200px;margin-bottom:12px;font-family:var(--mono);font-size:11px;" readonly></textarea>
+    <textarea id="copy-io-text" style="width:100%;height:200px;margin-bottom:12px;font-family:var(--sans);font-size:var(--f-xs);" readonly></textarea>
     <div class="hint" style="margin-bottom:12px;">长按文本 → 全选 → 复制</div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-primary" style="flex:1;" onclick="tryCopyFromModal()">📋 复制全部</button>
@@ -994,6 +1059,37 @@ async function init() {
   renderProcessSteps();
   await loadHistory();
   syncExpId();
+
+  // 初始化输入框实时验证
+  initInputValidation();
+
+  // 初始化卡片折叠功能
+  initCardCollapse();
+}
+
+// ═══════════════════════════════════════════════
+// INPUT VALIDATION
+// ═══════════════════════════════════════════════
+function initInputValidation() {
+  // 使用事件委托监听所有输入框
+  document.addEventListener('input', e => {
+    const input = e.target;
+    if (input.matches('input[type="text"], input[type="number"], textarea, select, input[type="time"]')) {
+      updateInputEmptyState(input);
+    }
+  });
+
+  // 初始化时检查所有输入框
+  document.querySelectorAll('input[type="text"], input[type="number"], textarea, select, input[type="time"]').forEach(updateInputEmptyState);
+}
+
+function updateInputEmptyState(input) {
+  const value = input.value.trim();
+  if (value === '') {
+    input.classList.add('input-empty');
+  } else {
+    input.classList.remove('input-empty');
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1027,9 +1123,12 @@ function toggleTheme() {
   applyTheme(next);
   localStorage.setItem('wpu-theme', next);
 }
+function setTheme(t) {
+  applyTheme(t);
+  localStorage.setItem('wpu-theme', t);
+}
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
 }
 
 function initFontScale() {
@@ -1050,6 +1149,89 @@ function syncExpId() {
   const v = document.getElementById('exp-id').value || '—';
   document.getElementById('proc-exp-id').textContent = v;
   document.getElementById('h-exp-id').textContent    = v;
+}
+
+// ═══════════════════════════════════════════════
+// CARD COLLAPSE & RED DOT
+// ═══════════════════════════════════════════════
+// 卡片折叠状态存储
+const cardCollapsed = {};
+
+function initCardCollapse() {
+  // 从 localStorage 恢复折叠状态
+  const saved = localStorage.getItem('wpu-card-collapse');
+  if (saved) {
+    try {
+      Object.assign(cardCollapsed, JSON.parse(saved));
+    } catch(e) {}
+  }
+
+  // 初始化所有卡片
+  document.querySelectorAll('.card[data-card]').forEach(card => {
+    const cardId = card.dataset.card;
+    const header = card.querySelector('.card-header');
+    if (!header) return;
+
+    // 默认全部收起，如果缓存中有展开状态则展开
+    if (cardCollapsed[cardId] === false) {
+      card.classList.remove('collapsed');
+    } else {
+      card.classList.add('collapsed');
+      cardCollapsed[cardId] = true;
+    }
+
+    // 移除旧的 onclick，添加新的事件监听
+    header.onclick = null;
+    header.addEventListener('click', (e) => {
+      // 如果点击的是按钮，不切换折叠状态
+      if (e.target.closest('button')) return;
+      toggleCard(header);
+    });
+  });
+
+  // 初始化红点检测
+  checkCardCompletion();
+}
+
+function toggleCard(header) {
+  const card = header.closest('.card');
+  const cardId = card.dataset.card;
+
+  card.classList.toggle('collapsed');
+  cardCollapsed[cardId] = card.classList.contains('collapsed');
+
+  // 保存到 localStorage
+  localStorage.setItem('wpu-card-collapse', JSON.stringify(cardCollapsed));
+}
+
+// 检查卡片必填项是否完成
+function checkCardCompletion() {
+  document.querySelectorAll('.card[data-required]').forEach(card => {
+    const required = card.dataset.required?.split(',') || [];
+    const header = card.querySelector('.card-header');
+
+    // 移除旧的红点
+    header.querySelectorAll('.incomplete-dot').forEach(dot => dot.remove());
+
+    // 检查必填项
+    const incomplete = required.some(id => {
+      // 特殊处理：reagent-list
+      if (id === 'reagent-list') {
+        const list = document.getElementById('reagent-list');
+        return !list || list.querySelector('.empty-state') !== null;
+      }
+      // 普通输入框
+      const el = document.getElementById(id);
+      return !el || !el.value?.trim();
+    });
+
+    // 如果有未完成的必填项且卡片已折叠，显示红点
+    if (incomplete && card.classList.contains('collapsed')) {
+      const dot = document.createElement('span');
+      dot.className = 'incomplete-dot';
+      header.appendChild(dot);
+    }
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -1115,7 +1297,7 @@ async function renderCustomPresetsList() {
     <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--rs);margin-bottom:6px;border:1px solid var(--border);">
       <span class="type-badge ${TYPE_CLASS[p.type]||'type-other'}">${TYPE_NAME[p.type]||p.type}</span>
       <span style="font-weight:600;flex:1;">${escHtml(p.name)}</span>
-      <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">MW:${p.mw} f:${p.f}${p.density?` ρ:${p.density}`:''}</span>
+      <span style="font-family:var(--sans);font-size:var(--f-xs);color:var(--text3);">MW:${p.mw} f:${p.f}${p.density?` ρ:${p.density}`:''}</span>
       <button class="btn btn-danger btn-sm" onclick="deleteCustomPreset(${i})">删除</button>
     </div>`).join('');
 }
@@ -1208,6 +1390,11 @@ function fillPreset(p) {
     const dk = Object.keys(DENSITY_MAP).find(k => p.name.toUpperCase().includes(k));
     if (dk) document.getElementById('add-density').value = DENSITY_MAP[dk];
   }
+  // 更新输入框验证状态
+  ['add-name','add-type','add-mw','add-f','add-unit','add-density'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) updateInputEmptyState(el);
+  });
   document.getElementById('add-mass').focus();
 }
 
@@ -1246,6 +1433,12 @@ function addReagent() {
   document.getElementById('add-f').value    = '2';
   document.getElementById('add-unit').value = 'g';
   toggleDensityField();
+
+  // 更新输入框验证状态
+  ['add-name','add-mw','add-mass','add-density','add-f','add-unit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) updateInputEmptyState(el);
+  });
 
   renderReagents(); updateSummary(); updateSolidContent(solidContent); updateGoalSeekReagents(); refreshAllReagentTags(); autoSave();
   toast(`${name} 已添加`,'success');
@@ -1326,7 +1519,7 @@ function renderReagents() {
             <input type="number" value="${r.f}" step="1" min="0" data-id="${r.id}" data-field="f">
           </div>
         </div>
-        ${r.unit==='mL'?`<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px;">理论质量 ${r.mass.toFixed(2)} g${r.actual?` · 实际质量 ${parseFloat(r.actual).toFixed(2)} g`:''}</div>`:''}
+        ${r.unit==='mL'?`<div style="font-family:var(--sans);font-size:var(--f-xs);color:var(--text3);margin-top:2px;">理论质量 ${r.mass.toFixed(2)} g${r.actual?` · 实际质量 ${parseFloat(r.actual).toFixed(2)} g`:''}</div>`:''}
       </div>`;
     frag.appendChild(wrap);
   }
@@ -1342,6 +1535,12 @@ function renderReagents() {
     const inp = e.target.closest('input[data-id]');
     if (inp) updateReagentField(parseInt(inp.dataset.id), inp.dataset.field, inp.value);
   });
+
+  // 更新所有输入框验证状态
+  el.querySelectorAll('input').forEach(updateInputEmptyState);
+
+  // 更新红点检测
+  checkCardCompletion();
 }
 
 function clearAll() {
@@ -1455,8 +1654,8 @@ function goalSeek() {
     resultEl.style.display = 'block';
     resultEl.innerHTML = `
       <div style="margin-bottom:6px;">✅ 建议将 <strong>${escHtml(r.name)}</strong> 调整为：</div>
-      <div style="font-size:20px;font-weight:700;margin-bottom:6px;">${dispVal} ${dispUnit}</div>
-      <div style="font-size:12px;color:var(--text2);">验证 → R = ${c.rVal.toFixed(2)}，HSC = ${c.hsc.toFixed(2)}%</div>
+      <div style="font-size:var(--f-2xl);font-weight:700;margin-bottom:6px;">${dispVal} ${dispUnit}</div>
+      <div style="font-size:var(--f-xs);color:var(--text2);">验证 → R = ${c.rVal.toFixed(2)}，HSC = ${c.hsc.toFixed(2)}%</div>
       <button class="btn btn-green btn-sm" style="margin-top:10px;" onclick="applyGoalSeek(${reagentId},${result.toFixed(2)})">✓ 应用此质量</button>`;
   } else toast('无法找到满足条件的解','error');
 }
@@ -1545,7 +1744,7 @@ function renderProcessSteps() {
         <div class="step-title">${escHtml(step.title)}</div>
         ${step.sub ? `<div class="step-sub">${escHtml(step.sub)}</div>` : ''}
       </div>
-      <button class="btn btn-danger btn-sm btn-delete-step" style="padding:4px 8px;font-size:11px;" data-action="delete-step" data-id="${step.id}">✕</button>
+      <button class="btn btn-danger btn-sm btn-delete-step" style="padding:4px 8px;font-size:var(--f-xs);" data-action="delete-step" data-id="${step.id}">✕</button>
       <div class="step-chevron">▼</div>`;
     header.onclick = (e) => {
       if (e.target.closest('button[data-action="delete-step"]')) return;
@@ -1606,6 +1805,9 @@ function renderProcessSteps() {
     const delBtn = e.target.closest('button[data-action="delete-step"]');
     if (delBtn) deleteProcessStep(delBtn.dataset.id);
   });
+
+  // 更新所有输入框验证状态
+  container.querySelectorAll('input, select, textarea').forEach(updateInputEmptyState);
 }
 
 function buildStepBody(step, data) {
@@ -1630,12 +1832,12 @@ function buildStepBody(step, data) {
     return `<div class="reagent-tag ${isChecked?'checked':''} ${typeClass}" data-sid="${sid}" data-rid="${ridStr}">
       <span class="reagent-tag-name">${escHtml(r.name)}</span>
       <span class="reagent-tag-amount">${amtLabel}</span>
-      ${isChecked?'<span style="color:var(--green);font-size:10px;">✓</span>':''}
+      ${isChecked?'<span style="color:var(--green);font-size:var(--f-xs);">✓</span>':''}
     </div>`;
   }).join('') +
   `<div class="reagent-tag ${waterChecked?'checked':''}" style="border-left-color:#3b82f6;" data-sid="${sid}" data-rid="water">
     <span class="reagent-tag-name">💧 水</span>
-    ${waterChecked?'<span style="color:var(--green);font-size:10px;">✓</span>':''}
+    ${waterChecked?'<span style="color:var(--green);font-size:var(--f-xs);">✓</span>':''}
   </div>`;
 
   const summary = addedReagents.map(rid => {
@@ -1680,7 +1882,7 @@ function buildStepBody(step, data) {
       <label>实验现象 / 操作备注</label>
       <textarea placeholder="如：体系逐渐变粘，颜色微黄…" data-field="obs">${escHtml(data.obs||'')}</textarea>
     </div>
-    <div class="photo-area"><div style="font-size:20px;margin-bottom:3px;">📷</div><div style="font-size:12px;color:var(--text3);">点击拍照或上传图片</div></div>
+    <div class="photo-area"><div style="font-size:var(--f-xl);margin-bottom:3px;">📷</div><div style="font-size:var(--f-xs);color:var(--text3);">点击拍照或上传图片</div></div>
     <div class="photo-thumbs">${photosHtml}</div>`;
 }
 
@@ -1703,7 +1905,7 @@ function toggleReagentTag(sid, ridStr, tagEl) {
   if (nameEl) nameEl.style.color = checked ? 'var(--green)' : '';
   // 更新 tick
   const existTick = tagEl.querySelector('.reagent-tick');
-  if (checked && !existTick) { const sp = document.createElement('span'); sp.className='reagent-tick'; sp.style.cssText='color:var(--green);font-size:10px;'; sp.textContent='✓'; tagEl.appendChild(sp); }
+  if (checked && !existTick) { const sp = document.createElement('span'); sp.className='reagent-tick'; sp.style.cssText='color:var(--green);font-size:var(--f-xs);'; sp.textContent='✓'; tagEl.appendChild(sp); }
   else if (!checked && existTick) existTick.remove();
 
   // 更新摘要
@@ -1750,18 +1952,18 @@ function refreshAllReagentTags() {
       return `<div class="reagent-tag ${isChecked?'checked':''} ${typeClass}" data-sid="${step.id}" data-rid="${ridStr}">
         <span class="reagent-tag-name" ${isChecked?'style="color:var(--green);"':''}>${escHtml(r.name)}</span>
         <span class="reagent-tag-amount">${amtLabel}</span>
-        ${isChecked?'<span class="reagent-tick" style="color:var(--green);font-size:10px;">✓</span>':''}
+        ${isChecked?'<span class="reagent-tick" style="color:var(--green);font-size:var(--f-xs);">✓</span>':''}
       </div>`;
     }).join('');
 
     const waterChecked = addedReagents.includes('water');
     const waterHtml = `<div class="reagent-tag ${waterChecked?'checked':''}" style="border-left-color:#3b82f6;" data-sid="${step.id}" data-rid="water">
       <span class="reagent-tag-name">💧 水</span>
-      ${waterChecked?'<span class="reagent-tick" style="color:var(--green);font-size:10px;">✓</span>':''}
+      ${waterChecked?'<span class="reagent-tick" style="color:var(--green);font-size:var(--f-xs);">✓</span>':''}
     </div>`;
 
     container.innerHTML = reagentTagsHtml + waterHtml;
-    if (!reagentTagsHtml) container.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px;">暂无原料，请先在配方页添加</div>' + waterHtml;
+    if (!reagentTagsHtml) container.innerHTML = '<div style="font-size:var(--f-xs);color:var(--text3);padding:8px;">暂无原料，请先在配方页添加</div>' + waterHtml;
 
     updateSelectedSummary(step.id);
   });
@@ -1854,6 +2056,8 @@ function loadState(s) {
   if (awEl && s.actualWater !== undefined) awEl.value = s.actualWater;
   stepCollapsed = {};
   renderReagents(); updateSummary(); updateSolidContent(solidContent); updateGoalSeekReagents(); renderProcessSteps(); syncExpId();
+  // 更新所有输入框验证状态
+  document.querySelectorAll('input[type="text"], input[type="number"], textarea, select, input[type="time"]').forEach(updateInputEmptyState);
 }
 
 let _autoSaveTimer = null;
@@ -1879,6 +2083,8 @@ function newExperiment() {
   document.getElementById('gs-result').style.display  = 'none';
   WPU_DB.delete('current','state');
   renderReagents(); updateSummary(); updateSolidContent(30); updateGoalSeekReagents(); renderProcessSteps(); syncExpId();
+  // 更新所有输入框验证状态
+  document.querySelectorAll('input[type="text"], input[type="number"], textarea, select, input[type="time"]').forEach(updateInputEmptyState);
   switchPage('formula');
   toast('已新建实验','success');
 }
@@ -1937,11 +2143,11 @@ function renderDBTable(data) {
       <td>${escHtml(h.expId)}</td>
       <td>${h.expDate||'—'}</td>
       <td>${escHtml(h.expOperator||'—')}</td>
-      <td style="font-size:11px;">${escHtml(h.mainSystem||'—')}</td>
+      <td style="font-size:var(--f-xs);">${escHtml(h.mainSystem||'—')}</td>
       <td class="${rClass}">${h.rVal||'—'}</td>
       <td>${h.hsc||'—'}%</td>
       <td>${h.solidContent||'—'}%</td>
-      <td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(h.expNote||'—')}</td>
+      <td style="font-size:var(--f-xs);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(h.expNote||'—')}</td>
       <td style="text-align:right;white-space:nowrap;">
         <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${escHtml(h.expId)}">✏️</button>
         <button class="btn btn-danger btn-sm" data-action="del" data-id="${escHtml(h.expId)}">🗑️</button>
@@ -2581,7 +2787,7 @@ async function exportPDF() {
           if (!p || !p.data) continue;
           pdf.addImage(p.data,'JPEG',x,pageY,photoW,photoH);
           const capDiv = getRenderDiv(Math.round(photoW*3.78));
-          capDiv.innerHTML = `<div style="font-size:12px;color:#475569;">[${escHtml(p.stepTitle)}] ${escHtml(p.caption)}</div>`;
+          capDiv.innerHTML = `<div style="font-size:var(--f-xs);color:#475569;">[${escHtml(p.stepTitle)}] ${escHtml(p.caption)}</div>`;
           await document.fonts.ready;
           const capC = await html2canvas(capDiv,{scale:2,backgroundColor:'#fff'});
           const capH = capC.height/capC.width*photoW;
