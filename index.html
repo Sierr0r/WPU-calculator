@@ -1529,6 +1529,19 @@ input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--accent); c
   </div>
 </div>
 
+<div class="modal-overlay" id="copy-io-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="copy-io-title">📋 复制实验数据</div>
+    <textarea id="copy-io-text" style="width:100%;height:200px;margin-bottom:12px;font-family:var(--mono);font-size:11px;" readonly></textarea>
+    <div class="hint" style="margin-bottom:12px;">长按文本 → 全选 → 复制</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="tryCopyFromModal()">📋 复制全部</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeCopyIOModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 <canvas id="compress-canvas" style="display:none;"></canvas>
 <input type="file" id="photo-file-input" accept="image/*" style="display:none;" onchange="handlePhotoFile(this)">
@@ -3040,14 +3053,33 @@ async function exportJSON() {
   const th    = calcEquivalents(false);
   const solidMass = reagents.reduce((s,r)=>s+r.mass, 0);
   const pkg   = {...state, calculated:{theory:{...th,water:solidMass*(100-solidContent)/solidContent,solidContent}}, exportedAt:new Date().toISOString()};
-  const blob  = new Blob([JSON.stringify(pkg,null,2)], {type:'application/json'});
-  const url   = URL.createObjectURL(blob);
-  const a     = document.createElement('a'); a.href=url; a.download=`${state.expId||'exp'}.txt`; a.click();
-  URL.revokeObjectURL(url);
-  toast('TXT 已导出','success');
+  const json  = JSON.stringify(pkg, null, 2);
+
+  // 移动端检测：使用弹窗方式
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    document.getElementById('copy-io-title').textContent = `📋 导出实验数据 - ${state.expId||'当前实验'}`;
+    document.getElementById('copy-io-text').value = json;
+    document.getElementById('copy-io-text').readOnly = true;
+    document.getElementById('copy-io-modal').classList.add('open');
+    setTimeout(() => {
+      const textarea = document.getElementById('copy-io-text');
+      textarea.focus();
+      textarea.select();
+    }, 100);
+    toast('请复制后发送给其他设备','info');
+  } else {
+    // 桌面端：使用下载方式
+    const blob  = new Blob([json], {type:'application/json'});
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a'); a.href=url; a.download=`${state.expId||'exp'}.txt`; a.click();
+    URL.revokeObjectURL(url);
+    toast('TXT 已导出','success');
+  }
 }
 
-// 复制当前实验到剪贴板
+// 复制当前实验到剪贴板（移动端兼容：显示弹窗手动复制）
 async function copyToClipboard() {
   try {
     await saveCurrentToHistory();
@@ -3056,8 +3088,27 @@ async function copyToClipboard() {
     const solidMass = reagents.reduce((s,r)=>s+r.mass, 0);
     const pkg   = {...state, calculated:{theory:{...th,water:solidMass*(100-solidContent)/solidContent,solidContent}}, exportedAt:new Date().toISOString()};
     const json  = JSON.stringify(pkg, null, 2);
-    await navigator.clipboard.writeText(json);
-    toast(`已复制：${state.expId||'实验'}`,'success');
+
+    // 尝试使用剪贴板 API
+    try {
+      await navigator.clipboard.writeText(json);
+      toast(`已复制：${state.expId||'实验'}`,'success');
+      return;
+    } catch(e) {
+      // 剪贴板 API 失败，使用弹窗方式
+    }
+
+    // 显示复制弹窗
+    document.getElementById('copy-io-title').textContent = `📋 复制实验数据 - ${state.expId||'当前实验'}`;
+    document.getElementById('copy-io-text').value = json;
+    document.getElementById('copy-io-text').readOnly = true;
+    document.getElementById('copy-io-modal').classList.add('open');
+    // 全选文本
+    setTimeout(() => {
+      const textarea = document.getElementById('copy-io-text');
+      textarea.focus();
+      textarea.select();
+    }, 100);
   } catch(err) {
     toast('复制失败：' + err.message,'error');
   }
@@ -3108,13 +3159,54 @@ async function confirmPasteImport() {
 
 function closePasteIOModal() { document.getElementById('paste-io-modal').classList.remove('open'); }
 
+// 从复制弹窗尝试复制
+async function tryCopyFromModal() {
+  const text = document.getElementById('copy-io-text').value;
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('已复制到剪贴板','success');
+  } catch(e) {
+    // 再次尝试使用旧方法
+    const textarea = document.getElementById('copy-io-text');
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+    try {
+      document.execCommand('copy');
+      toast('已复制（请确认）','success');
+    } catch(e2) {
+      toast('请手动长按文本复制','info');
+    }
+  }
+}
+
+function closeCopyIOModal() { document.getElementById('copy-io-modal').classList.remove('open'); }
+
 async function exportAllHistory() {
   if (!historyData.length) { toast('暂无历史记录','error'); return; }
-  const blob = new Blob([JSON.stringify(historyData,null,2)], {type:'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a'); a.href=url; a.download='history.txt'; a.click();
-  URL.revokeObjectURL(url);
-  toast(`已导出 ${historyData.length} 条记录`,'success');
+  const json = JSON.stringify(historyData, null, 2);
+
+  // 移动端检测：使用弹窗方式
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    document.getElementById('copy-io-title').textContent = `📋 导出历史记录 (${historyData.length}条)`;
+    document.getElementById('copy-io-text').value = json;
+    document.getElementById('copy-io-text').readOnly = true;
+    document.getElementById('copy-io-modal').classList.add('open');
+    setTimeout(() => {
+      const textarea = document.getElementById('copy-io-text');
+      textarea.focus();
+      textarea.select();
+    }, 100);
+    toast('请复制后发送给其他设备','info');
+  } else {
+    // 桌面端：使用下载方式
+    const blob = new Blob([json], {type:'application/json'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a'); a.href=url; a.download='history.txt'; a.click();
+    URL.revokeObjectURL(url);
+    toast(`已导出 ${historyData.length} 条记录`,'success');
+  }
 }
 
 // 从 GitHub 仓库同步历史记录
@@ -3437,7 +3529,7 @@ function toast(msg, type='') {
 // ═══════════════════════════════════════════════
 // MODAL CLOSE ON OVERLAY
 // ═══════════════════════════════════════════════
-['photo-modal','preset-modal','preset-io-modal','paste-io-modal'].forEach(id => {
+['photo-modal','preset-modal','preset-io-modal','paste-io-modal','copy-io-modal'].forEach(id => {
   document.getElementById(id).addEventListener('click', e => {
     if (e.target===e.currentTarget) e.currentTarget.classList.remove('open');
   });
