@@ -1241,6 +1241,10 @@ async function init() {
 
   await loadProcessStepsFromDB();
 
+  // 加载历史数据并自动同步 GitHub
+  await loadHistory();
+  await syncFromGitHub();
+
   const cached = await WPU_DB.get('current','state');
   if (cached) {
     try { loadState(cached); toast('已恢复上次暂存','success'); }
