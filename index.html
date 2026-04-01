@@ -2718,21 +2718,40 @@ async function exportJSON() {
 
   // 尝试下载
   try {
-    // 移动端需要用 Blob URL 方式处理中文文件名
     if (isMobile) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      // 使用 setAttribute 确保中文文件名正确编码
-      a.setAttribute('download', fileName);
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      // 增加延迟，确保下载在安卓上完成
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 3000);
+      // Android: 使用 data URL，因为 blob URL 的 download 属性被忽略
+      if (isAndroid) {
+        const dataUrl = 'data:text/plain;charset=utf-8,' + encodeURIComponent(json);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = fileName;
+        a.setAttribute('download', fileName);
+        // 不要用 display:none，用定位移出屏幕
+        a.style.position = 'fixed';
+        a.style.left = '-9999px';
+        a.style.top = '0';
+        document.body.appendChild(a);
+        a.click();
+        // 不立即清理，等待下载完成
+        setTimeout(() => {
+          if (document.body.contains(a)) {
+            document.body.removeChild(a);
+          }
+        }, 5000);
+      } else {
+        // iOS: 使用 blob URL
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', fileName);
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 3000);
+      }
     } else {
       // 桌面端
       const a = document.createElement('a');
@@ -2832,19 +2851,39 @@ async function exportAllHistory() {
 
   // 尝试下载
   try {
+    const isAndroid = /Android/i.test(navigator.userAgent);
     if (isMobile) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.setAttribute('download', fileName);
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      // 增加延迟，确保下载在安卓上完成
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 3000);
+      if (isAndroid) {
+        // Android: 使用 data URL，因为 blob URL 的 download 属性被忽略
+        const dataUrl = 'data:text/plain;charset=utf-8,' + encodeURIComponent(json);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = fileName;
+        a.setAttribute('download', fileName);
+        a.style.position = 'fixed';
+        a.style.left = '-9999px';
+        a.style.top = '0';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          if (document.body.contains(a)) {
+            document.body.removeChild(a);
+          }
+        }, 5000);
+      } else {
+        // iOS: 使用 blob URL
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', fileName);
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 3000);
+      }
     } else {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -3155,13 +3194,18 @@ async function exportPDF() {
           toast('已取消分享');
         } else {
           // 分享失败，尝试下载
-          // 移动端优先使用 jsPDF 原生 save（内部正确处理中文文件名）
-          try {
-            pdf.save(fileName);
-            toast('文件已下载','success');
-          } catch (err) {
-            console.error('jsPDF save 失败:', err);
-            // jsPDF 失败，尝试 blob 下载
+          const isAndroid = /Android/i.test(navigator.userAgent);
+          if (isAndroid) {
+            // Android 直接使用 jsPDF.save()
+            try {
+              pdf.save(fileName);
+              toast('文件已下载','success');
+            } catch (err) {
+              console.error('jsPDF save 失败:', err);
+              toast('PDF 下载失败，请尝试分享功能','error');
+            }
+          } else {
+            // iOS: 尝试 blob 下载
             try {
               const url = URL.createObjectURL(pdfBlob);
               const a = document.createElement('a');
@@ -3185,13 +3229,18 @@ async function exportPDF() {
     } else {
       // 无分享功能，直接保存
       if (isMobile) {
-        // 移动端优先使用 jsPDF 原生 save（内部正确处理中文文件名）
-        try {
-          pdf.save(fileName);
-          toast('文件已下载','success');
-        } catch (err) {
-          console.error('jsPDF save 失败:', err);
-          // 失败则尝试 blob 下载
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        if (isAndroid) {
+          // Android 直接使用 jsPDF.save()
+          try {
+            pdf.save(fileName);
+            toast('文件已下载','success');
+          } catch (err) {
+            console.error('jsPDF save 失败:', err);
+            toast('PDF 下载失败','error');
+          }
+        } else {
+          // iOS: 尝试 blob 下载
           const url = URL.createObjectURL(pdfBlob);
           const a = document.createElement('a');
           a.href = url;
