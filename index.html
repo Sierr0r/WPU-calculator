@@ -2690,7 +2690,8 @@ async function exportJSON() {
   // 实验编号为空时使用日期作为文件名
   const expId = (state.expId || state.expDate || 'exp').replace(/[\/\\:*?"<>|]/g, '-');
   const fileName = `${expId}实验数据.txt`;
-  const blob = new Blob([json], {type: 'application/json'});
+  // 使用 text/plain 类型，否则安卓会忽略文件名
+  const blob = new Blob([json], {type: 'text/plain;charset=utf-8'});
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   const isMobile = isAndroid || isIOS;
@@ -2727,10 +2728,11 @@ async function exportJSON() {
       a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
+      // 增加延迟，确保下载在安卓上完成
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      }, 100);
+      }, 1000);
     } else {
       // 桌面端
       const a = document.createElement('a');
@@ -2804,7 +2806,8 @@ async function exportAllHistory() {
   if (!historyData.length) { toast('暂无历史记录','error'); return; }
   const json = JSON.stringify(historyData, null, 2);
   const fileName = 'history.txt';
-  const blob = new Blob([json], {type: 'application/json'});
+  // 使用 text/plain 类型，否则安卓会忽略文件名
+  const blob = new Blob([json], {type: 'text/plain;charset=utf-8'});
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   // 移动端优先使用分享功能
@@ -2837,10 +2840,11 @@ async function exportAllHistory() {
       a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
+      // 增加延迟，确保下载在安卓上完成
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      }, 100);
+      }, 1000);
     } else {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -3162,14 +3166,14 @@ async function exportPDF() {
               const url = URL.createObjectURL(pdfBlob);
               const a = document.createElement('a');
               a.href = url;
-              a.download = fileName;
+              a.setAttribute('download', fileName);
               a.style.display = 'none';
               document.body.appendChild(a);
               a.click();
               setTimeout(() => {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-              }, 100);
+              }, 1000);
               toast('文件已下载','success');
             } catch (e2) {
               console.error('blob 下载也失败:', e2);
@@ -3191,14 +3195,14 @@ async function exportPDF() {
           const url = URL.createObjectURL(pdfBlob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = fileName;
+          a.setAttribute('download', fileName);
           a.style.display = 'none';
           document.body.appendChild(a);
           a.click();
           setTimeout(() => {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-          }, 100);
+          }, 1000);
           toast('文件已下载','success');
         }
       } else {
