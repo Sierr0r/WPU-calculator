@@ -2717,16 +2717,28 @@ async function exportJSON() {
 
   // 尝试下载
   try {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = fileName;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
+    // 移动端需要用 Blob URL 方式处理中文文件名
+    if (isMobile) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      // 使用 setAttribute 确保中文文件名正确编码
+      a.setAttribute('download', fileName);
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } else {
+      // 桌面端
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
       URL.revokeObjectURL(a.href);
-    }, 100);
+    }
     toast(isMobile ? '文件已下载' : 'TXT 已导出','success');
     return;
   } catch (err) {
@@ -2817,16 +2829,25 @@ async function exportAllHistory() {
 
   // 尝试下载
   try {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = fileName;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
+    if (isMobile) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.setAttribute('download', fileName);
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
       URL.revokeObjectURL(a.href);
-    }, 100);
+    }
     toast(isMobile ? '文件已下载' : `已导出 ${historyData.length} 条记录`,'success');
     return;
   } catch (err) {
@@ -3130,42 +3151,56 @@ async function exportPDF() {
           toast('已取消分享');
         } else {
           // 分享失败，尝试下载
+          // 移动端优先使用 jsPDF 原生 save（内部正确处理中文文件名）
           try {
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            }, 100);
+            pdf.save(fileName);
             toast('文件已下载','success');
           } catch (err) {
-            console.error('下载失败:', err);
-            // 下载也失败，jsPDF兜底
-            pdf.save(fileName);
-            toast('分享和下载失败，已尝试直接保存','success');
+            console.error('jsPDF save 失败:', err);
+            // jsPDF 失败，尝试 blob 下载
+            try {
+              const url = URL.createObjectURL(pdfBlob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileName;
+              a.style.display = 'none';
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }, 100);
+              toast('文件已下载','success');
+            } catch (e2) {
+              console.error('blob 下载也失败:', e2);
+              toast('下载失败，请尝试分享功能','error');
+            }
           }
         }
       }
     } else {
       // 无分享功能，直接保存
       if (isMobile) {
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }, 100);
-        toast('文件已下载','success');
+        // 移动端优先使用 jsPDF 原生 save（内部正确处理中文文件名）
+        try {
+          pdf.save(fileName);
+          toast('文件已下载','success');
+        } catch (err) {
+          console.error('jsPDF save 失败:', err);
+          // 失败则尝试 blob 下载
+          const url = URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 100);
+          toast('文件已下载','success');
+        }
       } else {
         pdf.save(fileName);
         toast('PDF 已生成','success');
