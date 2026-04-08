@@ -1878,8 +1878,8 @@ const BUILTIN_PRESETS = Object.freeze([
   { name: 'DMBA',       type: 'hydro',   mw: 148.16, f: 2 },
   { name: 'BDO',        type: 'chain',   mw:  90.12, f: 2 },
   { name: 'TMP',        type: 'chain',   mw: 134.17, f: 3 },
-  { name: 'EDA',        type: 'amine',   mw:  60.10, f: 2 },
-  { name: 'EDA·H2O',    type: 'amine',   mw:  78.11, f: 2 },
+  { name: 'EDA',        type: 'amine',   mw:  60.10, f: 0 },
+  { name: 'EDA·H2O',    type: 'amine',   mw:  78.11, f: 0 },
   { name: 'TEA',        type: 'other',   mw: 101.19, f: 0 },
   { name: 'T9',         type: 'other',   mw: 632.32, f: 0 },
   { name: 'DBTDL',      type: 'other',   mw: 631.56, f: 0 },
@@ -3975,11 +3975,22 @@ async function confirmPasteImport() {
   try {
     const state = JSON.parse(text);
     if (!state.expId && !state.reagents) { toast('数据格式不正确', 'error'); return; }
-    if (!confirm(`导入实验 ${state.expId || '?'} 的数据？`)) return;
-    loadState(state);
+    if (!state.expId) { toast('数据缺少实验编号', 'error'); return; }
+    if (!confirm(`导入实验 ${state.expId} 的数据到数据库？`)) return;
+    // 数据迁移：将导入数据中类型为'chain'的EDA自动转换为'amine'类型
+    if (Array.isArray(state.reagents)) {
+      state.reagents = state.reagents.map(r => {
+        if (r.name === 'EDA' && r.type === 'chain') {
+          return { ...r, type: 'amine' };
+        }
+        return r;
+      });
+    }
+    state.savedAt = new Date().toISOString();
+    await WPU_DB.set('history', state.expId, state);
+    await loadHistory();
     closeModal('paste-io-modal');
-    switchPage('formula');
-    toast('数据已导入', 'success');
+    toast(`实验 ${state.expId} 已导入数据库`, 'success');
   } catch (err) { toast(`导入失败：${err.message}`, 'error'); }
 }
 
@@ -4034,7 +4045,7 @@ async function importAllHistory(input) {
 }
 
 // 处理拖放或选择的文件
-function handleDroppedFile(file) {
+async function handleDroppedFile(file) {
   const fileName = file.name.toLowerCase();
   if (!fileName.endsWith('.txt') && !fileName.endsWith('.json')) {
     toast('仅支持 .txt 和 .json 格式文件', 'error');
@@ -4042,7 +4053,7 @@ function handleDroppedFile(file) {
   }
 
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     try {
       const data = JSON.parse(e.target.result);
 
@@ -4050,13 +4061,24 @@ function handleDroppedFile(file) {
       if (Array.isArray(data)) {
         // 批量历史
         if (!confirm(`导入 ${data.length} 条历史记录？将合并到现有历史。`)) return;
-        importHistoryArray(data);
+        await importHistoryArray(data);
       } else if (data.expId || data.reagents || data.steps) {
-        // 单个实验
-        if (!confirm(`导入实验 ${data.expId || '?'} 的数据？`)) return;
-        loadState(data);
-        switchPage('formula');
-        toast('数据已导入', 'success');
+        // 单个实验 - 直接存入数据库
+        if (!data.expId) { toast('数据缺少实验编号', 'error'); return; }
+        if (!confirm(`导入实验 ${data.expId} 的数据到数据库？`)) return;
+        // 数据迁移：将导入数据中类型为'chain'的EDA自动转换为'amine'类型
+        if (Array.isArray(data.reagents)) {
+          data.reagents = data.reagents.map(r => {
+            if (r.name === 'EDA' && r.type === 'chain') {
+              return { ...r, type: 'amine' };
+            }
+            return r;
+          });
+        }
+        data.savedAt = new Date().toISOString();
+        await WPU_DB.set('history', data.expId, data);
+        await loadHistory();
+        toast(`实验 ${data.expId} 已导入数据库`, 'success');
       } else {
         toast('无法识别的文件格式', 'error');
       }
@@ -4076,24 +4098,48 @@ async function importHistoryArray(data) {
 
   for (const entry of data) {
     if (entry.expId && !existIds.has(entry.expId)) {
+      // 数据迁移：将导入数据中类型为'chain'的EDA自动转换为'amine'类型
+      if (Array.isArray(entry.reagents)) {
+        entry.reagents = entry.reagents.map(r => {
+          if (r.name === 'EDA' && r.type === 'chain') {
+            return { ...r, type: 'amine' };
+          }
+          return r;
+        });
+      }
+      entry.savedAt = new Date().toISOString();
       await WPU_DB.set('history', entry.expId, entry);
       existIds.add(entry.expId);
       added++;
     }
   }
 
-  await loadHistoryData();
+  await loadHistory();
   toast(`已导入 ${added} 条记录`, 'success');
 }
 
-function importJSON(input) {
+async function importJSON(input) {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     try {
       const state = JSON.parse(e.target.result);
-      if (!confirm(`导入实验 ${state.expId || '?'} 的数据？`)) return;
-      loadState(state); switchPage('formula'); toast('数据已导入', 'success');
+      if (!state.expId) { toast('数据缺少实验编号', 'error'); return; }
+      if (!confirm(`导入实验 ${state.expId} 的数据到数据库？`)) return;
+      // 数据迁移：将导入数据中类型为'chain'的EDA自动转换为'amine'类型
+      if (Array.isArray(state.reagents)) {
+        state.reagents = state.reagents.map(r => {
+          if (r.name === 'EDA' && r.type === 'chain') {
+            return { ...r, type: 'amine' };
+          }
+          return r;
+        });
+      }
+      state.savedAt = new Date().toISOString();
+      await WPU_DB.set('history', state.expId, state);
+      await loadHistory();
+      input.value = '';
+      toast(`实验 ${state.expId} 已导入数据库`, 'success');
     } catch { toast('JSON 格式错误', 'error'); }
   };
   reader.readAsText(file);
